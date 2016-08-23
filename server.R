@@ -1,65 +1,146 @@
+library(tools)
 library(mlr)
+library(readr)
+
+source("server_helpers.R")
 
 # By default, the file size limit is 5MB. It can be changed by
 # setting this option. Here we'll raise limit to 9MB.
 options(shiny.maxRequestSize = 9*1024^2)
 
 shinyServer(function(input, output) {
-  data = reactive(
-    if(is.null(input$file1))
-      return(NULL)
+    
+  # input$file1 will be NULL initially. after user selection a df with cols:
+  # 'size', 'type', and 'datapath'
+  
+  ##### data import #####
+
+  data = reactive({
+    f = input$import.file$datapath
+    # if (is.null(f)) return(NULL)
+    # FIXME: quickinit / remove later
+    if (is.null(f)) f = "~/Desktop/iris.csv"
+    rn = as.numeric(input$import.rownames)
+    read.csv(f, header = input$import.header, sep = input$import.sep,
+      quote = input$import.quote, row.names = rn)
+  })
+  
+  output$import.preview = renderDataTable({
+    d = data(); if (is.null(d)) return(NULL)
+    d
+  })
+  
+  ##### data summary #####
+  
+  output$summary.datatable = renderDataTable({
+    d = data(); if (is.null(d)) return(NULL)
+    summarizeColumns(d)
+  })
+  
+  ##### task #####
+  
+  output$task.id = renderUI({
+    id = file_path_sans_ext(input$import.file$name)
+    # FIXME: quickinit / remove later
+    id = "iris"
+    textInput("task.id", "Task ID", value = id)
+  })
+  
+  output$task.target = renderUI({
+    selectInput("task.target", "Choose a target:", as.list(colnames(data())))
+  })
+  
+  task = reactive({
+    d = data() 
+    if (is.null(d)) return(NULL)
+    sMakeTask(input, d)
+  })
+
+  output$task.overview = renderPrint({
+    tt = task(); if (is.null(tt)) return(NULL)
+    print(tt)
+  })
+  
+  ##### benchmark #####
+  
+  learners = reactive({
+    tt = task(); if (is.null(tt)) return(NULL)
+    # FIXME: create function makeLearners("classif", c("rpart", "randomForest"))? 
+    if (tt$task.desc$type == "classif")
+      learners = c("classif.rpart", "classif.randomForest")
     else
-      read.csv(input$file1$datapath, header=input$header, sep=input$sep,
-                           quote=input$quote)
+      learners = c("regr.rpart", "regr.randomForest")
+    learners = lapply(learners, makeLearner)
+    # FIXME: benchmark should accept char vec?
+    # FIXME: getLearnerID function seems missing
+    lids = extractSubList(learners, "id")
+    setNames(learners, lids)
+  })
+  
+  rdesc = reactive({
+    makeResampleDesc(input$benchmark.rdesctype, iters = input$benchmark.iters)
+  })
+  
+  measures.avail = reactive({
+    tt = task(); if (is.null(tt)) return(NULL)
+    ms = listMeasures(tt, create = TRUE)
+    return(ms)
+  })
+  
+  output$benchmark.measures.sel = renderUI({
+    ms = measures.avail(); if (is.null(ms)) return(NULL)
+    ms.ids = extractSubList(ms, "id")
+    selectInput("benchmark.measures.sel", "Measures", choices = ms.ids, multiple = TRUE)
+  })
+  
+  bmr = eventReactive(input$benchmark.run, {
+    tt = task(); if (is.null(tt)) return(NULL)
+    ms = measures.avail()
+    ms = ms[input$benchmark.measures.sel]
+    lrns = learners()
+    rd = rdesc()
+  
+    withCallingHandlers({
+      benchmark(lrns, tt, rd, measures = ms, show.info = TRUE)
+    },
+    message = function(m) {
+      shinyjs::html(id = "benchmark.text", html = m$message, add = FALSE)
+    })
+  })
+
+  output$benchmark.overview = renderDataTable({
+    b = bmr(); if (is.null(b)) return(NULL)
+    getBMRAggrPerformances(b, as.df = TRUE)
+  })
+  
+  ##### benchmark plots #####
+  
+  output$bmrplots = renderPlot({
+    b = bmr(); if (is.null(b)) return(NULL)
+    plotfun = switch(input$bmrplots.type,
+      Beanplots = function(b) plotBMRBoxplots(b, style = "violin"),
+      Boxplots = plotBMRBoxplots,
+      Ranks = plotBMRSummary
     )
-
-  output$contents = renderTable({
-
-    # input$file1 will be NULL initially. After the user selects
-    # and uploads a file, it will be a data frame with 'name',
-    # 'size', 'type', and 'datapath' columns. The 'datapath'
-    # column will contain the local filenames where the data can
-    # be found.
-
-    inFile = data()
-    if (is.null(inFile))
-      return(NULL)
-    else
-      head(inFile)
+    plotfun(b)
   })
   
-  output$lrns = renderUI({
-    selectInput("lrn", "Choose a learner:", as.list(substr(listLearners("classif", properties = "multiclass")$class, 9, 100))) 
-  })
-
-  output$lrnText = renderText({input$lrn})
-  output$lrnText2 = renderText({input$lrn})
+  ##### partial dependency #####
   
-  output$target = renderUI({
-    selectInput("target", "Choose a target:", as.list(colnames(data())))
+  output$partialdep.learner = renderUI({
+    lrns = learners(); if (is.null(lrns)) return(NULL)
+    lids = names(lrns)
+    selectInput("partialdep.learner", "Choose a model:", choices = lids)
   })
   
-  output$trainText = eventReactive(input$train, {
-    "Model was trained!"
+  output$partialdep.feature = renderUI({
+    selectInput("partialdep.feature", "Choose a feature:", getTaskFeatureNames(task()))
   })
   
-  
-  #  model = eventReactive(input$train, {
-  #     lrn = makeLearner(paste0("classif.", input$lrn))
-  #     task = makeClassifTask(data = data(), target = input$target)
-  #      train(lrn, task)
-  # })
-  
-  output$resampleText = eventReactive(input$resample, {
-    "Resampling was executed!"
+  output$partialdep.plot = renderPlot({
+    tt = task(); if (is.null(tt)) return(NULL)
+    lrns = learners()
+    sPlotPartialDep(input, tt, lrns)
   })
-  
-  output$resamplePrint = eventReactive(input$resample, {
-    lrn = makeLearner(paste0("classif.", input$lrn))
-    task = makeClassifTask(data = data(), target = input$target)
-    rdesc = makeResampleDesc("CV", iters = 2)
-    as.numeric(resample(lrn, task, resampling = rdesc)$aggr)
-  })
-  
-  })
+})
 

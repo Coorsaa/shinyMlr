@@ -1,72 +1,36 @@
  
-
+source("ui_tabpanel_import.R")
+source("ui_tabpanel_summary.R")
+source("ui_tabpanel_task.R")
+source("ui_tabpanel_benchmark.R")
+source("ui_tabpanel_bmrplots.R")
+source("ui_tabpanel_partialdep.R")
 
 shinyUI(fluidPage(
-  
-  #titlePanel("shinyMlr", img(src="mlrLogo_blue_141x64.png")),
-fluidRow(
-  column(2, img(src="mlrLogo_blue_141x64.png")),
-  column(10, h2("Integration of the",  a("mlr", 
-                                         href = "https://github.com/mlr-org/mlr"), "package into shiny", align = "center")
-  )
-),
-  
-fluidRow(
-  column(12,
-         tabsetPanel(type = "tabs", 
-                     tabPanel("Load", 
-                              sidebarPanel(
-                                fileInput('file1', 'Choose CSV File',
-                                          accept=c('text/csv', 
-                                                   'text/comma-separated-values,text/plain', 
-                                                   '.csv')),
-                                tags$hr(),
-                                checkboxInput('header', 'Header', TRUE),
-                                radioButtons('sep', 'Separator',
-                                             c(Comma=',',
-                                               Semicolon=';',
-                                               Tab='\t'),
-                                             ','),
-                                radioButtons('quote', 'Quote',
-                                             c(None='',
-                                               'Double Quote'='"',
-                                               'Single Quote'="'"),
-                                             '"')
-                              ),
-                              mainPanel(tableOutput('contents'))),
-                     tabPanel("Preprocessing", 
-                              fluidRow(
-                                column(2, "Wrapper steps1"),
-                                column(3, uiOutput("lrns")),
-                                column(3, uiOutput("target"))
-                              )),
-                     tabPanel("Training", 
-                              "Chosen model:", textOutput("lrnText"),
-                              column(3,
-                                     actionButton("train", label = "Train")),
-                              column(3,
-                                     br(),
-                                     textOutput("trainText")
-                              )
-                              ),
-                     tabPanel("Prediction", "Choose a dataset"),
-                     tabPanel("Resample", 
-                              fluidRow("Chosen model:", 
-                              textOutput("lrnText2"),
-                              column(3,
-                                     actionButton("resample", label = "Resample")),
-                              column(3,
-                                     br(),
-                                     textOutput("resampleText")
-                              )),
-                              br(),
-                              "Result (mmce):",  textOutput("resamplePrint")
-                     )
-                
-         )
+    shinyjs::useShinyjs(),
+
+    #titlePanel("shinyMlr", img(src="mlrLogo_blue_141x64.png")),
+    fluidRow(
+      column(2, img(src="mlrLogo_blue_141x64.png")),
+      column(10, align = "center", 
+        h2("Integration of the",  a("mlr", href = "https://github.com/mlr-org/mlr"), "package into shiny")
+        )
+      ),
+
+    fluidRow(
+      column(12, 
+        tabsetPanel(type = "tabs", 
+          tabpanel.import, 
+          tabpanel.summary, 
+          tabpanel.task, 
+          tabpanel.benchmark,
+          tabpanel.bmrplots,
+          tabpanel.partialdep
+        )
+      )
+    )
   )
 )
-))
 
 
 # shinyUI(fluidPage(
