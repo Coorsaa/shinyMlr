@@ -1,5 +1,6 @@
 tabpanel.benchmark = tabPanel("Benchmark", 
   sidebarPanel(
+    uiOutput("benchmark.learners.sel"),
     uiOutput("benchmark.measures.sel"),
     selectInput("benchmark.rdesctype", label = "Resampling", selected = "CV", 
       choices = c("CV", "Subsample", "Bootstrap")),

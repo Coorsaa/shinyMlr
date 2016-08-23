@@ -1,6 +1,7 @@
 library(tools)
 library(mlr)
 library(readr)
+library(BBmisc)
 
 source("server_helpers.R")
 
@@ -58,7 +59,8 @@ shinyServer(function(input, output) {
   })
   
   output$task.target = renderUI({
-    selectInput("task.target", "Choose a target:", as.list(colnames(data())))
+    choices = as.list(colnames(data()))
+    selectInput("task.target", "Choose a target:", choices = choices, selected = getLast(choices))
   })
   
   task = reactive({
@@ -74,18 +76,21 @@ shinyServer(function(input, output) {
   
   ##### benchmark #####
   
-  learners = reactive({
+  learners.avail = reactive({
     tt = task(); if (is.null(tt)) return(NULL)
-    # FIXME: create function makeLearners("classif", c("rpart", "randomForest"))? 
-    if (tt$task.desc$type == "classif")
-      learners = c("classif.rpart", "classif.randomForest")
-    else
-      learners = c("regr.rpart", "regr.randomForest")
-    learners = lapply(learners, makeLearner)
-    # FIXME: benchmark should accept char vec?
-    # FIXME: getLearnerID function seems missing
-    lids = extractSubList(learners, "id")
-    setNames(learners, lids)
+    ls = listLearners(tt)
+    return(ls)
+  })
+  
+  output$benchmark.learners.sel = renderUI({
+    ls = learners.avail(); if (is.null(ls)) return(NULL)
+    ls.ids = ls$class
+    selectInput("benchmark.learners.sel", "Learners", choices = ls.ids, multiple = TRUE, selected = sample(ls.ids, 3))
+  })
+  
+  learners = reactive({
+    res = lapply(input$benchmark.learners.sel, makeLearner)
+    setNames(res, input$benchmark.learners.sel)
   })
   
   rdesc = reactive({
@@ -94,20 +99,22 @@ shinyServer(function(input, output) {
   
   measures.avail = reactive({
     tt = task(); if (is.null(tt)) return(NULL)
-    ms = listMeasures(tt, create = TRUE)
-    return(ms)
+    listMeasures(tt, create = FALSE)
   })
   
   output$benchmark.measures.sel = renderUI({
     ms = measures.avail(); if (is.null(ms)) return(NULL)
-    ms.ids = extractSubList(ms, "id")
-    selectInput("benchmark.measures.sel", "Measures", choices = ms.ids, multiple = TRUE)
+    selectInput("benchmark.measures.sel", "Measures", choices = ms, multiple = TRUE)
+  })
+  
+  measures = reactive({
+    tt = task(); if (is.null(tt)) return(NULL)
+    listMeasures(tt, create = TRUE)[input$benchmark.measures.sel]
   })
   
   bmr = eventReactive(input$benchmark.run, {
     tt = task(); if (is.null(tt)) return(NULL)
-    ms = measures.avail()
-    ms = ms[input$benchmark.measures.sel]
+    ms = measures()
     lrns = learners()
     rd = rdesc()
   
@@ -135,6 +142,31 @@ shinyServer(function(input, output) {
     )
     plotfun(b)
   })
+  
+  ##### prediction plot ####
+  
+  output$predictionplot.learner.sel = renderUI({
+    lrns = learners(); if (is.null(lrns)) return(NULL)
+    lids = names(lrns)
+    selectInput("predictionplot.learner.sel", "Choose a learner:", choices = lids)
+  })
+  
+  output$predictionplot.x.sel = renderUI({
+    tt = task(); if (is.null(tt)) return(NULL)
+    fnames = getTaskFeatureNames(tt)
+    selectInput("predictionplot.x.sel", "Select two variables:", choices = fnames, multiple = TRUE)
+  })
+  
+  output$predictionplot = renderPlot({
+    feats = input$predictionplot.x.sel
+    lrn = input$predictionplot.learner.sel
+    ms = getFirst(measures())
+    if (length(feats) %in% 1:2) {
+      plotLearnerPrediction(learner = lrn, task = task(), features = feats, measures = ms, cv = 0)
+    }
+  })
+
+  
   
   ##### partial dependency #####
   

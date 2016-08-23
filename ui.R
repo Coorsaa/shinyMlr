@@ -4,6 +4,7 @@ source("ui_tabpanel_summary.R")
 source("ui_tabpanel_task.R")
 source("ui_tabpanel_benchmark.R")
 source("ui_tabpanel_bmrplots.R")
+source("ui_tabpanel_predictionplot.R")
 source("ui_tabpanel_partialdep.R")
 
 shinyUI(fluidPage(
@@ -25,6 +26,7 @@ shinyUI(fluidPage(
           tabpanel.task, 
           tabpanel.benchmark,
           tabpanel.bmrplots,
+          tabpanel.predictionplot,
           tabpanel.partialdep
         )
       )
