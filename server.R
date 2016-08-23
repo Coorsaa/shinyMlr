@@ -14,15 +14,26 @@ shinyServer(function(input, output) {
   # 'size', 'type', and 'datapath'
   
   ##### data import #####
+  
+  output$import.ui = renderUI({
+    type = input$import.type; 
+    if (is.null(type)) 
+      type = "mlr"
+    makeImportSideBar(type)
+  })
 
   data = reactive({
-    f = input$import.file$datapath
-    # if (is.null(f)) return(NULL)
-    # FIXME: quickinit / remove later
-    if (is.null(f)) f = "~/Desktop/iris.csv"
-    rn = as.numeric(input$import.rownames)
-    read.csv(f, header = input$import.header, sep = input$import.sep,
-      quote = input$import.quote, row.names = rn)
+    if (is.null(input$import.type)) {
+      return(NULL)
+    } else if (input$import.type == "mlr") {
+      return(getTaskData(get(input$import.mlr)))
+    } else if (input$import.type == "CSV") {
+      f = input$import.file$datapath
+      if (is.null(f)) return(NULL)
+      rn = as.numeric(input$import.rownames)
+      read.csv(f, header = input$import.header, sep = input$import.sep,
+        quote = input$import.quote, row.names = rn)
+    }
   })
   
   output$import.preview = renderDataTable({
