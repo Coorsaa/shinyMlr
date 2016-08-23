@@ -37,7 +37,7 @@ makeImportSideBar = function(type) {
       ),
     mlr = sidebarPanel(
       imptype.sel.input,
-      selectInput("import.mlr", "Choose toy task", choices = c("iris.task", "bh.task"))
+      selectInput("import.mlr", "Choose toy task", choices = c("iris.task", "bh.task", "sonar.task"))
     )
   )
 }
