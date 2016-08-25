@@ -31,16 +31,17 @@ shinyServer(function(input, output) {
     } else if (input$import.type == "CSV") {
       f = input$import.file$datapath
       if (is.null(f)) return(NULL)
-      rn = as.numeric(input$import.rownames)
+      #rn = as.numeric(input$import.rownames)
       read.csv(f, header = input$import.header, sep = input$import.sep,
-        quote = input$import.quote, row.names = rn)
+        quote = input$import.quote) #, row.names = rn)
     }
   })
   
   output$import.preview = renderDataTable({
     d = data(); if (is.null(d)) return(NULL)
     d
-  })
+  }, options = list(lengthMenu = c(5, 30, 50), pageLength = 5)
+)
   
   ##### data summary #####
   
@@ -82,10 +83,17 @@ shinyServer(function(input, output) {
     return(ls)
   })
   
+  learners.default = reactive({
+    tt = getTaskType(task()); if (is.null(tt)) return(NULL)
+    switch(tt, 
+           classif =  c("classif.randomForest", "classif.svm", "classif.rpart"),
+           regr = c("regr.randomForest", "regr.svm", "regr.rpart"))
+  })
+  
   output$benchmark.learners.sel = renderUI({
     ls = learners.avail(); if (is.null(ls)) return(NULL)
     ls.ids = ls$class
-    selectInput("benchmark.learners.sel", "Learners", choices = ls.ids, multiple = TRUE, selected = sample(ls.ids, 3))
+    selectInput("benchmark.learners.sel", "Learners", choices = ls.ids, multiple = TRUE, selected = learners.default())
   })
   
   learners = reactive({
@@ -102,9 +110,16 @@ shinyServer(function(input, output) {
     listMeasures(tt, create = FALSE)
   })
   
+  measures.default = reactive({
+    tt = getTaskType(task()); if (is.null(tt)) return(NULL)
+    switch(tt, 
+           classif = "acc",
+           regr = "mse")
+  })
+  
   output$benchmark.measures.sel = renderUI({
     ms = measures.avail(); if (is.null(ms)) return(NULL)
-    selectInput("benchmark.measures.sel", "Measures", choices = ms, multiple = TRUE)
+    selectInput("benchmark.measures.sel", "Measures", choices = ms, multiple = TRUE, selected = measures.default())
   })
   
   measures = reactive({

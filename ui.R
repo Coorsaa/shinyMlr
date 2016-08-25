@@ -18,21 +18,36 @@ shinyUI(fluidPage(
         )
       ),
 
-    fluidRow(
-      column(12, 
-        tabsetPanel(type = "tabs", 
+    navbarPage("", 
           tabpanel.import, 
           tabpanel.summary, 
           tabpanel.task, 
           tabpanel.benchmark,
+          navbarMenu("Visualisations",
           tabpanel.bmrplots,
           tabpanel.predictionplot,
           tabpanel.partialdep
+          )
         )
-      )
-    )
   )
 )
+
+
+# fluidRow(
+#   column(12, 
+#          tabsetPanel(type = "tabs", 
+#                      tabpanel.import, 
+#                      tabpanel.summary, 
+#                      tabpanel.task, 
+#                      tabpanel.benchmark,
+#                      tabpanel.bmrplots,
+#                      tabpanel.predictionplot,
+#                      tabpanel.partialdep
+#          )
+# 
+# 
+
+
 
 
 # shinyUI(fluidPage(

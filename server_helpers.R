@@ -32,8 +32,8 @@ makeImportSideBar = function(type) {
       radioButtons("import.sep", "Separator",
         c(Comma=",", Semicolon=";", Tab="\t"), ","),
       selectInput("import.quote", "Quote", selected = '"',
-        choices = c(None="", "Double Quote"='"', "Single Quote"="'")),
-      textInput("import.rownames", "Row Names", 1)
+        choices = c(None="", "Double Quote"='"', "Single Quote"="'"))#,
+#      textInput("import.rownames", "Row Names", NULL)
       ),
     mlr = sidebarPanel(
       imptype.sel.input,
