@@ -10,7 +10,7 @@ source("server_helpers.R")
 options(shiny.maxRequestSize = 9*1024^2)
 
 shinyServer(function(input, output) {
-    
+  
   # input$file1 will be NULL initially. after user selection a df with cols:
   # 'size', 'type', and 'datapath'
   
@@ -22,7 +22,7 @@ shinyServer(function(input, output) {
       type = "mlr"
     makeImportSideBar(type)
   })
-
+  
   data = reactive({
     if (is.null(input$import.type)) {
       return(NULL)
@@ -41,7 +41,7 @@ shinyServer(function(input, output) {
     d = data(); if (is.null(d)) return(NULL)
     d
   }, options = list(lengthMenu = c(5, 30, 50), pageLength = 5)
-)
+  )
   
   ##### data summary #####
   
@@ -69,7 +69,7 @@ shinyServer(function(input, output) {
     if (is.null(d)) return(NULL)
     sMakeTask(input, d)
   })
-
+  
   output$task.overview = renderPrint({
     tt = task(); if (is.null(tt)) return(NULL)
     print(tt)
@@ -86,8 +86,8 @@ shinyServer(function(input, output) {
   learners.default = reactive({
     tt = getTaskType(task()); if (is.null(tt)) return(NULL)
     switch(tt, 
-           classif =  c("classif.randomForest", "classif.svm", "classif.rpart"),
-           regr = c("regr.randomForest", "regr.svm", "regr.rpart"))
+      classif =  c("classif.randomForest", "classif.svm", "classif.rpart"),
+      regr = c("regr.randomForest", "regr.svm", "regr.rpart"))
   })
   
   output$benchmark.learners.sel = renderUI({
@@ -113,8 +113,8 @@ shinyServer(function(input, output) {
   measures.default = reactive({
     tt = getTaskType(task()); if (is.null(tt)) return(NULL)
     switch(tt, 
-           classif = "acc",
-           regr = "mse")
+      classif = "acc",
+      regr = "mse")
   })
   
   output$benchmark.measures.sel = renderUI({
@@ -132,15 +132,15 @@ shinyServer(function(input, output) {
     ms = measures()
     lrns = learners()
     rd = rdesc()
-  
+    
     withCallingHandlers({
       benchmark(lrns, tt, rd, measures = ms, show.info = TRUE)
     },
-    message = function(m) {
-      shinyjs::html(id = "benchmark.text", html = m$message, add = FALSE)
-    })
+      message = function(m) {
+        shinyjs::html(id = "benchmark.text", html = m$message, add = FALSE)
+      })
   })
-
+  
   output$benchmark.overview = renderDataTable({
     b = bmr(); if (is.null(b)) return(NULL)
     getBMRAggrPerformances(b, as.df = TRUE)
@@ -180,8 +180,6 @@ shinyServer(function(input, output) {
       plotLearnerPrediction(learner = lrn, task = task(), features = feats, measures = ms, cv = 0)
     }
   })
-
-  
   
   ##### partial dependency #####
   
@@ -200,5 +198,92 @@ shinyServer(function(input, output) {
     lrns = learners()
     sPlotPartialDep(input, tt, lrns)
   })
+  
+  #### train and predict ####
+  
+  output$train.learner.sel = renderUI({
+    ls = learners.avail(); if (is.null(ls)) return(NULL)
+    ls.ids = ls$class
+    selectInput("train.learner.sel", "Select a learner", choices = ls.ids, multiple = FALSE, selected = learners.default()[1])
+  })
+  
+  trn = eventReactive(input$train.run, {
+    tt = task(); if (is.null(tt)) return(NULL)
+    lrn = makeLearner(input$train.learner.sel)
+    train(lrn, tt)
+  })
+  
+  output$train.overview = renderPrint({
+    b = trn(); if (is.null(b)) return(NULL)
+    ifelse(!is.null(b), return("Model was successfully trained"), return(NULL))
+  })
+  
+  ##### prediction data import #####
+  
+  output$import.pred.ui = renderUI({
+    type = input$import.pred.type; 
+    if (is.null(type)) 
+      type = "mlr"
+    makeImportPredSideBar(type)
+  })
+  
+  data.pred = reactive({
+    if (is.null(input$import.pred.type)) {
+      return(NULL)
+    } else if (input$import.pred.type == "mlr") {
+      return(getTaskData(get(input$import.pred.mlr)))
+    } else if (input$import.pred.type == "NewData") {
+      f = input$import.pred.file$datapath
+      if (is.null(f)) return(NULL)
+      #rn = as.numeric(input$import.rownames)
+      read.csv(f, header = input$import.pred.header, sep = input$import.pred.sep,
+        quote = input$import.pred.quote) #, row.names = rn)
+    }
+  })
+  
+  output$import.pred.preview = renderDataTable({
+    d = data.pred(); if (is.null(d)) return(NULL)
+    d
+  }, options = list(lengthMenu = c(5, 30, 50), pageLength = 5)
+  )
+  
+  ##### predict on new data #####
+  
+  pred = eventReactive(input$predict.run, {
+    model = trn()
+    newdata = data.pred()
+    predict(model, newdata = newdata)
+  })
+  
+  output$pred.overview = renderDataTable({
+    p = pred(); if (is.null(p)) return(NULL)
+    p$data
+  }, options = list(lengthMenu = c(5, 30, 50), pageLength = 5)
+  )
+  
+  #### performance on the test data ####
+  
+  output$perf.measures.sel = renderUI({
+    ms = measures.avail(); if (is.null(ms)) return(NULL)
+    selectInput("perf.measures.sel", "Choose performance measures", choices = ms, multiple = TRUE, selected = measures.default())
+  })
+  
+  measures.perf = reactive({
+    tt = task(); if (is.null(tt)) return(NULL)
+    listMeasures(tt, create = TRUE)[input$perf.measures.sel]
+  })
+  
+  perf = eventReactive(input$performance.run, {
+    p = pred(); if (is.null(p)) return(NULL)
+    ms = measures.perf()
+    performance(p, measures = ms)
+  })
+  
+  output$performance.overview = renderDataTable({
+    p = perf(); if (is.null(p)) return(NULL)
+    as.data.frame(t(p))
+  })
+  
 })
+
 

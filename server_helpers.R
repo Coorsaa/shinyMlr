@@ -33,8 +33,8 @@ makeImportSideBar = function(type) {
         c(Comma=",", Semicolon=";", Tab="\t"), ","),
       selectInput("import.quote", "Quote", selected = '"',
         choices = c(None="", "Double Quote"='"', "Single Quote"="'"))#,
-#      textInput("import.rownames", "Row Names", NULL)
-      ),
+      #      textInput("import.rownames", "Row Names", NULL)
+    ),
     mlr = sidebarPanel(
       imptype.sel.input,
       selectInput("import.mlr", "Choose toy task", choices = c("iris.task", "bh.task", "sonar.task"))
@@ -42,3 +42,26 @@ makeImportSideBar = function(type) {
   )
 }
 
+makeImportPredSideBar = function(type) {
+  imptype.sel.input = selectInput("import.pred.type", "Type", selected = type, choices = c("mlr", "NewData"))
+  switch(type, 
+    NewData = sidebarPanel(
+      h3("Choose training data!"),
+      imptype.sel.input,
+      fileInput("import.pred.file", "Choose CSV File",
+        accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv")),
+      tags$hr(),
+      checkboxInput("import.pred.header", "Header", TRUE),
+      radioButtons("import.pred.sep", "Separator",
+        c(Comma=",", Semicolon=";", Tab="\t"), ","),
+      selectInput("import.pred.quote", "Quote", selected = '"',
+        choices = c(None="", "Double Quote"='"', "Single Quote"="'"))#,
+      #      textInput("import.rownames", "Row Names", NULL)
+    ),
+    mlr = sidebarPanel(
+      h3("Choose training data!"),
+      imptype.sel.input,
+      selectInput("import.pred.mlr", "Choose toy task", choices = c("iris.task", "bh.task", "sonar.task"))
+    )
+  )
+}

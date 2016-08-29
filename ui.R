@@ -6,6 +6,7 @@ source("ui_tabpanel_benchmark.R")
 source("ui_tabpanel_bmrplots.R")
 source("ui_tabpanel_predictionplot.R")
 source("ui_tabpanel_partialdep.R")
+source("ui_tabpanel_train_and_predict.R")
 
 shinyUI(fluidPage(
     shinyjs::useShinyjs(),
@@ -27,27 +28,15 @@ shinyUI(fluidPage(
           tabpanel.bmrplots,
           tabpanel.predictionplot,
           tabpanel.partialdep
+          ),
+          navbarMenu("Train and Predict",
+                     tabpanel.train,
+                     tabpanel.predict,
+                     tabpanel.performance
           )
         )
   )
 )
-
-
-# fluidRow(
-#   column(12, 
-#          tabsetPanel(type = "tabs", 
-#                      tabpanel.import, 
-#                      tabpanel.summary, 
-#                      tabpanel.task, 
-#                      tabpanel.benchmark,
-#                      tabpanel.bmrplots,
-#                      tabpanel.predictionplot,
-#                      tabpanel.partialdep
-#          )
-# 
-# 
-
-
 
 
 # shinyUI(fluidPage(
