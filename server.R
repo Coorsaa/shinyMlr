@@ -40,7 +40,7 @@ shinyServer(function(input, output) {
   output$import.preview = renderDataTable({
     d = data(); if (is.null(d)) return(NULL)
     d
-  }, options = list(lengthMenu = c(5, 30, 50), pageLength = 5)
+  }, options = list(lengthMenu = c(5, 20, 50), pageLength = 5)
   )
   
   ##### data summary #####
@@ -48,7 +48,8 @@ shinyServer(function(input, output) {
   output$summary.datatable = renderDataTable({
     d = data(); if (is.null(d)) return(NULL)
     summarizeColumns(d)
-  })
+  }, options = list(lengthMenu = c(5, 20, 50), pageLength = 5)
+  )
   
   ##### task #####
   
@@ -79,7 +80,11 @@ shinyServer(function(input, output) {
   
   learners.avail = reactive({
     tt = task(); if (is.null(tt)) return(NULL)
-    ls = listLearners(tt)
+    if (getTaskType(tt) == "classif") {
+      ls = listLearners(tt, properties = "prob") 
+    } else {
+      ls = listLearners(tt)
+    }
     return(ls)
   })
   
@@ -97,7 +102,14 @@ shinyServer(function(input, output) {
   })
   
   learners = reactive({
-    res = lapply(input$benchmark.learners.sel, makeLearner)
+    res = list()
+    for (i in 1:length(input$benchmark.learners.sel)) {
+      if (hasLearnerProperties(input$benchmark.learners.sel[i], props = "prob"))
+        res[[i]] = makeLearner(input$benchmark.learners.sel[i], predict.type = "prob")
+      else {
+        res[[i]] = makeLearner(input$benchmark.learners.sel[i])
+      }
+    }
     setNames(res, input$benchmark.learners.sel)
   })
   
@@ -144,7 +156,8 @@ shinyServer(function(input, output) {
   output$benchmark.overview = renderDataTable({
     b = bmr(); if (is.null(b)) return(NULL)
     getBMRAggrPerformances(b, as.df = TRUE)
-  })
+  }, options = list(lengthMenu = c(10, 20), pageLength = 10)
+  )
   
   ##### benchmark plots #####
   
@@ -201,17 +214,53 @@ shinyServer(function(input, output) {
   
   #### train and predict ####
   
+  output$train.prob.sel = renderUI({
+    tt = getTaskType(task()); if (is.null(tt)) return(NULL)
+    if (tt == "classif")
+      selectInput("train.prob.sel", "Probability estimation:", choices = c("Yes", "No"), multiple = FALSE, selected = "No")
+  })
+  
+  learners.train.avail = reactive({
+    tt = task(); if (is.null(tt)) return(NULL)
+    if (is.null(input$train.prob.sel)) {
+      probs.dec = "No"
+    } else {
+      probs.dec = input$train.prob.sel
+    }
+    if (probs.dec == "Yes" && getTaskType(tt) == "classif") {
+      ls = listLearners(tt, properties = "prob")
+    } else {
+      ls = listLearners(tt)
+    }
+    return(ls)
+  })
+  
   output$train.learner.sel = renderUI({
-    ls = learners.avail(); if (is.null(ls)) return(NULL)
+    ls = learners.train.avail(); if (is.null(ls)) return(NULL)
     ls.ids = ls$class
     selectInput("train.learner.sel", "Select a learner", choices = ls.ids, multiple = FALSE, selected = learners.default()[1])
   })
   
   trn = eventReactive(input$train.run, {
     tt = task(); if (is.null(tt)) return(NULL)
-    lrn = makeLearner(input$train.learner.sel)
+    par.vals = eval(parse(text=input$hypparslist))
+    
+    if (input$train.prob.sel == "Yes" && getTaskType(tt) == "classif") {
+      lrn = makeLearner(input$train.learner.sel, predict.type = "prob", par.vals = par.vals)
+    }
+    else {
+      lrn = makeLearner(input$train.learner.sel, par.vals = par.vals)
+    }
     train(lrn, tt)
   })
+  
+
+  
+  getParamSet(makeLearner("classif.randomForest"))
+  lrn = makeLearner("classif.randomForest")
+  setHyperPars(lrn, par.vals = list(ntree = 100))
+  
+  
   
   output$train.overview = renderPrint({
     b = trn(); if (is.null(b)) return(NULL)
@@ -263,8 +312,24 @@ shinyServer(function(input, output) {
   
   #### performance on the test data ####
   
+  measures.train.avail = reactive({
+    tt = task(); if (is.null(tt)) return(NULL)
+    if (is.null(input$train.prob.sel)) {
+      probs.dec = "No"
+    } else {
+      probs.dec = input$train.prob.sel
+    }
+    if (probs.dec == "Yes") {
+      ls = listMeasures(tt)
+    } else {
+      prob.subset =  listMeasures(tt) %in% listMeasures(tt, properties = "req.prob")
+      ls = listMeasures(tt)[!prob.subset]
+    }
+    return(ls)
+  })
+  
   output$perf.measures.sel = renderUI({
-    ms = measures.avail(); if (is.null(ms)) return(NULL)
+    ms = measures.train.avail(); if (is.null(ms)) return(NULL)
     selectInput("perf.measures.sel", "Choose performance measures", choices = ms, multiple = TRUE, selected = measures.default())
   })
   
@@ -275,15 +340,15 @@ shinyServer(function(input, output) {
   
   perf = eventReactive(input$performance.run, {
     p = pred(); if (is.null(p)) return(NULL)
+    model = trn()
     ms = measures.perf()
-    performance(p, measures = ms)
+    performance(p, measures = ms, model = model)
   })
   
-  output$performance.overview = renderDataTable({
+  output$performance.overview = renderTable({
     p = perf(); if (is.null(p)) return(NULL)
-    as.data.frame(t(p))
+    data.frame(t(p), row.names = "")
   })
-  
 })
 
 

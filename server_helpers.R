@@ -46,7 +46,7 @@ makeImportPredSideBar = function(type) {
   imptype.sel.input = selectInput("import.pred.type", "Type", selected = type, choices = c("mlr", "NewData"))
   switch(type, 
     NewData = sidebarPanel(
-      h3("Choose training data!"),
+      h3("Choose prediction data!"),
       imptype.sel.input,
       fileInput("import.pred.file", "Choose CSV File",
         accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv")),
@@ -59,7 +59,7 @@ makeImportPredSideBar = function(type) {
       #      textInput("import.rownames", "Row Names", NULL)
     ),
     mlr = sidebarPanel(
-      h3("Choose training data!"),
+      h3("Choose prediction data!"),
       imptype.sel.input,
       selectInput("import.pred.mlr", "Choose toy task", choices = c("iris.task", "bh.task", "sonar.task"))
     )

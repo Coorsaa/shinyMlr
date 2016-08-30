@@ -1,8 +1,13 @@
 tabpanel.train = tabPanel("Train", 
-  titlePanel("Training"),
+  titlePanel("Train"),
   fluidRow(
+    uiOutput("train.prob.sel"),
     uiOutput("train.learner.sel"),
-    "Set hyperpars of the learner",
+    checkboxInput("hyppars", "Set hyperparameters of the learner manually"),
+    conditionalPanel(
+      condition = "input.hyppars == true",
+      textInput("hypparslist", "Hyperparameters:", "list()")
+    ),
     br(),
     actionButton("train.run", label = "Train"),
     textOutput("train.overview")
@@ -11,6 +16,7 @@ tabpanel.train = tabPanel("Train",
 
 tabpanel.predict = 
   tabPanel("Predict", 
+    titlePanel("Predict"),
     sidebarLayout(
       uiOutput("import.pred.ui"),
       mainPanel(
@@ -27,8 +33,9 @@ tabpanel.predict =
   ) 
 
 tabpanel.performance = tabPanel("Performance", 
+  titlePanel("Performance"),
   uiOutput("perf.measures.sel"),
   actionButton("performance.run", label = "Measure Performance"),
-  dataTableOutput("performance.overview")
+  tableOutput("performance.overview")
 ) 
 

@@ -14,9 +14,10 @@ shinyUI(fluidPage(
     #titlePanel("shinyMlr", img(src="mlrLogo_blue_141x64.png")),
     fluidRow(
       column(2, img(src="mlrLogo_blue_141x64.png")),
-      column(10, align = "center", 
+      column(8, align = "center", 
         h2("Integration of the",  a("mlr", href = "https://github.com/mlr-org/mlr"), "package into shiny")
-        )
+        ),
+      column(2, img(src=("rabbit.png")))
       ),
 
     navbarPage("", 
