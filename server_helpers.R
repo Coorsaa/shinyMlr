@@ -10,7 +10,7 @@ sMakeTask = function(input, data) {
 }
 
 
-# FIXME: maybe we wnat this as a helper too in mlr directly plot pd plot for one feature??
+# FIXME: maybe we want this as a helper too in mlr directly plot pd plot for one feature??
 sPlotPartialDep = function(input, task, learners) {
   lrn = input$partialdep.learner
   lrn = learners[[lrn]]
