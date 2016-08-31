@@ -15,7 +15,7 @@ shinyUI(
 
     #titlePanel("shinyMlr", img(src="mlrLogo_blue_141x64.png")),
     dashboardHeader(
-      # column(2, img(src = "mlrLogo_blue_141x64.png")),
+      title = span(img(src = "mlrLogo_blue_141x64.png", width = 90))
       # column(10, align = "center", 
         # h2("Integration of the",  a("mlr", href = "https://github.com/mlr-org/mlr"), "package into shiny")
       # )
