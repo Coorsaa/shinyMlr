@@ -1,6 +1,5 @@
-tabpanel.train = tabPanel("Train", 
-  titlePanel("Train"),
-  fluidRow(
+tabpanel.train = list(fluidRow(
+  box(width = 12, align = "center", title = "Train",
     uiOutput("train.prob.sel"),
     uiOutput("train.learner.sel"),
     checkboxInput("hyppars", "Set hyperparameters of the learner manually"),
@@ -9,33 +8,47 @@ tabpanel.train = tabPanel("Train",
       textInput("hypparslist", "Hyperparameters:", "list()")
     ),
     br(),
-    actionButton("train.run", label = "Train"),
-    textOutput("train.overview")
+    actionButton("train.run", label = "Train")
+  )
+  ),
+  fluidRow(
+    box(width = 12, align = "center",
+      textOutput("train.overview")
+    )
   )
 )
 
-tabpanel.predict = 
-  tabPanel("Predict", 
-    titlePanel("Predict"),
-    sidebarLayout(
-      uiOutput("import.pred.ui"),
-      mainPanel(
-        dataTableOutput("import.pred.preview")
-      )),
-    
-    sidebarLayout(
-      sidebarPanel(actionButton("predict.run", label = "Predict"),
-        "Extract Predictions"),
-      mainPanel(
-        dataTableOutput("pred.overview")
-      )
+tabpanel.predict = list(
+  h2("Predict"),
+  fluidRow(
+    box(width = 3,
+      uiOutput("import.pred.ui")
+    ),
+    box(width = 9,
+      dataTableOutput("import.pred.preview")
     )
-  ) 
+  ),
+  fluidRow(
+    box(width = 3,
+      actionButton("predict.run", label = "Predict")
+    ),
+    box(width = 9,
+      dataTableOutput("pred.overview")
+    )
+  )
+)
 
-tabpanel.performance = tabPanel("Performance", 
-  titlePanel("Performance"),
-  uiOutput("perf.measures.sel"),
-  actionButton("performance.run", label = "Measure Performance"),
-  tableOutput("performance.overview")
-) 
+tabpanel.performance = list(
+  fluidRow(
+    box(align = "center", title = "Performance", width = 12,
+      uiOutput("perf.measures.sel"),
+      actionButton("performance.run", label = "Measure Performance")
+    )
+  ),
+  fluidRow(
+    box(width = 12, align = "center",
+      tableOutput("performance.overview")
+    )
+  )
+)
 

@@ -1,11 +1,13 @@
-tabpanel.predictionplot = tabPanel("Prediction Plots", 
-  sidebarPanel(
-    uiOutput("predictionplot.learner.sel"),
-    uiOutput("predictionplot.x.sel")
+tabpanel.predictionplot = list(
+  fluidRow(
+    box(width = 12, align = "center", collapsible = TRUE,
+      uiOutput("predictionplot.learner.sel"),
+      uiOutput("predictionplot.x.sel")
+    )
   ),
-  mainPanel(
-    plotOutput("predictionplot")
+  fluidRow(
+    box(width = 12,
+      plotOutput("predictionplot")
+    )
   )
 )
-
-

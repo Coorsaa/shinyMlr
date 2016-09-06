@@ -40,7 +40,7 @@ shinyServer(function(input, output) {
   output$import.preview = renderDataTable({
     d = data(); if (is.null(d)) return(NULL)
     d
-  }, options = list(lengthMenu = c(5, 20, 50), pageLength = 5)
+  }, options = list(lengthMenu = c(5, 20, 50), pageLength = 5, scrollX = TRUE)
   )
   
   ##### data summary #####
@@ -156,7 +156,8 @@ shinyServer(function(input, output) {
   output$benchmark.overview = renderDataTable({
     b = bmr(); if (is.null(b)) return(NULL)
     getBMRAggrPerformances(b, as.df = TRUE)
-  }, options = list(lengthMenu = c(10, 20), pageLength = 10)
+  }, options = list(lengthMenu = c(10, 20), pageLength = 10,
+    scrollX = TRUE)
   )
   
   ##### benchmark plots #####
