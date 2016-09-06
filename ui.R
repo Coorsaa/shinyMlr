@@ -11,16 +11,14 @@ source("ui_tabpanel_train_and_predict.R")
 
 shinyUI(
   dashboardPage(
-    # shinyjs::useShinyjs(),
-
-    #titlePanel("shinyMlr", img(src="mlrLogo_blue_141x64.png")),
-    dashboardHeader(
-      title = span(img(src = "mlrLogo_blue_141x64.png", width = 90))
-      # column(10, align = "center", 
-        # h2("Integration of the",  a("mlr", href = "https://github.com/mlr-org/mlr"), "package into shiny")
-      # )
+    dashboardHeader(title = "shinyMlr",
+      tags$li(class = "dropdown",
+        tags$a(href = "https://github.com/mlr-org/mlr", target="_blank", 
+          tags$img(height = "19px", alt = "mlr Logo", src = "mlrLogo_blue_141x64.png")
+        )
+      )
     ),
-
+    
     dashboardSidebar(
       sidebarMenu(
         menuItem("Import", tabName = "import", icon = icon("folder-open")),
@@ -35,12 +33,15 @@ shinyUI(
         menuItem("Train and Predict", tabName = "modelling", icon = icon("graduation-cap"),
           collapsible =
             menuSubItem("Train", tabName = "traintab"),
-          menuSubItem("Predict", tabName = "predtab"),
-          menuSubItem("Performance", tabName = "perftab"))
+            menuSubItem("Predict", tabName = "predtab"),
+            menuSubItem("Performance", tabName = "perftab"))
       )
     ),
-        
+    
     dashboardBody(
+      tags$head(
+        tags$link(rel = "stylesheet", type = "text/css", href = "custom.css")
+      ),
       tabItems(
         tabItem(tabName = "import", tabpanel.import),
         tabItem(tabName = "summary", tabpanel.summary),
