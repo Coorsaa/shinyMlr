@@ -1,5 +1,5 @@
-tabpanel.train = list(fluidRow(
-  box(width = 12, align = "center", title = "Train",
+tabpanel.train = fluidRow(
+  box(width = 6, align = "center", title = "Train",
     uiOutput("train.prob.sel"),
     uiOutput("train.learner.sel"),
     checkboxInput("hyppars", "Set hyperparameters of the learner manually"),
@@ -9,12 +9,9 @@ tabpanel.train = list(fluidRow(
     ),
     br(),
     actionButton("train.run", label = "Train")
-  )
   ),
-  fluidRow(
-    box(width = 12, align = "center",
-      textOutput("train.overview")
-    )
+  valueBox(width = 6, subtitle = "",
+    textOutput("train.overview")
   )
 )
 

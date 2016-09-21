@@ -218,7 +218,8 @@ shinyServer(function(input, output) {
   output$train.prob.sel = renderUI({
     tt = getTaskType(task()); if (is.null(tt)) return(NULL)
     if (tt == "classif")
-      selectInput("train.prob.sel", "Probability estimation:", choices = c("Yes", "No"), multiple = FALSE, selected = "No")
+      selectInput("train.prob.sel", "Probability estimation:", choices = c("Yes", "No"),
+        multiple = FALSE, selected = "No", width = 200)
   })
   
   learners.train.avail = reactive({
@@ -239,7 +240,8 @@ shinyServer(function(input, output) {
   output$train.learner.sel = renderUI({
     ls = learners.train.avail(); if (is.null(ls)) return(NULL)
     ls.ids = ls$class
-    selectInput("train.learner.sel", "Select a learner", choices = ls.ids, multiple = FALSE, selected = learners.default()[1])
+    selectInput("train.learner.sel", "Select a learner", choices = ls.ids, multiple = FALSE,
+      selected = learners.default()[1], width = 200)
   })
   
   trn = eventReactive(input$train.run, {
@@ -263,7 +265,7 @@ shinyServer(function(input, output) {
   
   
   
-  output$train.overview = renderPrint({
+  output$train.overview = renderValueBox({
     b = trn(); if (is.null(b)) return(NULL)
     ifelse(!is.null(b), return("Model was successfully trained"), return(NULL))
   })
