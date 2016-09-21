@@ -22,22 +22,30 @@ sPlotPartialDep = function(input, task, learners) {
 
 makeImportSideBar = function(type) {
   imptype.sel.input = selectInput("import.type", "Type", selected = type, choices = c("mlr", "CSV"))
-  switch(type, 
-    CSV = sidebarPanel(
-      imptype.sel.input,
-      fileInput("import.file", "Choose CSV File",
-        accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv")),
-      tags$hr(),
-      checkboxInput("import.header", "Header", TRUE),
-      radioButtons("import.sep", "Separator",
-        c(Comma=",", Semicolon=";", Tab="\t"), ","),
-      selectInput("import.quote", "Quote", selected = '"',
-        choices = c(None="", "Double Quote"='"', "Single Quote"="'"))#,
+  switch(type,
+    CSV = fluidRow(
+      box(width = 4, height = 250,
+        imptype.sel.input,
+        fileInput("import.file", "Choose CSV File",
+          accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv"))
+      ),
+      # tags$hr(),
+      box(width = 8, height = 250,
+        checkboxInput("import.header", "Header", TRUE),
+        selectInput("import.sep", "Separator", selected = ",",
+          choices = c(Comma=",", Semicolon=";", Tab="\t")),
+        selectInput("import.quote", "Quote", selected = '"',
+          choices = c(None="", "Double Quote"='"', "Single Quote"="'"))
+      )#,
       #      textInput("import.rownames", "Row Names", NULL)
     ),
-    mlr = sidebarPanel(
-      imptype.sel.input,
-      selectInput("import.mlr", "Choose toy task", choices = c("iris.task", "bh.task", "sonar.task"))
+    mlr = fluidRow(
+      box(width = 3,
+        imptype.sel.input
+      ),
+      box(width = 9,
+        selectInput("import.mlr", "Choose toy task", choices = c("iris.task", "bh.task", "sonar.task"))
+      )
     )
   )
 }
@@ -45,21 +53,19 @@ makeImportSideBar = function(type) {
 makeImportPredSideBar = function(type) {
   imptype.sel.input = selectInput("import.pred.type", "Type", selected = type, choices = c("mlr", "NewData"))
   switch(type, 
-    NewData = sidebarPanel(
-      h3("Choose prediction data!"),
+    NewData = list(
       imptype.sel.input,
       fileInput("import.pred.file", "Choose CSV File",
         accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv")),
       tags$hr(),
       checkboxInput("import.pred.header", "Header", TRUE),
-      radioButtons("import.pred.sep", "Separator",
-        c(Comma=",", Semicolon=";", Tab="\t"), ","),
+      selectInput("import.pred.sep", "Separator", selected = ",",
+        choices = c(Comma=",", Semicolon=";", Tab="\t")),
       selectInput("import.pred.quote", "Quote", selected = '"',
         choices = c(None="", "Double Quote"='"', "Single Quote"="'"))#,
-      #      textInput("import.rownames", "Row Names", NULL)
+      # textInput("import.rownames", "Row Names", NULL)
     ),
-    mlr = sidebarPanel(
-      h3("Choose prediction data!"),
+    mlr = list(
       imptype.sel.input,
       selectInput("import.pred.mlr", "Choose toy task", choices = c("iris.task", "bh.task", "sonar.task"))
     )

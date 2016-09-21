@@ -1,10 +1,19 @@
-tabpanel.task = tabPanel("Task", 
-  sidebarPanel(
-    uiOutput("task.id"),
-    uiOutput("task.target")
+tabpanel.task = list(fluidRow(
+  box(collapsible = TRUE, width = 12, title = "Task",
+    fluidRow(
+      box(
+        uiOutput("task.id")
+      ),
+      box(
+        uiOutput("task.target")
+      )
+    )
+  )
   ),
-  mainPanel(
-    verbatimTextOutput("task.overview")
+  fluidRow(
+    box(width = 12,
+      verbatimTextOutput("task.overview")
+    )
   )
 )
 
