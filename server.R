@@ -265,9 +265,11 @@ shinyServer(function(input, output) {
   
   
   
-  output$train.overview = renderValueBox({
-    b = trn(); if (is.null(b)) return(NULL)
-    ifelse(!is.null(b), return("Model was successfully trained"), return(NULL))
+  output$train.overview = renderInfoBox({
+    infoBox("", width = 5,
+      ifelse(!is.null(trn()), "Model successfully trained",
+        "Model was not trained yet")
+      )
   })
   
   ##### prediction data import #####
