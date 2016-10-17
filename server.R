@@ -126,6 +126,67 @@ shinyServer(function(input, output) {
     tt = task(); if (is.null(tt)) return(NULL)
     print(tt)
   })
+
+  ##### learners #####
+
+  learners.avail = reactive({
+    tt = task(); if (is.null(tt)) return(NULL)
+    if (getTaskType(tt) == "classif") {
+      ls = listLearners(tt, properties = "prob") 
+    } else {
+      ls = listLearners(tt)
+    }
+    return(ls)
+  })
+  
+  learners.default = reactive({
+    tt = getTaskType(task()); if (is.null(tt)) return(NULL)
+    switch(tt, 
+      classif =  c("classif.randomForest", "classif.svm", "classif.rpart"),
+      regr = c("regr.randomForest", "regr.svm", "regr.rpart"))
+  })
+  
+  output$learners.sel = renderUI({
+    ls = learners.avail(); if (is.null(ls)) return(NULL)
+    ls.ids = ls$class
+    selectInput("learners.sel", "Learners", choices = ls.ids, multiple = TRUE, selected = learners.default())
+  })
+
+  # output$learners.sel.pars = renderUI({
+  #   ls = learners.avail(); if (is.null(ls)) return(NULL)
+  #   for (i in length(input$learners.sel)) {
+  #     par.set = getParamSet(input$learners.sel[i])
+  #     tabPanel(id = "tada",
+  #       "test content"
+  #       #input$learners.sel[i], 
+  #       # dataTableOutput(par.set)
+  #     )
+  #   }
+  # })
+
+  learners = reactive({
+    res = list()
+    for (i in 1:length(input$learners.sel)) {
+      if (hasLearnerProperties(input$learners.sel[i], props = "prob"))
+        res[[i]] = makeLearner(input$learners.sel[i], predict.type = "prob")
+      else {
+        res[[i]] = makeLearner(input$learners.sel[i])
+      }
+    }
+    setNames(res, input$learners.sel)
+  })
+
+  output$learners.sel.par.set = renderUI({
+    ls = learners.avail(); if (is.null(ls)) return(NULL)
+    par.sets = unname(lapply(learners(), getParamSet))
+    learner.names = names(learners())
+    par.set.tabs = mapply(function(par.set, title){
+      pars.tab = renderTable({ParamHelpers:::getParSetPrintData(par.set)},
+        rownames = TRUE)
+      tabPanel(title = title, pars.tab)
+    }, par.sets, learner.names, SIMPLIFY = FALSE)
+    do.call(tabBox, par.set.tabs)
+  })
   
   ##### benchmark #####
   
@@ -152,7 +213,7 @@ shinyServer(function(input, output) {
     selectInput("benchmark.learners.sel", "Learners", choices = ls.ids, multiple = TRUE, selected = learners.default())
   })
   
-  learners = reactive({
+  benchmark.learners = reactive({
     res = list()
     for (i in 1:length(input$benchmark.learners.sel)) {
       if (hasLearnerProperties(input$benchmark.learners.sel[i], props = "prob"))
