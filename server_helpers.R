@@ -42,7 +42,7 @@ makeImportSideBar = function(type) {
     CSV = fluidRow(
       box(width = 4, height = 250,
         imptype.sel.input,
-        fileInput("import.file", "Choose CSV File",
+        fileInput("import.csv", "Choose CSV File",
           accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv"))
       ),
       # tags$hr(),
@@ -58,27 +58,19 @@ makeImportSideBar = function(type) {
     ARFF = fluidRow(
       box(width = 4, height = 250,
         imptype.sel.input,
-        fileInput("import.file", "Choose CSV File",
-          accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv"))
-      ),
-      # tags$hr(),
-      box(width = 8, height = 250,
-        checkboxInput("import.header", "Header", TRUE),
-        selectInput("import.sep", "Separator", selected = ",",
-          choices = c(Comma = ",", Semicolon = ";", Tab = "\t")),
-        selectInput("import.quote", "Quote", selected = '"',
-          choices = c(None = "", "Double Quote" = '"', "Single Quote" = "'"))
+        fileInput("import.arff", "Choose ARFF File",
+          accept = c("text/arff", "text/comma-separated-values,text/plain", ".arff"))
       )
     )
   )
 }
 
 makeImportPredSideBar = function(type) {
-  imptype.sel.input = selectInput("import.pred.type", "Type", selected = type, choices = c("mlr", "NewData", "OpenML"))
+  imptype.sel.input = selectInput("import.pred.type", "Type", selected = type, choices = c("mlr", "NewData", "OpenML", "ARFF"))
   switch(type, 
     NewData = list(
       imptype.sel.input,
-      fileInput("import.pred.file", "Choose CSV File",
+      fileInput("import.pred.csv", "Choose CSV File",
         accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv")),
       tags$hr(),
       checkboxInput("import.pred.header", "Header", TRUE),
@@ -95,6 +87,11 @@ makeImportPredSideBar = function(type) {
     OpenML = list(
       imptype.sel.input,
       numericInput("import.pred.OpenML", "Choose OpenML Task ID", value = 59L)
+    ),
+    ARFF = list(
+      imptype.sel.input,
+      fileInput("import.pred.arff", "Choose ARFF File",
+        accept = c("text/arff", "text/comma-separated-values,text/plain", ".arff"))
     )
   )
 }

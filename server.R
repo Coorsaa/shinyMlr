@@ -34,13 +34,13 @@ shinyServer(function(input, output) {
       t = getOMLTask(task.id = input$import.OpenML)
       return(t$input$data.set$data)
     } else if (input$import.type == "CSV") {
-      f = input$import.file$datapath
+      f = input$import.csv$datapath
       if (is.null(f)) return(NULL)
       #rn = as.numeric(input$import.rownames)
       read.csv(f, header = input$import.header, sep = input$import.sep,
         quote = input$import.quote) #, row.names = rn)
     } else if (input$import.type == "ARFF") {
-      f = input$import.file$datapath
+      f = input$import.arff$datapath
       if (is.null(f)) return(NULL)
       readARFF(f)
     }
@@ -296,7 +296,7 @@ shinyServer(function(input, output) {
     } else if (input$import.pred.type == "mlr") {
       return(getTaskData(get(input$import.pred.mlr)))
     } else if (input$import.pred.type == "NewData") {
-      f = input$import.pred.file$datapath
+      f = input$import.pred.csv$datapath
       if (is.null(f)) return(NULL)
       #rn = as.numeric(input$import.rownames)
       read.csv(f, header = input$import.pred.header, sep = input$import.pred.sep,
@@ -304,6 +304,10 @@ shinyServer(function(input, output) {
     } else if (input$import.pred.type == "OpenML") {
       t = getOMLTask(task.id = input$import.pred.OpenML)
       return(t$input$data.set$data)
+    } else if (input$import.type == "ARFF") {
+      f = input$import.pred.arff$datapath
+      if (is.null(f)) return(NULL)
+      readARFF(f)
     }
   })
   
