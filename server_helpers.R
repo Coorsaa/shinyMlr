@@ -21,7 +21,7 @@ sPlotPartialDep = function(input, task, learners) {
 }
 
 makeImportSideBar = function(type) {
-  imptype.sel.input = selectInput("import.type", "Type", selected = type, choices = c("mlr", "CSV"))
+  imptype.sel.input = selectInput("import.type", "Type", selected = type, choices = c("mlr", "CSV", "OpenML"))
   switch(type,
     CSV = fluidRow(
       box(width = 4, height = 250,
@@ -33,9 +33,9 @@ makeImportSideBar = function(type) {
       box(width = 8, height = 250,
         checkboxInput("import.header", "Header", TRUE),
         selectInput("import.sep", "Separator", selected = ",",
-          choices = c(Comma=",", Semicolon=";", Tab="\t")),
+          choices = c(Comma = ",", Semicolon = ";", Tab = "\t")),
         selectInput("import.quote", "Quote", selected = '"',
-          choices = c(None="", "Double Quote"='"', "Single Quote"="'"))
+          choices = c(None = "", "Double Quote" = '"', "Single Quote" = "'"))
       )#,
       #      textInput("import.rownames", "Row Names", NULL)
     ),
@@ -46,12 +46,20 @@ makeImportSideBar = function(type) {
       box(width = 9,
         selectInput("import.mlr", "Choose toy task", choices = c("iris.task", "bh.task", "sonar.task"))
       )
+    ),
+    OpenML = fluidRow(
+      box(width = 3,
+        imptype.sel.input
+      ),
+      box(width = 9,
+        numericInput("import.OpenML", "Choose OpenML Task ID", value = 59L)
+      )
     )
   )
 }
 
 makeImportPredSideBar = function(type) {
-  imptype.sel.input = selectInput("import.pred.type", "Type", selected = type, choices = c("mlr", "NewData"))
+  imptype.sel.input = selectInput("import.pred.type", "Type", selected = type, choices = c("mlr", "NewData", "OpenML"))
   switch(type, 
     NewData = list(
       imptype.sel.input,
@@ -68,6 +76,10 @@ makeImportPredSideBar = function(type) {
     mlr = list(
       imptype.sel.input,
       selectInput("import.pred.mlr", "Choose toy task", choices = c("iris.task", "bh.task", "sonar.task"))
+    ),
+    OpenML = list(
+      imptype.sel.input,
+      numericInput("import.pred.OpenML", "Choose OpenML Task ID", value = 59L)
     )
   )
 }

@@ -2,6 +2,8 @@ library(tools)
 library(mlr)
 library(readr)
 library(BBmisc)
+library(farff)
+library(OpenML)
 
 source("server_helpers.R")
 
@@ -34,6 +36,9 @@ shinyServer(function(input, output) {
       #rn = as.numeric(input$import.rownames)
       read.csv(f, header = input$import.header, sep = input$import.sep,
         quote = input$import.quote) #, row.names = rn)
+    } else if (input$import.type == "OpenML") {
+      t = getOMLTask(task.id = input$import.OpenML)
+      return(t$input$data.set$data)
     }
   })
   
@@ -292,6 +297,9 @@ shinyServer(function(input, output) {
       #rn = as.numeric(input$import.rownames)
       read.csv(f, header = input$import.pred.header, sep = input$import.pred.sep,
         quote = input$import.pred.quote) #, row.names = rn)
+    } else if (input$import.pred.type == "OpenML") {
+      t = getOMLTask(task.id = input$import.pred.OpenML)
+      return(t$input$data.set$data)
     }
   })
   

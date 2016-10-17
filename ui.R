@@ -13,7 +13,7 @@ shinyUI(
   dashboardPage(
     dashboardHeader(title = "shinyMlr",
       tags$li(class = "dropdown",
-        tags$a(href = "https://github.com/mlr-org/mlr", target="_blank", 
+        tags$a(href = "https://github.com/mlr-org/mlr", target = "_blank", 
           tags$img(height = "19px", alt = "mlr Logo", src = "mlrLogo_blue_141x64.png")
         )
       )
