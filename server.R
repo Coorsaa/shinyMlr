@@ -30,15 +30,19 @@ shinyServer(function(input, output) {
       return(NULL)
     } else if (input$import.type == "mlr") {
       return(getTaskData(get(input$import.mlr)))
+    } else if (input$import.type == "OpenML") {
+      t = getOMLTask(task.id = input$import.OpenML)
+      return(t$input$data.set$data)
     } else if (input$import.type == "CSV") {
       f = input$import.file$datapath
       if (is.null(f)) return(NULL)
       #rn = as.numeric(input$import.rownames)
       read.csv(f, header = input$import.header, sep = input$import.sep,
         quote = input$import.quote) #, row.names = rn)
-    } else if (input$import.type == "OpenML") {
-      t = getOMLTask(task.id = input$import.OpenML)
-      return(t$input$data.set$data)
+    } else if (input$import.type == "ARFF") {
+      f = input$import.file$datapath
+      if (is.null(f)) return(NULL)
+      readARFF(f)
     }
   })
   
