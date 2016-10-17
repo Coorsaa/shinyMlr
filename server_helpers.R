@@ -66,7 +66,7 @@ makeImportSideBar = function(type) {
 }
 
 makeImportPredSideBar = function(type) {
-  imptype.sel.input = selectInput("import.pred.type", "Type", selected = type, choices = c("mlr", "NewData", "OpenML", "ARFF"))
+  imptype.sel.input = selectInput("import.pred.type", "Type", selected = type, choices = c("mlr", "OpenML", "CSV", "ARFF"))
   switch(type, 
     NewData = list(
       imptype.sel.input,
