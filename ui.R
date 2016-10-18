@@ -26,16 +26,16 @@ shinyUI(
         menuItem("Data Summary", tabName = "summary", icon = icon("database")),
         menuItem("Task", tabName = "task", icon = icon("flag")),
         menuItem("Learners", tabName = "learners", icon = icon("cog")),
+        menuItem("Train and Predict", tabName = "modelling", icon = icon("graduation-cap"),
+          menuSubItem("Train", tabName = "traintab"),
+          menuSubItem("Predict", tabName = "predtab"),
+          menuSubItem("Performance", tabName = "perftab")
+        ),
         menuItem("Benchmark", tabName = "benchmark", icon = icon("hourglass-start")),
         menuItem("Visualisations", tabName = "visualisations", icon = icon("bar-chart"),
           menuSubItem("Benchmark Plots", tabName = "bmrplots"),
           menuSubItem("Prediction Plots", tabName = "predplots"),
           menuSubItem("Partial Dep. Plots", tabName = "partdepplots")
-        ),
-        menuItem("Train and Predict", tabName = "modelling", icon = icon("graduation-cap"),
-          menuSubItem("Train", tabName = "traintab"),
-          menuSubItem("Predict", tabName = "predtab"),
-          menuSubItem("Performance", tabName = "perftab")
         )
       )
     ),
