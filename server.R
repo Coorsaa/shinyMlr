@@ -166,11 +166,15 @@ shinyServer(function(input, output) {
 
   learners = reactive({
     res = list()
+    hyppars = paste("input$hypparslist", input$learners.sel, sep = ".")
     for (i in 1:length(input$learners.sel)) {
+      hyppars.vals = eval(parse(text = hyppars[i]))
+      hyppars.vals = eval(parse(text = hyppars.vals))
       if (hasLearnerProperties(input$learners.sel[i], props = "prob"))
-        res[[i]] = makeLearner(input$learners.sel[i], predict.type = "prob")
+        res[[i]] = makeLearner(input$learners.sel[i], predict.type = "prob",
+          par.vals = hyppars.vals)
       else {
-        res[[i]] = makeLearner(input$learners.sel[i])
+        res[[i]] = makeLearner(input$learners.sel[i], par.vals = hyppars.vals)
       }
     }
     setNames(res, input$learners.sel)
@@ -178,14 +182,21 @@ shinyServer(function(input, output) {
 
   output$learners.sel.par.set = renderUI({
     ls = learners.avail(); if (is.null(ls)) return(NULL)
-    par.sets = unname(lapply(learners(), getParamSet))
-    learner.names = names(learners())
-    par.set.tabs = mapply(function(par.set, title){
+    lrns.names = input$learners.sel
+    par.sets = lapply(lrns.names, getParamSet)
+    # FIXME: Tick box for prob estimation
+    learner.tabs = mapply(function(par.set, lrn.name){
       pars.tab = renderTable({ParamHelpers:::getParSetPrintData(par.set)},
         rownames = TRUE)
-      tabPanel(title = title, pars.tab)
-    }, par.sets, learner.names, SIMPLIFY = FALSE)
-    do.call(tabBox, par.set.tabs)
+      pars.sel = textInput(paste("hypparslist", lrn.name, sep = "."),
+        "Hyperparameters:", "list()")
+      tabPanel(title = lrn.name, width = 12,
+        pars.tab,
+        pars.sel
+      )
+    }, par.sets, lrns.names, SIMPLIFY = FALSE)
+
+    do.call(tabBox, learner.tabs)
   })
   
   ##### benchmark #####
