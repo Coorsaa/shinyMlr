@@ -152,18 +152,6 @@ shinyServer(function(input, output) {
     selectInput("learners.sel", "Learners", choices = ls.ids, multiple = TRUE, selected = learners.default())
   })
 
-  # output$learners.sel.pars = renderUI({
-  #   ls = learners.avail(); if (is.null(ls)) return(NULL)
-  #   for (i in length(input$learners.sel)) {
-  #     par.set = getParamSet(input$learners.sel[i])
-  #     tabPanel(id = "tada",
-  #       "test content"
-  #       #input$learners.sel[i], 
-  #       # dataTableOutput(par.set)
-  #     )
-  #   }
-  # })
-
   learners = reactive({
     res = list()
     hyppars = paste("input$hypparslist", input$learners.sel, sep = ".")
@@ -201,41 +189,12 @@ shinyServer(function(input, output) {
   
   ##### benchmark #####
   
-  # learners.avail = reactive({
-  #   tt = task(); if (is.null(tt)) return(NULL)
-  #   if (getTaskType(tt) == "classif") {
-  #     ls = listLearners(tt, properties = "prob") 
-  #   } else {
-  #     ls = listLearners(tt)
-  #   }
-  #   return(ls)
-  # })
-  
-  # learners.default = reactive({
-  #   tt = getTaskType(task()); if (is.null(tt)) return(NULL)
-  #   switch(tt, 
-  #     classif =  c("classif.randomForest", "classif.svm", "classif.rpart"),
-  #     regr = c("regr.randomForest", "regr.svm", "regr.rpart"))
-  # })
-  
   output$benchmark.learners.sel = renderUI({
     ls = learners(); if (is.null(ls)) return(NULL)
     ls.ids = names(ls)
     selectInput("benchmark.learners.sel", "Learners", choices = ls.ids,
       multiple = TRUE, selected = ls.ids)
   })
-  
-  # benchmark.learners = reactive({
-  #   res = list()
-  #   for (i in 1:length(input$benchmark.learners.sel)) {
-  #     if (hasLearnerProperties(input$benchmark.learners.sel[i], props = "prob"))
-  #       res[[i]] = makeLearner(input$benchmark.learners.sel[i], predict.type = "prob")
-  #     else {
-  #       res[[i]] = makeLearner(input$benchmark.learners.sel[i])
-  #     }
-  #   }
-  #   setNames(res, input$benchmark.learners.sel)
-  # })
   
   rdesc = reactive({
     makeResampleDesc(input$benchmark.rdesctype, iters = input$benchmark.iters)
@@ -338,60 +297,24 @@ shinyServer(function(input, output) {
   })
   
   #### train and predict ####
-  
-  output$train.prob.sel = renderUI({
-    tt = getTaskType(task()); if (is.null(tt)) return(NULL)
-    if (tt == "classif")
-      selectInput("train.prob.sel", "Probability estimation:", choices = c("Yes", "No"),
-        multiple = FALSE, selected = "No", width = 200)
-  })
-  
-  learners.train.avail = reactive({
-    tt = task(); if (is.null(tt)) return(NULL)
-    if (is.null(input$train.prob.sel)) {
-      probs.dec = "No"
-    } else {
-      probs.dec = input$train.prob.sel
-    }
-    if (probs.dec == "Yes" && getTaskType(tt) == "classif") {
-      ls = listLearners(tt, properties = "prob")
-    } else {
-      ls = listLearners(tt)
-    }
-    return(ls)
-  })
-  
+
   output$train.learner.sel = renderUI({
-    ls = learners.train.avail(); if (is.null(ls)) return(NULL)
-    ls.ids = ls$class
-    selectInput("train.learner.sel", "Select a learner", choices = ls.ids, multiple = FALSE,
-      selected = learners.default()[1], width = 200)
+    ls = learners(); if (is.null(ls)) return(NULL)
+    ls.ids = names(ls)
+    selectInput("train.learner.sel", "Learners", choices = ls.ids,
+      selected = ls.ids[1L])
   })
   
   trn = eventReactive(input$train.run, {
     tt = task(); if (is.null(tt)) return(NULL)
-    par.vals = eval(parse(text=input$hypparslist))
-    
-    if (input$train.prob.sel == "Yes" && getTaskType(tt) == "classif") {
-      lrn = makeLearner(input$train.learner.sel, predict.type = "prob", par.vals = par.vals)
-    }
-    else {
-      lrn = makeLearner(input$train.learner.sel, par.vals = par.vals)
-    }
+    lrn = learners()[[input$train.learner.sel]]
     train(lrn, tt)
   })
-  
-
-  
-  getParamSet(makeLearner("classif.randomForest"))
-  lrn = makeLearner("classif.randomForest")
-  setHyperPars(lrn, par.vals = list(ntree = 100))
-  
-  
   
   output$train.overview = renderInfoBox({
     infoBox("", width = 5,
       ifelse(!is.null(trn()), "Model successfully trained",
+        #FIXME: if not trained nothing shows
         "Model was not trained yet")
       )
   })
