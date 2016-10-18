@@ -201,40 +201,41 @@ shinyServer(function(input, output) {
   
   ##### benchmark #####
   
-  learners.avail = reactive({
-    tt = task(); if (is.null(tt)) return(NULL)
-    if (getTaskType(tt) == "classif") {
-      ls = listLearners(tt, properties = "prob") 
-    } else {
-      ls = listLearners(tt)
-    }
-    return(ls)
-  })
+  # learners.avail = reactive({
+  #   tt = task(); if (is.null(tt)) return(NULL)
+  #   if (getTaskType(tt) == "classif") {
+  #     ls = listLearners(tt, properties = "prob") 
+  #   } else {
+  #     ls = listLearners(tt)
+  #   }
+  #   return(ls)
+  # })
   
-  learners.default = reactive({
-    tt = getTaskType(task()); if (is.null(tt)) return(NULL)
-    switch(tt, 
-      classif =  c("classif.randomForest", "classif.svm", "classif.rpart"),
-      regr = c("regr.randomForest", "regr.svm", "regr.rpart"))
-  })
+  # learners.default = reactive({
+  #   tt = getTaskType(task()); if (is.null(tt)) return(NULL)
+  #   switch(tt, 
+  #     classif =  c("classif.randomForest", "classif.svm", "classif.rpart"),
+  #     regr = c("regr.randomForest", "regr.svm", "regr.rpart"))
+  # })
   
   output$benchmark.learners.sel = renderUI({
-    ls = learners.avail(); if (is.null(ls)) return(NULL)
-    ls.ids = ls$class
-    selectInput("benchmark.learners.sel", "Learners", choices = ls.ids, multiple = TRUE, selected = learners.default())
+    ls = learners(); if (is.null(ls)) return(NULL)
+    ls.ids = names(ls)
+    selectInput("benchmark.learners.sel", "Learners", choices = ls.ids,
+      multiple = TRUE, selected = ls.ids)
   })
   
-  benchmark.learners = reactive({
-    res = list()
-    for (i in 1:length(input$benchmark.learners.sel)) {
-      if (hasLearnerProperties(input$benchmark.learners.sel[i], props = "prob"))
-        res[[i]] = makeLearner(input$benchmark.learners.sel[i], predict.type = "prob")
-      else {
-        res[[i]] = makeLearner(input$benchmark.learners.sel[i])
-      }
-    }
-    setNames(res, input$benchmark.learners.sel)
-  })
+  # benchmark.learners = reactive({
+  #   res = list()
+  #   for (i in 1:length(input$benchmark.learners.sel)) {
+  #     if (hasLearnerProperties(input$benchmark.learners.sel[i], props = "prob"))
+  #       res[[i]] = makeLearner(input$benchmark.learners.sel[i], predict.type = "prob")
+  #     else {
+  #       res[[i]] = makeLearner(input$benchmark.learners.sel[i])
+  #     }
+  #   }
+  #   setNames(res, input$benchmark.learners.sel)
+  # })
   
   rdesc = reactive({
     makeResampleDesc(input$benchmark.rdesctype, iters = input$benchmark.iters)
@@ -265,7 +266,7 @@ shinyServer(function(input, output) {
   bmr = eventReactive(input$benchmark.run, {
     tt = task(); if (is.null(tt)) return(NULL)
     ms = measures()
-    lrns = learners()
+    lrns = learners()[input$benchmark.learners.sel]
     rd = rdesc()
     
     withCallingHandlers({
