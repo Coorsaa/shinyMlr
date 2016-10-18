@@ -131,12 +131,13 @@ shinyServer(function(input, output) {
 
   learners.avail = reactive({
     tt = task(); if (is.null(tt)) return(NULL)
-    if (getTaskType(tt) == "classif") {
-      ls = listLearners(tt, properties = "prob") 
-    } else {
-      ls = listLearners(tt)
-    }
-    return(ls)
+    # if (getTaskType(tt) == "classif") {
+    #   ls = listLearners(tt, properties = "prob") 
+    # } else {
+    #   ls = listLearners(tt)
+    # }
+    listLearners(tt)
+    # return(ls)
   })
   
   learners.default = reactive({
@@ -153,17 +154,15 @@ shinyServer(function(input, output) {
   })
 
   learners = reactive({
+    # ls = learners.sel(); if (is.null(ls)) return(NULL)
     res = list()
     hyppars = paste("input$hypparslist", input$learners.sel, sep = ".")
+    pred.types = learners.prob.sel()
     for (i in 1:length(input$learners.sel)) {
       hyppars.vals = eval(parse(text = hyppars[i]))
       hyppars.vals = eval(parse(text = hyppars.vals))
-      if (hasLearnerProperties(input$learners.sel[i], props = "prob"))
-        res[[i]] = makeLearner(input$learners.sel[i], predict.type = "prob",
-          par.vals = hyppars.vals)
-      else {
-        res[[i]] = makeLearner(input$learners.sel[i], par.vals = hyppars.vals)
-      }
+      res[[i]] = makeLearner(input$learners.sel[i], predict.type = pred.types[i],
+        par.vals = hyppars.vals)
     }
     setNames(res, input$learners.sel)
   })
@@ -172,19 +171,41 @@ shinyServer(function(input, output) {
     ls = learners.avail(); if (is.null(ls)) return(NULL)
     lrns.names = input$learners.sel
     par.sets = lapply(lrns.names, getParamSet)
-    # FIXME: Tick box for prob estimation
     learner.tabs = mapply(function(par.set, lrn.name){
       pars.tab = renderTable({ParamHelpers:::getParSetPrintData(par.set)},
         rownames = TRUE)
       pars.sel = textInput(paste("hypparslist", lrn.name, sep = "."),
         "Hyperparameters:", "list()")
+      lrn.has.probs = hasLearnerProperties(lrn.name, props = "prob")
       tabPanel(title = lrn.name, width = 12,
         pars.tab,
-        pars.sel
+        pars.sel,
+        if (lrn.has.probs) {
+          selectInput(paste("lrn.prob.sel", lrn.name, sep = "."),
+            "Probability estimation:", choices = c("Yes", "No"),
+            multiple = FALSE, selected = "Yes", width = 200
+          )
+        } else {
+          NULL
+        }
       )
     }, par.sets, lrns.names, SIMPLIFY = FALSE)
 
     do.call(tabBox, learner.tabs)
+  })
+
+  learners.prob.sel = reactive({
+    lrns = input$learners.sel; if (is.null(ls)) return(NULL)
+    lrns.prob.sel = vcapply(lrns, function(lrn) {
+      prob.sel = paste("input$lrn.prob.sel", lrn, sep = ".")
+      if (is.null(prob.sel)) {
+        "No"
+      }
+      else {
+        eval(parse(text = prob.sel))
+      }
+    })
+    ifelse(lrns.prob.sel == "Yes", "prob", "response")
   })
   
   ##### benchmark #####
