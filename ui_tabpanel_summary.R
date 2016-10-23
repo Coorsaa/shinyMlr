@@ -3,8 +3,14 @@ tabpanel.summary = fluidRow(
     dataTableOutput("summary.datatable")
   ),
   box(width = 12, title = "Data Visualization",
-    dataTableOutput("summary.plots")
+    fluidRow(
+      column(6,
+        uiOutput("summary.plots.var")),
+      column(6,
+        uiOutput("summary.plots.nbins"))
+    )
+  ),
+  box(width = 12,
+    plotOutput("summary.plots")
   )
 )
-
-

@@ -59,13 +59,22 @@ shinyServer(function(input, output) {
   
   output$summary.plots.var = renderUI({
     choices = as.list(colnames(data()))
-    selectInput("summary.plots.var", "Choose a variable:", choices = choices, selected = getLast(choices))
+    selectInput("summary.plots.var", "Choose a variable:", choices = choices, selected = getLast(choices), width = "80%")
   })
   
-  output$summary.plots = reactive({
+  output$summary.plots.nbins = renderUI({
+    sliderInput("summary.plots.nbins", "Number of bins", min = 1L, max = 30L, value = 10L, step = 1L, width = "80%")
+  })
+
+  histo = reactive({
     d = data() 
     if (is.null(d)) return(NULL)
     sPlotHist(input, d)
+  })
+  
+  
+  output$summary.plots = renderPlot({
+    histo
     # d = data(); if (is.null(d)) return(NULL)
     # colnames(d) = make.names(colnames(d))
     # hist(d[summary.plots.var])
