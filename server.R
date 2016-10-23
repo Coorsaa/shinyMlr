@@ -57,22 +57,21 @@ shinyServer(function(input, output) {
   )
   
   
-  output$summary.plots.var = renderUI({
+  output$summary.vis.hist.var = renderUI({
     choices = as.list(colnames(data()))
-    selectInput("summary.plots.var", "Choose a variable:", choices = choices, selected = getLast(choices), width = "80%")
+    selectInput("summary.vis.hist.var", "Choose a variable:", choices = choices, selected = getLast(choices), width = "95%")
   })
   
-  output$summary.plots.nbins = renderUI({
-    sliderInput("summary.plots.nbins", "Number of bins", min = 1L, max = 100L, value = 30L, step = 1L, width = "80%")
+  output$summary.vis.hist.nbins = renderUI({
+    sliderInput("summary.vis.hist.nbins", "Number of bins", min = 1L, max = 100L, value = 30L, step = 1L, width = "95%")
   })
 
-  output$summary.plots = renderPlot({
+  output$summary.vis.hist = renderPlot({
     d = data() 
     if (is.null(d)) return(NULL)
-      ggplot(data = d, aes(x = as.numeric(d[,input$summary.plots.var]))) + 
-      geom_histogram(aes(y = ..density..), stat = "bin", bins = input$summary.plots.nbins) + 
-      geom_density()
-    # hist(x = as.numeric(d[,input$summary.plots.var]), breaks = input$summary.plots.nbins)
+      ggplot(data = d, aes(x = as.numeric(d[,input$summary.vis.hist.var]))) + 
+      geom_histogram(aes(y = ..density..), stat = "bin", bins = input$summary.vis.hist.nbins) + 
+      geom_density() + xlab(input$summary.vis.hist.var)
    })    
 
   
