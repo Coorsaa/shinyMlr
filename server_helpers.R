@@ -1,9 +1,3 @@
-sPlotHist = function(input, data) {
-  pv = input$summary.plots.var
-  y = data[, pv]
-  hist(y, breaks = summary.plots.nbins)
-}
-
 # FIXME: mlr: create makeAutoTask or whatever depending on target? 
 sMakeTask = function(input, data) {
   id = input$task.id

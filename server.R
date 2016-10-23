@@ -63,23 +63,18 @@ shinyServer(function(input, output) {
   })
   
   output$summary.plots.nbins = renderUI({
-    sliderInput("summary.plots.nbins", "Number of bins", min = 1L, max = 30L, value = 10L, step = 1L, width = "80%")
+    sliderInput("summary.plots.nbins", "Number of bins", min = 1L, max = 100L, value = 30L, step = 1L, width = "80%")
   })
 
-  histo = reactive({
+  output$summary.plots = renderPlot({
     d = data() 
     if (is.null(d)) return(NULL)
-    sPlotHist(input, d)
-  })
-  
-  
-  output$summary.plots = renderPlot({
-    histo
-    # d = data(); if (is.null(d)) return(NULL)
-    # colnames(d) = make.names(colnames(d))
-    # hist(d[summary.plots.var])
-    # ggplot(data = d, aes(x = input$summary.plots.var)) + geom_bar()
-  })
+      ggplot(data = d, aes(x = as.numeric(d[,input$summary.plots.var]))) + 
+      geom_histogram(aes(y = ..density..), stat = "bin", bins = input$summary.plots.nbins) + 
+      geom_density()
+    # hist(x = as.numeric(d[,input$summary.plots.var]), breaks = input$summary.plots.nbins)
+   })    
+
   
   ##### task #####
   

@@ -7,10 +7,8 @@ tabpanel.summary = fluidRow(
       column(6,
         uiOutput("summary.plots.var")),
       column(6,
-        uiOutput("summary.plots.nbins"))
+        uiOutput("summary.plots.nbins")),
+      plotOutput("summary.plots")
     )
-  ),
-  box(width = 12,
-    plotOutput("summary.plots")
   )
 )
