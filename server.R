@@ -56,6 +56,22 @@ shinyServer(function(input, output) {
   }, options = list(lengthMenu = c(5, 20, 50), pageLength = 5)
   )
   
+  
+  output$summary.plots.var = renderUI({
+    choices = as.list(colnames(data()))
+    selectInput("summary.plots.var", "Choose a variable:", choices = choices, selected = getLast(choices))
+  })
+  
+  output$summary.plots = reactive({
+    d = data() 
+    if (is.null(d)) return(NULL)
+    sPlotHist(input, d)
+    # d = data(); if (is.null(d)) return(NULL)
+    # colnames(d) = make.names(colnames(d))
+    # hist(d[summary.plots.var])
+    # ggplot(data = d, aes(x = input$summary.plots.var)) + geom_bar()
+  })
+  
   ##### task #####
   
   output$task.id = renderUI({
