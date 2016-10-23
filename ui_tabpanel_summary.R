@@ -13,14 +13,13 @@ tabpanel.summary = fluidRow(
       )
     ),
     tabPanel(title = "Boxplot",
-      "Tab 2"
-      # fluidRow(
-      #   column(4,
-      #     uiOutput("summary.plots.var")),
-      #   column(8,
-      #     uiOutput("summary.plots.nbins")),
-      #   plotOutput("summary.plots")
-      # )
+      fluidRow(
+        column(4,
+          uiOutput("summary.vis.bp.var")),
+        column(8,
+          ""),
+        plotOutput("summary.vis.bp")
+      )
     )
   )
 )
