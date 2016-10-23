@@ -55,6 +55,11 @@ shinyServer(function(input, output) {
   }, options = list(lengthMenu = c(5, 20, 50), pageLength = 5, scrollX = TRUE)
   )
   
+
+  output$import.browse.openml = renderDataTable({
+      listOMLDataSets()[,1:11]
+  })
+  
   ##### data summary #####
   
   output$summary.datatable = renderDataTable({
