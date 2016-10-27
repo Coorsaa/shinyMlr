@@ -3,6 +3,7 @@ library(shinydashboard)
 source("ui_tabpanel_import.R")
 source("ui_tabpanel_summary.R")
 source("ui_tabpanel_task.R")
+source("ui_tabpanel_learners.R")
 source("ui_tabpanel_benchmark.R")
 source("ui_tabpanel_bmrplots.R")
 source("ui_tabpanel_predictionplot.R")
@@ -24,16 +25,17 @@ shinyUI(
         menuItem("Import", tabName = "import", icon = icon("folder-open")),
         menuItem("Data Summary", tabName = "summary", icon = icon("database")),
         menuItem("Task", tabName = "task", icon = icon("flag")),
+        menuItem("Learners", tabName = "learners", icon = icon("cog")),
+        menuItem("Train and Predict", tabName = "modelling", icon = icon("graduation-cap"),
+          menuSubItem("Train", tabName = "traintab"),
+          menuSubItem("Predict", tabName = "predtab"),
+          menuSubItem("Performance", tabName = "perftab")
+        ),
         menuItem("Benchmark", tabName = "benchmark", icon = icon("hourglass-start")),
         menuItem("Visualisations", tabName = "visualisations", icon = icon("bar-chart"),
           menuSubItem("Benchmark Plots", tabName = "bmrplots"),
           menuSubItem("Prediction Plots", tabName = "predplots"),
           menuSubItem("Partial Dep. Plots", tabName = "partdepplots")
-        ),
-        menuItem("Train and Predict", tabName = "modelling", icon = icon("graduation-cap"),
-          menuSubItem("Train", tabName = "traintab"),
-          menuSubItem("Predict", tabName = "predtab"),
-          menuSubItem("Performance", tabName = "perftab")
         )
       )
     ),
@@ -46,6 +48,7 @@ shinyUI(
         tabItem(tabName = "import", tabpanel.import),
         tabItem(tabName = "summary", tabpanel.summary),
         tabItem(tabName = "task", tabpanel.task),
+        tabItem(tabName = "learners", tabpanel.learners),
         tabItem(tabName = "benchmark", tabpanel.benchmark),
         tabItem(tabName = "bmrplots", tabpanel.bmrplots),
         tabItem(tabName = "predplots", tabpanel.predictionplot),

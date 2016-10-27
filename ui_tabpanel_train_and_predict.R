@@ -1,17 +1,11 @@
 tabpanel.train = fluidRow(
   box(width = 7, align = "center", title = "Train",
-    uiOutput("train.prob.sel"),
     uiOutput("train.learner.sel"),
-    checkboxInput("hyppars", "Set hyperparameters of the learner manually"),
-    conditionalPanel(
-      condition = "input.hyppars == true",
-      textInput("hypparslist", "Hyperparameters:", "list()")
-    ),
     br(),
     actionButton("train.run", label = "Train")
   ),
   box(width = 5,
-  infoBoxOutput("train.overview")
+    infoBoxOutput("train.overview")
   )
 )
 

@@ -1,12 +1,10 @@
 # FIXME: mlr: create makeAutoTask or whatever depending on target? 
-sMakeTask = function(input, data) {
-  id = input$task.id
-  tn = input$task.target
-  y = data[,tn]
+sMakeTask = function(id, target, data) {
+  y = data[, target]
   if (is.numeric(y))
-    makeRegrTask(id = id, data = data, target = tn)
+    makeRegrTask(id = id, data = data, target = target)
   else if (is.factor(y))
-    makeClassifTask(id = id, data = data, target = tn)
+    makeClassifTask(id = id, data = data, target = target)
 }
 
 
@@ -95,3 +93,31 @@ makeImportPredSideBar = function(type) {
     )
   )
 }
+
+makeLearnerConstructionUI = function(lrns) {
+    lrns.names = lrns
+    par.sets = lapply(lrns.names, getParamSet)
+    lrn.tabs = mapply(function (par.set, lrn.name) {
+      pars.tab = renderTable({ParamHelpers:::getParSetPrintData(par.set)},
+        rownames = TRUE)
+      pars.sel = textInput(paste("hypparslist", lrn.name, sep = "."),
+        "Hyperparameters:", "list()")
+      lrn.has.probs = hasLearnerProperties(lrn.name, props = "prob")
+      tabPanel(title = lrn.name, width = 12,
+        pars.tab,
+        pars.sel,
+        if (lrn.has.probs) {
+          selectInput(paste("lrn.prob.sel", lrn.name, sep = "."),
+            "Probability estimation:", choices = c("Yes", "No"),
+            multiple = FALSE, selected = "Yes", width = 200
+          )
+        } else {
+          NULL
+        }
+      )
+    }, par.sets, lrns.names, SIMPLIFY = FALSE)
+
+    do.call(tabBox, c(lrn.tabs, width = 12))
+}
+
+

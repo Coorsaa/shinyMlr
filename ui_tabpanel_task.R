@@ -7,6 +7,11 @@ tabpanel.task = list(fluidRow(
       box(
         uiOutput("task.target")
       )
+    ),
+    fluidRow(
+      div(align = "center",
+        actionButton("create.task", "create task")
+      )
     )
   )
   ),
