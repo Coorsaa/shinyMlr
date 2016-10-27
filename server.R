@@ -4,6 +4,7 @@ library(readr)
 library(BBmisc)
 library(farff)
 library(OpenML)
+library(ggplot2)
 
 source("server_helpers.R")
 
