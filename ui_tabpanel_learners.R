@@ -1,20 +1,17 @@
-tabpanel.learners = list(fluidRow(
-  box(title = "Choose learners", width = 12, collapsible = TRUE,
-    div(align = "center",
-      uiOutput("learners.sel"),
-      actionButton("learners.choose", "choose learners")
-    )
-  )),
+tabpanel.learners = list(
   fluidRow(
-    box(title = "Set hyperparameters", width = 12,
-      uiOutput("learners.sel.par.set")
+    box(title = "Choose learners", width = 12, collapsible = TRUE,
+      div(align = "center",
+        uiOutput("learners.sel"),
+        uiOutput("learners.choose")
+      )
     )
   ),
   fluidRow(
-    box(width = 12,
-      div(align = "center",
-        actionButton("learners.constr", "construct learners")
-      )
+    box(title = "Set hyperparameters", width = 12,
+      uiOutput("learners.sel.par.set"),
+      div(align = "center", uiOutput("learners.constr"))
+      # uiOutput("learners.constr")
     )
   )
 )

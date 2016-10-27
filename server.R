@@ -121,31 +121,22 @@ shinyServer(function(input, output) {
     colnames(d) = make.names(colnames(d)) 
     sMakeTask(input$task.id, input$task.target, d)
   })
-
-  # observeEvent(task(), {
-  #   print(task())
-  # })
   
   output$task.overview = renderPrint({
-    tt = task(); if (is.null(tt)) return(NULL)
+    validate(need(input$create.task != 0L, "you didn't create a task yet"))
+    tt = task()# ; if (is.null(tt)) return(NULL)
     print(tt)
   })
 
   ##### learners #####
 
   learners.avail = reactive({
-    tt = task(); if (is.null(tt)) return(NULL)
-    # if (getTaskType(tt) == "classif") {
-    #   ls = listLearners(tt, properties = "prob") 
-    # } else {
-    #   ls = listLearners(tt)
-    # }
+    tt = task()# ; if (is.null(tt)) return(NULL)
     listLearners(tt)
-    # return(ls)
   })
   
   learners.default = reactive({
-    tt = getTaskType(task()); if (is.null(tt)) return(NULL)
+    tt = getTaskType(task())# ; if (is.null(tt)) return(NULL)
     switch(tt, 
       classif =  c("classif.randomForest", "classif.svm", "classif.rpart"),
       regr = c("regr.randomForest", "regr.svm", "regr.rpart"))
@@ -158,58 +149,46 @@ shinyServer(function(input, output) {
       selected = learners.default())
   })
 
+  output$learners.choose = renderUI({
+    validate(need(input$create.task != 0L, "create task to list suitable learners"))
+    actionButton("learners.choose", "choose learners")
+  })
+
   output$learners.sel.par.set = renderUI({
-    if (input$learners.choose == 0L)
-      return(NULL)
+    # validate(need(input$create.task != 0L, "create task to list suitable learners"))
+    # if (input$learners.choose == 0L)
+    #   return(NULL)
 
     input$learners.choose
     
-    # ls = learners.avail(); if (is.null(ls)) return(NULL)
-    lrns.names = isolate({input$learners.sel})
-    par.sets = lapply(lrns.names, getParamSet)
-    learner.tabs = mapply(function (par.set, lrn.name) {
-      pars.tab = renderTable({ParamHelpers:::getParSetPrintData(par.set)},
-        rownames = TRUE)
-      pars.sel = textInput(paste("hypparslist", lrn.name, sep = "."),
-        "Hyperparameters:", "list()")
-      lrn.has.probs = hasLearnerProperties(lrn.name, props = "prob")
-      tabPanel(title = lrn.name, width = 12,
-        pars.tab,
-        pars.sel,
-        if (lrn.has.probs) {
-          selectInput(paste("lrn.prob.sel", lrn.name, sep = "."),
-            "Probability estimation:", choices = c("Yes", "No"),
-            multiple = FALSE, selected = "Yes", width = 200
-          )
-        } else {
-          NULL
-        }
-      )
-    }, par.sets, lrns.names, SIMPLIFY = FALSE)
-
-    do.call(tabBox, c(learner.tabs, width = 12))
+    lrns.sel = isolate({input$learners.sel})
+    makeLearnerConstructionUI(lrns.sel)
   })
 
-  learners.prob.sel = eventReactive(input$learners.choose, {
+  learners.pred.types = eventReactive(input$learners.choose, {
     lrns = isolate({input$learners.sel}); if (is.null(ls)) return(NULL)
-    lrns.prob.sel = vcapply(lrns, function(lrn) {
-      prob.sel = paste("input$lrn.prob.sel", lrn, sep = ".")
-      # pred.type = eval(parse(text = prob.sel))
-      if (exists(prob.sel)) {
-        eval(parse(text = prob.sel))
+    lrns.pred.types = vcapply(lrns, function(lrn) {
+      pred.type = paste("input$lrn.prob.sel", lrn, sep = ".")
+      if (exists(pred.type)) {
+        eval(parse(text = pred.type))
       }
       else {
         "response"
       }
     })
-    lrns.prob.sel
+    lrns.pred.types
+  })
+
+  output$learners.constr = renderUI({
+    validate(need(input$learners.choose != 0L, "choose learners first to construct them"))
+    actionButton("learners.constr", "construct learners")
   })
 
   learners = eventReactive(input$learners.constr, {    
     res = list()
     lrns.sel = isolate({input$learners.sel})
     hyppars = paste("input$hypparslist", lrns.sel, sep = ".")
-    pred.types = isolate({learners.prob.sel()})
+    pred.types = isolate({learners.pred.types()})
     for (i in 1:length(lrns.sel)) {
       hyppars.vals = eval(parse(text = hyppars[i]))
       hyppars.vals = eval(parse(text = hyppars.vals))
@@ -217,10 +196,6 @@ shinyServer(function(input, output) {
         par.vals = hyppars.vals)
     }
     setNames(res, lrns.sel)
-  })
-
-  observeEvent(learners(), {
-    print(learners())
   })
 
   #### train and predict ####
