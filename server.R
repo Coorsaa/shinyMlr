@@ -104,7 +104,7 @@ shinyServer(function(input, output) {
   ##### task #####
   
   output$task.id = renderUI({
-    id = file_path_sans_ext(input$import.file$name)
+    # id = file_path_sans_ext(input$import.file$name)
     # FIXME: quickinit / remove later
     id = "iris"
     textInput("task.id", "Task ID", value = id)
@@ -115,12 +115,16 @@ shinyServer(function(input, output) {
     selectInput("task.target", "Choose a target:", choices = choices, selected = getLast(choices))
   })
   
-  task = reactive({
-    d = data() 
+  task = eventReactive(input$create.task, {
+    d = isolate({data()})
     if (is.null(d)) return(NULL)
     colnames(d) = make.names(colnames(d)) 
-    sMakeTask(input, d)
+    sMakeTask(input$task.id, input$task.target, d)
   })
+
+  # observeEvent(task(), {
+  #   print(task())
+  # })
   
   output$task.overview = renderPrint({
     tt = task(); if (is.null(tt)) return(NULL)
@@ -150,28 +154,20 @@ shinyServer(function(input, output) {
   output$learners.sel = renderUI({
     ls = learners.avail(); if (is.null(ls)) return(NULL)
     ls.ids = ls$class
-    selectInput("learners.sel", "Learners", choices = ls.ids, multiple = TRUE, selected = learners.default())
-  })
-
-  learners = reactive({
-    # ls = learners.sel(); if (is.null(ls)) return(NULL)
-    res = list()
-    hyppars = paste("input$hypparslist", input$learners.sel, sep = ".")
-    pred.types = learners.prob.sel()
-    for (i in 1:length(input$learners.sel)) {
-      hyppars.vals = eval(parse(text = hyppars[i]))
-      hyppars.vals = eval(parse(text = hyppars.vals))
-      res[[i]] = makeLearner(input$learners.sel[i], predict.type = pred.types[i],
-        par.vals = hyppars.vals)
-    }
-    setNames(res, input$learners.sel)
+    selectInput("learners.sel", "", choices = ls.ids, multiple = TRUE,
+      selected = learners.default())
   })
 
   output$learners.sel.par.set = renderUI({
-    ls = learners.avail(); if (is.null(ls)) return(NULL)
-    lrns.names = input$learners.sel
+    if (input$learners.choose == 0L)
+      return(NULL)
+
+    input$learners.choose
+    
+    # ls = learners.avail(); if (is.null(ls)) return(NULL)
+    lrns.names = isolate({input$learners.sel})
     par.sets = lapply(lrns.names, getParamSet)
-    learner.tabs = mapply(function(par.set, lrn.name){
+    learner.tabs = mapply(function (par.set, lrn.name) {
       pars.tab = renderTable({ParamHelpers:::getParSetPrintData(par.set)},
         rownames = TRUE)
       pars.sel = textInput(paste("hypparslist", lrn.name, sep = "."),
@@ -191,21 +187,40 @@ shinyServer(function(input, output) {
       )
     }, par.sets, lrns.names, SIMPLIFY = FALSE)
 
-    do.call(tabBox, learner.tabs)
+    do.call(tabBox, c(learner.tabs, width = 12))
   })
 
-  learners.prob.sel = reactive({
-    lrns = input$learners.sel; if (is.null(ls)) return(NULL)
+  learners.prob.sel = eventReactive(input$learners.choose, {
+    lrns = isolate({input$learners.sel}); if (is.null(ls)) return(NULL)
     lrns.prob.sel = vcapply(lrns, function(lrn) {
       prob.sel = paste("input$lrn.prob.sel", lrn, sep = ".")
-      if (is.null(prob.sel)) {
-        "No"
-      }
-      else {
+      # pred.type = eval(parse(text = prob.sel))
+      if (exists(prob.sel)) {
         eval(parse(text = prob.sel))
       }
+      else {
+        "response"
+      }
     })
-    ifelse(lrns.prob.sel == "Yes", "prob", "response")
+    lrns.prob.sel
+  })
+
+  learners = eventReactive(input$learners.constr, {    
+    res = list()
+    lrns.sel = isolate({input$learners.sel})
+    hyppars = paste("input$hypparslist", lrns.sel, sep = ".")
+    pred.types = isolate({learners.prob.sel()})
+    for (i in 1:length(lrns.sel)) {
+      hyppars.vals = eval(parse(text = hyppars[i]))
+      hyppars.vals = eval(parse(text = hyppars.vals))
+      res[[i]] = makeLearner(lrns.sel[i], predict.type = pred.types[i],
+        par.vals = hyppars.vals)
+    }
+    setNames(res, lrns.sel)
+  })
+
+  observeEvent(learners(), {
+    print(learners())
   })
 
   #### train and predict ####
@@ -213,13 +228,13 @@ shinyServer(function(input, output) {
   output$train.learner.sel = renderUI({
     ls = learners(); if (is.null(ls)) return(NULL)
     ls.ids = names(ls)
-    selectInput("train.learner.sel", "Learners", choices = ls.ids,
-      selected = ls.ids[1L])
+    selectInput("train.learner.sel", "Learners", choices = ls.ids)
   })
   
   trn = eventReactive(input$train.run, {
-    tt = task(); if (is.null(tt)) return(NULL)
-    lrn = learners()[[input$train.learner.sel]]
+    tt = isolate({task()}); if (is.null(tt)) return(NULL)
+    lrns = isolate({learners()})
+    lrn = lrns[[isolate({input$train.learner.sel})]]
     train(lrn, tt)
   })
   

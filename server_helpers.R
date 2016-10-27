@@ -1,12 +1,10 @@
 # FIXME: mlr: create makeAutoTask or whatever depending on target? 
-sMakeTask = function(input, data) {
-  id = input$task.id
-  tn = input$task.target
-  y = data[,tn]
+sMakeTask = function(id, target, data) {
+  y = data[, target]
   if (is.numeric(y))
-    makeRegrTask(id = id, data = data, target = tn)
+    makeRegrTask(id = id, data = data, target = target)
   else if (is.factor(y))
-    makeClassifTask(id = id, data = data, target = tn)
+    makeClassifTask(id = id, data = data, target = target)
 }
 
 
