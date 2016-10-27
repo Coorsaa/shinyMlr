@@ -40,10 +40,15 @@ shinyServer(function(input, output) {
       #rn = as.numeric(input$import.rownames)
       read.csv(f, header = input$import.header, sep = input$import.sep,
         quote = input$import.quote) #, row.names = rn)
+==== BASE ====
+    } else if (input$import.type == "OpenML") {
+      t = getOMLTask(task.id = input$import.OpenML)
+      return(t$input$data.set$data)
     } else if (input$import.type == "ARFF") {
       f = input$import.arff$datapath
       if (is.null(f)) return(NULL)
       readARFF(f)
+==== BASE ====
     }
   })
 
@@ -54,12 +59,11 @@ shinyServer(function(input, output) {
     d
   }, options = list(lengthMenu = c(5, 20, 50), pageLength = 5, scrollX = TRUE)
   )
-  
 
   output$import.browse.openml = renderDataTable({
-      listOMLDataSets()[,1:11]
+    listOMLDataSets()[,c(1:5,10:12)]
   })
-  
+
   ##### data summary #####
   
   output$summary.datatable = renderDataTable({

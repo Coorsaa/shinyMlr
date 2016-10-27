@@ -53,11 +53,28 @@ makeImportSideBar = function(type) {
       )#,
       #      textInput("import.rownames", "Row Names", NULL)
     ),
+    mlr = fluidRow(
+      box(width = 3,
+        imptype.sel.input
+      ),
+      box(width = 9,
+        selectInput("import.mlr", "Choose toy task", choices = c("iris.task", "bh.task", "sonar.task"))
+      )
+    ),
     ARFF = fluidRow(
       box(width = 4, height = 250,
         imptype.sel.input,
         fileInput("import.arff", "Choose ARFF File",
           accept = c("text/arff", "text/comma-separated-values,text/plain", ".arff"))
+      )
+    ),
+    OpenML = fluidRow(
+      box(width = 3,
+        imptype.sel.input
+      ),
+      box(width = 9,
+        numericInput("import.OpenML", "Choose OpenML Task ID", value = 59L)
+==== BASE ====
       )
     )
   )
