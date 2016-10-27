@@ -32,23 +32,18 @@ shinyServer(function(input, output) {
     } else if (input$import.type == "mlr") {
       return(getTaskData(get(input$import.mlr)))
     } else if (input$import.type == "OpenML") {
-      t = getOMLTask(task.id = input$import.OpenML)
-      return(t$input$data.set$data)
+      t = getOMLDataSet(data.id = input$import.OpenML)
+      return(t$data)
     } else if (input$import.type == "CSV") {
       f = input$import.csv$datapath
       if (is.null(f)) return(NULL)
       #rn = as.numeric(input$import.rownames)
       read.csv(f, header = input$import.header, sep = input$import.sep,
         quote = input$import.quote) #, row.names = rn)
-==== BASE ====
-    } else if (input$import.type == "OpenML") {
-      t = getOMLTask(task.id = input$import.OpenML)
-      return(t$input$data.set$data)
     } else if (input$import.type == "ARFF") {
       f = input$import.arff$datapath
       if (is.null(f)) return(NULL)
       readARFF(f)
-==== BASE ====
     }
   })
 
@@ -244,20 +239,25 @@ shinyServer(function(input, output) {
       return(NULL)
     } else if (input$import.pred.type == "mlr") {
       return(getTaskData(get(input$import.pred.mlr)))
-    } else if (input$import.pred.type == "NewData") {
-      f = input$import.pred.file$datapath
+    } else if (input$import.pred.type == "CSV") {
+      f = input$import.pred.csv$datapath
       if (is.null(f)) return(NULL)
       #rn = as.numeric(input$import.rownames)
       read.csv(f, header = input$import.pred.header, sep = input$import.pred.sep,
         quote = input$import.pred.quote) #, row.names = rn)
     } else if (input$import.pred.type == "OpenML") {
-      t = getOMLTask(task.id = input$import.pred.OpenML)
-      return(t$input$data.set$data)
+      t = getOMLDataSet(data.id = input$import.pred.OpenML)
+      return(t$data)
+    } else if (input$import.type == "ARFF") {
+      f = input$import.pred.arff$datapath
+      if (is.null(f)) return(NULL)
+      readARFF(f)
     }
   })
   
   output$import.pred.preview = renderDataTable({
     d = data.pred(); if (is.null(d)) return(NULL)
+    colnames(d) = make.names(colnames(d))
     d
   }, options = list(lengthMenu = c(5, 30, 50), pageLength = 5)
   )
@@ -267,6 +267,7 @@ shinyServer(function(input, output) {
   pred = eventReactive(input$predict.run, {
     model = trn()
     newdata = data.pred()
+    colnames(newdata) = make.names(colnames(newdata)) 
     predict(model, newdata = newdata)
   })
   

@@ -34,7 +34,7 @@ makeImportSideBar = function(type) {
         imptype.sel.input
       ),
       box(width = 9,
-        numericInput("import.OpenML", "Choose OpenML Task ID", value = 59L)
+        numericInput("import.OpenML", "Choose OpenML Data ID", value = 61L)
       )
     ),
     CSV = fluidRow(
@@ -53,28 +53,11 @@ makeImportSideBar = function(type) {
       )#,
       #      textInput("import.rownames", "Row Names", NULL)
     ),
-    mlr = fluidRow(
-      box(width = 3,
-        imptype.sel.input
-      ),
-      box(width = 9,
-        selectInput("import.mlr", "Choose toy task", choices = c("iris.task", "bh.task", "sonar.task"))
-      )
-    ),
     ARFF = fluidRow(
       box(width = 4, height = 250,
         imptype.sel.input,
         fileInput("import.arff", "Choose ARFF File",
           accept = c("text/arff", "text/comma-separated-values,text/plain", ".arff"))
-      )
-    ),
-    OpenML = fluidRow(
-      box(width = 3,
-        imptype.sel.input
-      ),
-      box(width = 9,
-        numericInput("import.OpenML", "Choose OpenML Task ID", value = 59L)
-==== BASE ====
       )
     )
   )
@@ -83,25 +66,25 @@ makeImportSideBar = function(type) {
 makeImportPredSideBar = function(type) {
   imptype.sel.input = selectInput("import.pred.type", "Type", selected = type, choices = c("mlr", "OpenML", "CSV", "ARFF"))
   switch(type, 
-    NewData = list(
-      imptype.sel.input,
-      fileInput("import.pred.csv", "Choose CSV File",
-        accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv")),
-      tags$hr(),
-      checkboxInput("import.pred.header", "Header", TRUE),
-      selectInput("import.pred.sep", "Separator", selected = ",",
-        choices = c(Comma=",", Semicolon=";", Tab="\t")),
-      selectInput("import.pred.quote", "Quote", selected = '"',
-        choices = c(None="", "Double Quote"='"', "Single Quote"="'"))#,
-      # textInput("import.rownames", "Row Names", NULL)
-    ),
     mlr = list(
       imptype.sel.input,
       selectInput("import.pred.mlr", "Choose toy task", choices = c("iris.task", "bh.task", "sonar.task"))
     ),
     OpenML = list(
       imptype.sel.input,
-      numericInput("import.pred.OpenML", "Choose OpenML Task ID", value = 59L)
+      numericInput("import.pred.OpenML", "Choose OpenML Data ID", value = 61L)
+    ),
+    CSV = list(
+      imptype.sel.input,
+      fileInput("import.pred.csv", "Choose CSV File",
+        accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv")),
+      tags$hr(),
+      checkboxInput("import.pred.header", "Header", TRUE),
+      selectInput("import.pred.sep", "Separator", selected = ",",
+        choices = c(Comma = ",", Semicolon = ";", Tab = "\t")),
+      selectInput("import.pred.quote", "Quote", selected = '"',
+        choices = c(None = "", "Double Quote" = '"', "Single Quote" = "'"))#,
+      # textInput("import.rownames", "Row Names", NULL)
     ),
     ARFF = list(
       imptype.sel.input,
