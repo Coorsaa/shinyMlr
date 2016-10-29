@@ -11,7 +11,6 @@ tabpanel.learners = list(
     box(title = "Set hyperparameters", width = 12,
       uiOutput("learners.sel.par.set"),
       div(align = "center", uiOutput("learners.constr"))
-      # uiOutput("learners.constr")
     )
   )
 )

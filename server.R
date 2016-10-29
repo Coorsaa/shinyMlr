@@ -135,11 +135,13 @@ shinyServer(function(input, output) {
   ##### learners #####
 
   learners.avail = reactive({
+    req(task())
     tt = task()# ; if (is.null(tt)) return(NULL)
     listLearners(tt)
   })
   
   learners.default = reactive({
+    req(task())
     tt = getTaskType(task())# ; if (is.null(tt)) return(NULL)
     switch(tt, 
       classif =  c("classif.randomForest", "classif.svm", "classif.rpart"),
@@ -159,12 +161,8 @@ shinyServer(function(input, output) {
   })
 
   output$learners.sel.par.set = renderUI({
-    # validate(need(input$create.task != 0L, "create task to list suitable learners"))
-    # if (input$learners.choose == 0L)
-    #   return(NULL)
-
+    req(input$learners.choose)
     input$learners.choose
-    
     lrns.sel = isolate({input$learners.sel})
     makeLearnerConstructionUI(lrns.sel)
   })
