@@ -316,11 +316,53 @@ shinyServer(function(input, output) {
       multiple = TRUE, selected = ls.ids)
   })
   
-  rdesc = reactive({
-    makeResampleDesc(input$benchmark.rdesctype, iters = input$benchmark.iters)
+  # if (!is.null(learners())) {
+  #   ls = learners()
+  #   strat = reactive(ls[[1]]$type)
+  #   output$stratText = renderText(paste(strat()))
+  # } # else {
+  #   strat = reactive(NULL)
+  #   output$stratText = renderText(paste(strat()))
+  # }
+  
+  strat = reactive({
+      ls = learners()
+      ls[[1]]$type
+  })
+  output$stratText = renderText(paste(strat()))
+  # renderText(paste(strat()))
+  
+  
+  observeEvent(strat(), {
+    if (strat() != "classif") {
+      shinyjs::hide("benchmark.stratification")
+    } else {
+      shinyjs::show("benchmark.stratification")
+    }
   })
   
-  measures.avail = reactive({
+  
+  rdesctype = reactive(input$benchmark.rdesctype)
+  output$rdesctypeText = renderText(paste(rdesctype()))
+  
+  observeEvent(rdesctype(), {
+    if (rdesctype() %in% c("LOO", "RepCV", "Holdout")) {
+      shinyjs::hide("benchmark.iters")
+    } else {
+      shinyjs::show("benchmark.iters")
+    }
+  })
+  
+  rdesc = reactive({
+    if (input$benchmark.rdesctype %in% c("CV", "Subsample", "Bootstrap")) {
+      makeResampleDesc(input$benchmark.rdesctype, iters = input$benchmark.iters)
+    } else {
+      makeResampleDesc(input$benchmark.rdesctype)
+    }
+  })
+  
+
+    measures.avail = reactive({
     tt = task(); if (is.null(tt)) return(NULL)
     listMeasures(tt, create = FALSE)
   })
