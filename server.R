@@ -316,23 +316,12 @@ shinyServer(function(input, output) {
       multiple = TRUE, selected = ls.ids)
   })
   
-  # if (!is.null(learners())) {
-  #   ls = learners()
-  #   strat = reactive(ls[[1]]$type)
-  #   output$stratText = renderText(paste(strat()))
-  # } # else {
-  #   strat = reactive(NULL)
-  #   output$stratText = renderText(paste(strat()))
-  # }
-  
   strat = reactive({
       ls = learners()
       ls[[1]]$type
   })
   output$stratText = renderText(paste(strat()))
-  # renderText(paste(strat()))
-  
-  
+
   observeEvent(strat(), {
     if (strat() != "classif") {
       shinyjs::hide("benchmark.stratification")
@@ -340,7 +329,6 @@ shinyServer(function(input, output) {
       shinyjs::show("benchmark.stratification")
     }
   })
-  
   
   rdesctype = reactive(input$benchmark.rdesctype)
   output$rdesctypeText = renderText(paste(rdesctype()))
