@@ -1,4 +1,6 @@
+library(shiny)
 library(shinydashboard)
+library(shinyjs)
 
 source("ui_tabpanel_import.R")
 source("ui_tabpanel_summary.R")
@@ -41,6 +43,7 @@ shinyUI(
     ),
     
     dashboardBody(
+      shinyjs::useShinyjs(),
       tags$head(
         tags$link(rel = "stylesheet", type = "text/css", href = "custom.css")
       ),
