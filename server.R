@@ -203,11 +203,14 @@ shinyServer(function(input, output) {
 
   learners.threshold = reactive({
     lrns = input$learners.sel
-    lrns.threshold = vcapply(lrns, function(lrn) {
+    tsk = isolate({task()})
+    lrns.threshold = lapply(lrns, function(lrn) {
       threshold = pasteDot("lrn.threshold", lrn)
       threshold = input[[threshold]]
       if (is.null(threshold) || threshold == "")
         return(NULL)
+      threshold = do.call("as.numeric", strsplit(threshold, ","))
+      names(threshold) = getTaskClassLevels(tsk)
       return(threshold)
     })
     lrns.threshold
@@ -242,10 +245,11 @@ shinyServer(function(input, output) {
     lrns.params = learners.params()
     lrns.sel = isolate({input$learners.sel})
     pred.types = isolate({learners.pred.types()})
-    lrns = Map(function(lrn, pars, pred.type) {
+    threshs = isolate({learners.threshold()})
+    lrns = Map(function(lrn, pars, pred.type, thresh) {
       makeLearner(lrn, predict.type = pred.type,
-        par.vals = pars)
-    }, lrns.sel, lrns.params, pred.types)
+        par.vals = pars, predict.threshold = thresh)
+    }, lrns.sel, lrns.params, pred.types, threshs)
     setNames(lrns, lrns.sel)
   })
 
