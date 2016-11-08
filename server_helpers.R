@@ -1,3 +1,9 @@
+#### general helpers ####
+
+pasteDot = function(...) {
+  paste(..., sep = ".")
+}
+
 # FIXME: mlr: create makeAutoTask or whatever depending on target? 
 sMakeTask = function(id, target, data) {
   y = data[, target]
@@ -94,30 +100,127 @@ makeImportPredSideBar = function(type) {
   )
 }
 
-makeLearnerConstructionUI = function(lrns) {
-    lrns.names = lrns
-    par.sets = lapply(lrns.names, getParamSet)
-    lrn.tabs = mapply(function (par.set, lrn.name) {
-      pars.tab = renderTable({ParamHelpers:::getParSetPrintData(par.set)},
-        rownames = TRUE)
-      pars.sel = textInput(paste("hypparslist", lrn.name, sep = "."),
-        "Hyperparameters:", "list()")
-      lrn.has.probs = hasLearnerProperties(lrn.name, props = "prob")
-      tabPanel(title = lrn.name, width = 12,
-        pars.tab,
-        pars.sel,
-        if (lrn.has.probs) {
-          selectInput(paste("lrn.prob.sel", lrn.name, sep = "."),
-            "Probability estimation:", choices = c("Yes", "No"),
-            multiple = FALSE, selected = "Yes", width = 200
-          )
-        } else {
-          NULL
-        }
-      )
-    }, par.sets, lrns.names, SIMPLIFY = FALSE)
+makeLearnerParamUI = function(par.sets, params.inp, inp.width = 200) {
+  params = Map(function(par.set, lrn.name) {
+    Map(function(par, par.name) {
+      par.type = par$type
+      par.id = pasteDot(lrn.name, par.name)
+      par.inp = params.inp[[lrn.name]][[par.name]]
+      if (is.null(par.inp)) {
+        if (is.null(par$default))
+          par.inp = NA
+        else
+          par.inp = par$default
+      }
 
-    do.call(tabBox, c(lrn.tabs, width = 12))
+      if (par.type %in% c("numeric", "integer")) {
+        if (par.type == "integer")
+          step = 1L
+        else
+          step = NA
+        
+        if (is.null(par$lower))
+          par$lower = NA
+        if (is.null(par$upper))
+          par$upper = NA
+          
+        numericInput(par.id, value = par.inp, par.name, min = par$lower,
+          max = par$upper, step = step, width = inp.width)
+      } else {
+        if (par.type %in% c("logical", "discrete")) {
+          radioButtons(par.id, par.name, par$values, par.inp, width = inp.width)
+        } else {
+          textInput(par.id, par.name, par.inp, width = inp.width)
+        }
+      }
+    }, par.set$pars, names(par.set$pars))
+  }, par.sets, names(par.sets))
+  names(params) = NULL
+  return(params)
 }
 
+makeLearnerConstructionUI = function(lrns.names, par.sets, params) {
+  lrn.tabs = Map(function (par.set, lrn.name, hyppar) {
+    par.tab = renderTable({ParamHelpers:::getParSetPrintData(par.set)},
+     rownames = TRUE)
+    
+    lrn.has.probs = hasLearnerProperties(lrn.name, props = "prob")
+    if (lrn.has.probs) {
+      pred.type = selectInput(paste("lrn.prob.sel", lrn.name, sep = "."),
+        "Probability estimation:", choices = c("Yes", "No"),
+        multiple = FALSE, selected = "Yes", width = 200)
+
+      threshold = textInput(paste("lrn.threshold", lrn.name, sep = "."),
+        "Threshold:", width = 200)
+    } else {
+      pred.type = NULL
+      threshold = NULL
+    }
+
+    hyppar = split(hyppar, ceiling(seq_along(hyppar) / (length(hyppar) / 3)))
+    hyppar = lapply(hyppar, function(sub.pars) {
+        column(sub.pars, width = 4)
+    })
+    
+    tabPanel(title = lrn.name, width = 12,
+      fluidRow(div(align = "center",
+        pred.type,
+        threshold,
+        br())
+      ),
+      h4("Hyperparameters"),
+      fluidRow(div(align = "center", hyppar)),
+      fluidRow(div(align = "center", par.tab))
+    )
+  }, par.sets, lrns.names, params)
+
+  names(lrn.tabs) = NULL
+  do.call(tabBox, c(lrn.tabs, width = 12))
+}
+
+
+stringToParamValue = function (par, x) {
+  assertClass(par, "Param")
+  assertCharacter(x)
+  
+  type = par$type
+
+  if (x == "") {
+    res = NULL
+  } else {
+    if (type %in% c("numeric", "integer", "logical")) {
+      res = do.call(paste0("as.", type), list(x))
+    }
+
+    if (type %in% c("numericvector", "integervector", "logicalvector",
+      "charactervector", "discretevector")) {
+      x = gsub("c|[(]|[)]|L", "", x)
+      res = do.call(paste0("as.", gsub("vector", "", type)), strsplit(x, ","))
+    }
+
+    if (type == "character")
+      res = x
+    if (type == "discrete") 
+      res = discreteNameToValue(par, x)
+    if (type == "function")
+      res = eval(parse(text = x))
+    if (type == "untyped")
+      #FIXME: We need to figure out how we should handle this
+      res = x
+  }
+
+  return(res)
+}
+
+convertParamForLearner = function(lrn.par, value) {
+
+  if (!is.null(value)) {
+    if (is.na(value)) {
+      value = NULL
+    } else {
+      value = stringToParamValue(lrn.par, as.character(value))
+    }
+  }
+  return(value)
+} 
 
