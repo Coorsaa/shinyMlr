@@ -137,7 +137,8 @@ shinyServer(function(input, output) {
   ##### learners #####
 
   learners.avail = reactive({
-    req(task())
+    validate(need(input$create.task != 0L,
+      "create a task first to list suitable learners"))
     tt = task()
     listLearners(tt)
   })
@@ -366,17 +367,23 @@ shinyServer(function(input, output) {
   ##### benchmark #####
   
   output$benchmark.learners.sel = renderUI({
-    ls = learners(); if (is.null(ls)) return(NULL)
-    ls.ids = names(ls)
+    req(learners())
+    ls.ids = names(learners())
     selectInput("benchmark.learners.sel", "Learners", choices = ls.ids,
       multiple = TRUE, selected = ls.ids)
   })
   
   strat = reactive({
-      ls = learners()
-      ls[[1]]$type
+    req(learners())
+    ls = learners()
+    ls[1L]$type
+    # print(ls)
   })
-  output$stratText = renderText(paste(strat()))
+
+  output$stratText = renderText({
+    req(strat())
+    paste(strat())
+  })
 
   observeEvent(strat(), {
     if (strat() != "classif") {
