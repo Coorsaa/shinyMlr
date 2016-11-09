@@ -2,7 +2,6 @@ library(shiny)
 library(shinydashboard)
 library(shinyjs)
 
-
 source("ui_tabpanel_import.R")
 source("ui_tabpanel_browse_openml.R")
 source("ui_tabpanel_summary.R")
