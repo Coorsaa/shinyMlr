@@ -2,6 +2,8 @@ library(tools)
 library(mlr)
 library(readr)
 library(BBmisc)
+library(checkmate)
+library(ParamHelpers)
 library(farff)
 library(OpenML)
 library(ggplot2)
@@ -125,81 +127,165 @@ shinyServer(function(input, output) {
     colnames(d) = make.names(colnames(d)) 
     sMakeTask(input$task.id, input$task.target, d)
   })
+
+  task.type = reactive({
+    req(task())
+    tsk = task()
+    getTaskType(tsk)
+  })
+
+  target.levels = reactive({
+    req(task())
+    tsk = task()
+    tsk.type = task.type()
+    tar.levels = NULL
+    if (tsk.type == "classif")
+      tar.levels = getTaskClassLevels(tsk)
+    return(tar.levels)
+  })
   
   output$task.overview = renderPrint({
     validate(need(input$create.task != 0L, "you didn't create a task yet"))
-    tt = task()# ; if (is.null(tt)) return(NULL)
-    print(tt)
+    tsk = task()
+    print(tsk)
   })
 
   ##### learners #####
 
   learners.avail = reactive({
-    tt = task()# ; if (is.null(tt)) return(NULL)
-    listLearners(tt)
+    validate(need(input$create.task != 0L,
+      "create a task first to list suitable learners"))
+    tsk = task()
+    listLearners(tsk)
   })
   
   learners.default = reactive({
-    tt = getTaskType(task())# ; if (is.null(tt)) return(NULL)
-    switch(tt, 
+    req(task())
+    tsk = getTaskType(task())
+    switch(tsk, 
       classif =  c("classif.randomForest", "classif.svm", "classif.rpart"),
       regr = c("regr.randomForest", "regr.svm", "regr.rpart"))
   })
   
   output$learners.sel = renderUI({
-    ls = learners.avail(); if (is.null(ls)) return(NULL)
+    req(learners.avail())
+    ls = learners.avail()
     ls.ids = ls$class
     selectInput("learners.sel", "", choices = ls.ids, multiple = TRUE,
       selected = learners.default())
   })
 
-  output$learners.choose = renderUI({
-    validate(need(input$create.task != 0L, "create task to list suitable learners"))
-    actionButton("learners.choose", "choose learners")
+  learners.par.sets = reactive({
+    lrns.sel = input$learners.sel
+    par.sets = lapply(lrns.sel, getParamSet)
+    names(par.sets) = lrns.sel
+    return(par.sets)
   })
 
-  output$learners.sel.par.set = renderUI({
-    # validate(need(input$create.task != 0L, "create task to list suitable learners"))
-    # if (input$learners.choose == 0L)
-    #   return(NULL)
-
-    input$learners.choose
-    
-    lrns.sel = isolate({input$learners.sel})
-    makeLearnerConstructionUI(lrns.sel)
+  learners.params = reactive({
+    req(learners.par.sets())
+    par.sets = learners.par.sets()
+    lrns.names = names(par.sets)
+    params = extractSubList(par.sets, "pars")
+    params.names = lapply(params, names)
+    lrns.params = Map(function(lrn.name, pars) {
+      par.names = params.names[[lrn.name]]
+      lrn.params = Map(function(param.name, lrn.par) {
+        par.name = pasteDot(lrn.name, param.name)
+        par = input[[par.name]]
+        par = convertParamForLearner(lrn.par, par)
+      }, par.names, pars)
+      names(lrn.params) = par.names
+      lrn.params
+    }, lrns.names, params)
+    names(lrns.params) = lrns.names
+    lrns.params = lapply(lrns.params, function(pars) {
+      par.keep = !(unlist(lapply(pars, is.null)))
+      pars[par.keep]
+    })
+    lrns.params
   })
 
-  learners.pred.types = eventReactive(input$learners.choose, {
-    lrns = isolate({input$learners.sel}); if (is.null(ls)) return(NULL)
+  learners.params.ui = reactive({
+    req(learners.par.sets())
+    req(learners.params())
+    par.sets = learners.par.sets()
+    params.inp = learners.params()
+    makeLearnerParamUI(par.sets, params.inp)
+  })
+
+  learners.pred.types = reactive({
+    lrns = input$learners.sel
     lrns.pred.types = vcapply(lrns, function(lrn) {
-      pred.type = paste("input$lrn.prob.sel", lrn, sep = ".")
-      if (exists(pred.type)) {
-        eval(parse(text = pred.type))
-      }
-      else {
-        "response"
-      }
+      pred.type = pasteDot("lrn.prob.sel", lrn)
+      pred.type = input[[pred.type]]
+      pred.type = determinePredType(pred.type)
     })
     lrns.pred.types
   })
 
-  output$learners.constr = renderUI({
-    validate(need(input$learners.choose != 0L, "choose learners first to construct them"))
-    actionButton("learners.constr", "construct learners")
+  learners.pred.types.ui = reactive({
+    req(learners.pred.types())
+    lrns.sel = input$learners.sel
+    pred.types = learners.pred.types()
+    makeLearnerPredTypesUI(lrns.sel, pred.types)
   })
 
-  learners = eventReactive(input$learners.constr, {    
-    res = list()
-    lrns.sel = isolate({input$learners.sel})
-    hyppars = paste("input$hypparslist", lrns.sel, sep = ".")
-    pred.types = isolate({learners.pred.types()})
-    for (i in 1:length(lrns.sel)) {
-      hyppars.vals = eval(parse(text = hyppars[i]))
-      hyppars.vals = eval(parse(text = hyppars.vals))
-      res[[i]] = makeLearner(lrns.sel[i], predict.type = pred.types[i],
-        par.vals = hyppars.vals)
-    }
-    setNames(res, lrns.sel)
+  learners.threshold = reactive({
+    lrns = input$learners.sel
+    tsk = isolate({task()})
+    target.levels = target.levels()
+    lrns.threshold = lapply(lrns, function(lrn) {
+      threshold = sapply(target.levels, function(target.level) {
+        thresh.id = pasteDot(lrn, "threshold", target.level)
+        thresh.inp = input[[thresh.id]]
+        if (is.null(thresh.inp))
+          thresh.inp = NA
+        thresh.inp
+      })
+      names(threshold) = target.levels
+      return(threshold)
+    })
+
+    lrns.threshold
+  })
+
+  learners.threshold.ui = reactive({
+    req(learners.threshold())
+    lrns.sel = input$learners.sel
+    threshs = learners.threshold()
+    pred.types = learners.pred.types()
+    tsk = isolate({task()})
+    target.levels = target.levels()
+    makeLearnerThresholdUI(lrns.sel, pred.types, threshs, target.levels)
+  })
+
+  output$learners.ui = renderUI({
+    req(learners.params.ui)
+    lrns.sel = input$learners.sel
+    par.sets = isolate(learners.par.sets())
+    params = learners.params.ui()
+    pred.types = learners.pred.types.ui()
+    thresholds = learners.threshold.ui()
+    makeLearnerConstructionUI(lrns.sel, par.sets, params, pred.types, thresholds)
+  })
+
+  learners = reactive({ 
+    req(learners.params())
+    lrns.params = learners.params()
+    lrns.sel = input$learners.sel
+    pred.types = learners.pred.types()
+    threshs = learners.threshold()
+    lrns = Map(function(lrn, pars, pred.type, thresh) {
+      # FIXME: this is ugly, should be handled in learners.threshold()
+      # didnt find easy way to do it 
+      if (any(is.na(thresh)))
+        thresh = NULL
+
+      makeLearner(lrn, predict.type = pred.type,
+        par.vals = pars, predict.threshold = thresh)
+    }, lrns.sel, lrns.params, pred.types, threshs)
+    setNames(lrns, lrns.sel)
   })
 
   #### train and predict ####
@@ -320,17 +406,23 @@ shinyServer(function(input, output) {
   ##### benchmark #####
   
   output$benchmark.learners.sel = renderUI({
-    ls = learners(); if (is.null(ls)) return(NULL)
-    ls.ids = names(ls)
+    req(learners())
+    ls.ids = names(learners())
     selectInput("benchmark.learners.sel", "Learners", choices = ls.ids,
       multiple = TRUE, selected = ls.ids)
   })
   
   strat = reactive({
-      ls = learners()
-      ls[[1]]$type
+    req(learners())
+    ls = learners()
+    ls[1L]$type
+    # print(ls)
   })
-  output$stratText = renderText(paste(strat()))
+
+  output$stratText = renderText({
+    req(strat())
+    paste(strat())
+  })
 
   observeEvent(strat(), {
     if (strat() != "classif") {
