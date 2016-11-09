@@ -139,40 +139,62 @@ makeLearnerParamUI = function(par.sets, params.inp, inp.width = 200) {
   return(params)
 }
 
-makeLearnerConstructionUI = function(lrns.names, par.sets, params) {
-  lrn.tabs = Map(function (par.set, lrn.name, hyppar) {
-    par.tab = renderTable({ParamHelpers:::getParSetPrintData(par.set)},
-     rownames = TRUE)
-    
+makeLearnerPredTypesUI = function(lrns.names, pred.types.inp) {
+  Map(function(lrn.name, pred.type.inp){
     lrn.has.probs = hasLearnerProperties(lrn.name, props = "prob")
     if (lrn.has.probs) {
-      pred.type = selectInput(paste("lrn.prob.sel", lrn.name, sep = "."),
+      if(pred.type.inp == "prob") {
+        pred.type.inp = "Yes"
+      } else {
+        pred.type.inp = "No"
+      }
+      radioButtons(paste("lrn.prob.sel", lrn.name, sep = "."),
         "Probability estimation:", choices = c("Yes", "No"),
-        multiple = FALSE, selected = "Yes", width = 200)
-
-      threshold = textInput(paste("lrn.threshold", lrn.name, sep = "."),
-        "Threshold:", width = 200)
+        selected = pred.type.inp)
     } else {
-      pred.type = NULL
-      threshold = NULL
+      NULL
     }
+  }, lrns.names, pred.types.inp)
+}
+
+makeLearnerThresholdUI = function(lrns.names, pred.types.inp, threshs.inp,
+  target.levels, inp.width = 100) {
+  Map(function(lrn.name, thresh.inp, pred.type.inp) {
+    if (pred.type.inp == "prob") {
+      if(is.null(thresh.inp))
+        thresh.inp = rep(NA, length(target.levels))
+      Map(function(target.level, trsh.inp) {
+        id = pasteDot(lrn.name, "threshold", target.level)
+        numericInput(id, label = target.level, value = trsh.inp, min = 0,
+          max = 1, width = inp.width)
+      },target.levels, thresh.inp)
+    } else {
+      NULL
+    }
+  }, lrns.names, threshs.inp, pred.types.inp)
+}
+
+makeLearnerConstructionUI = function(lrns.names, par.sets, params, pred.types, thresholds) {
+  lrn.tabs = Map(function (par.set, lrn.name, hyppar, pred.type, threshold) {
+    par.tab = renderTable({ParamHelpers:::getParSetPrintData(par.set)},
+     rownames = TRUE)
 
     hyppar = split(hyppar, ceiling(seq_along(hyppar) / (length(hyppar) / 3)))
     hyppar = lapply(hyppar, function(sub.pars) {
         column(sub.pars, width = 4)
     })
+    threshold = lapply(threshold, function(thresh) {
+      column(thresh, width = 2)
+    })
     
     tabPanel(title = lrn.name, width = 12,
-      fluidRow(div(align = "center",
-        pred.type,
-        threshold,
-        br())
-      ),
+      fluidRow(column(pred.type, width = 6, align = "center")),
+      fluidRow(div(align = "center", threshold)),
       h4("Hyperparameters"),
       fluidRow(div(align = "center", hyppar)),
       fluidRow(div(align = "center", par.tab))
     )
-  }, par.sets, lrns.names, params)
+  }, par.sets, lrns.names, params, pred.types, thresholds)
 
   names(lrn.tabs) = NULL
   do.call(tabBox, c(lrn.tabs, width = 12))
@@ -222,5 +244,17 @@ convertParamForLearner = function(lrn.par, value) {
     }
   }
   return(value)
-} 
+}
+
+determinePredType = function(pred.type) {
+  if (is.null(pred.type)) {
+    "response"
+  } else {
+    if (pred.type == "Yes") {
+      "prob"
+    } else {
+      "response"
+    }
+  }
+}
 
