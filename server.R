@@ -501,8 +501,7 @@ shinyServer(function(input, output) {
     b = bmr(); if (is.null(b)) return(NULL)
     plotfun = switch(input$bmrplots.type,
       Beanplots = function(b) plotBMRBoxplots(b, style = "violin"),
-      Boxplots = plotBMRBoxplots,
-      Ranks = plotBMRSummary
+      Boxplots = plotBMRBoxplots
     )
     plotfun(b)
   })
