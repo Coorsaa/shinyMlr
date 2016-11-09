@@ -3,6 +3,7 @@ library(shinydashboard)
 library(shinyjs)
 
 source("ui_tabpanel_import.R")
+source("ui_tabpanel_browse_openml.R")
 source("ui_tabpanel_summary.R")
 source("ui_tabpanel_task.R")
 source("ui_tabpanel_learners.R")
@@ -24,7 +25,9 @@ shinyUI(
     
     dashboardSidebar(
       sidebarMenu(
-        menuItem("Import", tabName = "import", icon = icon("folder-open")),
+        menuItem("Import", tabName = "import", icon = icon("folder-open"),
+          menuSubItem("Import File", tabName = "import-file", icon = icon("file")),
+          menuSubItem("Browse OpenML", tabName = "browse-openml", icon = icon("search"))),
         menuItem("Data Summary", tabName = "summary", icon = icon("database")),
         menuItem("Task", tabName = "task", icon = icon("flag")),
         menuItem("Learners", tabName = "learners", icon = icon("cog")),
@@ -48,7 +51,8 @@ shinyUI(
         tags$link(rel = "stylesheet", type = "text/css", href = "custom.css")
       ),
       tabItems(
-        tabItem(tabName = "import", tabpanel.import),
+        tabItem(tabName = "import-file", tabpanel.import),
+        tabItem(tabName = "browse-openml", tabpanel.browse.openml),
         tabItem(tabName = "summary", tabpanel.summary),
         tabItem(tabName = "task", tabpanel.task),
         tabItem(tabName = "learners", tabpanel.learners),
