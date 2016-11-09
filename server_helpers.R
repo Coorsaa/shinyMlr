@@ -26,7 +26,7 @@ makeImportSideBar = function(type) {
         imptype.sel.input
       ),
       box(width = 9,
-        selectInput("import.mlr", "Choose toy task", choices = c("iris.task", "bh.task", "sonar.task"))
+        selectInput("import.mlr", "Choose mlr task", choices = c("iris.task", "bh.task", "sonar.task"))
       )
     ),
     OpenML = fluidRow(
@@ -34,7 +34,7 @@ makeImportSideBar = function(type) {
         imptype.sel.input
       ),
       box(width = 9,
-        numericInput("import.OpenML", "Choose OpenML Data ID", value = 61L)
+        selectInput("import.OpenML", "Choose OpenML Data ID", selected = 61L, choices = listOMLDataSets()[,1], multiple = FALSE)
       )
     ),
     CSV = fluidRow(

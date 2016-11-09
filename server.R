@@ -32,7 +32,7 @@ shinyServer(function(input, output) {
     } else if (input$import.type == "mlr") {
       return(getTaskData(get(input$import.mlr)))
     } else if (input$import.type == "OpenML") {
-      t = getOMLDataSet(data.id = input$import.OpenML)
+      t = getOMLDataSet(data.id = as.integer(input$import.OpenML))
       return(t$data)
     } else if (input$import.type == "CSV") {
       f = input$import.csv$datapath
