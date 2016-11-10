@@ -233,7 +233,6 @@ shinyServer(function(input, output) {
 
   learners.threshold = reactive({
     lrns = input$learners.sel
-    tsk.type = task.type()
     target.levels = target.levels()
     lrns.threshold = lapply(lrns, function(lrn) {
       threshold = sapply(target.levels, function(target.level) {
