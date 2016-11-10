@@ -411,23 +411,16 @@ shinyServer(function(input, output) {
       multiple = TRUE, selected = ls.ids)
   })
   
-  strat = reactive({
-    req(learners())
-    ls = learners()
-    ls[1L]$type
-    # print(ls)
-  })
-
   output$stratText = renderText({
     req(strat())
     paste(strat())
   })
 
-  observeEvent(strat(), {
-    if (strat() != "classif") {
-      shinyjs::hide("benchmark.stratification")
+  observeEvent(task.type(), {
+    if (task.type() != "classif") {
+      shinyjs::hide("benchmark.stratification", animType = "slide")
     } else {
-      shinyjs::show("benchmark.stratification")
+      shinyjs::show("benchmark.stratification", anim = TRUE)
     }
   })
   
