@@ -233,7 +233,7 @@ shinyServer(function(input, output) {
 
   learners.threshold = reactive({
     lrns = input$learners.sel
-    tsk = isolate({task()})
+    tsk.type = task.type()
     target.levels = target.levels()
     lrns.threshold = lapply(lrns, function(lrn) {
       threshold = sapply(target.levels, function(target.level) {
@@ -279,7 +279,7 @@ shinyServer(function(input, output) {
     lrns = Map(function(lrn, pars, pred.type, thresh) {
       # FIXME: this is ugly, should be handled in learners.threshold()
       # didnt find easy way to do it 
-      if (any(is.na(thresh)))
+      if (any(is.na(thresh)) | length(thresh) == 0L)
         thresh = NULL
 
       makeLearner(lrn, predict.type = pred.type,
