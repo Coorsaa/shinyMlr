@@ -6,7 +6,7 @@ tabpanel.summary = fluidRow(
     tabPanel(title = "Histogram",
       fluidRow(
         column(4,
-          uiOutput("summary.vis.hist.var")),
+          uiOutput("summary.vis.var")),
         column(8,
           uiOutput("summary.vis.hist.nbins")),
         plotOutput("summary.vis.hist")
