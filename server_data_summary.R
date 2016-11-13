@@ -9,10 +9,8 @@ output$summary.datatable = renderDataTable({
 )
 
 
-output$summary.vis.hist.var = renderUI({
+output$summary.vis.var = renderUI({
   d = data()
-  # nums = sapply(d, is.numeric)
-  # choices = colnames(d[, nums])
   choices = as.list(colnames(data()))
   selectInput("summary.vis.var", "Choose a variable:", choices = choices, selected = getLast(choices), width = "95%")
 })
@@ -29,31 +27,16 @@ output$summary.vis = renderPlot({
   numerics = sapply(d, is.numeric)
   factor_ch = colnames(d[,factors])
   num_ch = colnames(d[,numerics])
-  ggplot(data = d, aes(x = as.numeric(d[,input$summary.vis.var]))) + 
-    geom_histogram(aes(y = ..density..), stat = "bin", bins = input$summary.vis.hist.nbins) + 
-    geom_density() + xlab(input$summary.vis.hist.var)
+  if (input$summary.vis.var %in% num_ch) {
+    ggplot(data = d, aes(x = as.numeric(d[,input$summary.vis.var]))) + 
+      geom_histogram(aes(y = ..density..), fill = "white", color = "black", stat = "bin", bins = input$summary.vis.hist.nbins) + 
+      geom_density(fill = "blue", alpha = 0.1) + xlab(input$summary.vis.var) +
+      geom_vline(aes(xintercept = quantile(as.numeric(d[,input$summary.vis.var]), 0.05)), color = "blue", size = 0.5, linetype = "dashed") +
+      geom_vline(aes(xintercept = quantile(as.numeric(d[,input$summary.vis.var]), 0.95)), color = "blue", size = 0.5, linetype = "dashed") +
+      geom_vline(aes(xintercept = quantile(as.numeric(d[,input$summary.vis.var]), 0.5)), color = "blue", size = 1, linetype = "dashed")
+  } else {
+    ggplot(data = d, aes(x = d[,input$summary.vis.var])) + 
+      geom_bar(aes(fill = d[,input$summary.vis.var]), stat = "count") + xlab(input$summary.vis.var) +
+      guides(fill=FALSE)
+  }
 })  
-
-output$summary.vis.hist = renderPlot({
-  req(data())
-  d = data()
-  ggplot(data = d, aes(x = as.numeric(d[,input$summary.vis.var]))) + 
-    geom_histogram(aes(y = ..density..), stat = "bin", bins = input$summary.vis.hist.nbins) + 
-    geom_density() + xlab(input$summary.vis.hist.var)
-})    
-
-output$summary.vis.bp.var = renderUI({
-  req(data())
-  d = data()
-  nums <- sapply(d, is.numeric)
-  choices = colnames(d[, nums])
-  # choices = as.list(colnames(data()))
-  selectInput("summary.vis.bp.var", "Choose a variable:", choices = choices, selected = getLast(choices), width = "95%")
-})
-
-output$summary.vis.bp = renderPlot({
-  req(data())
-  d = data()
-  ggplot(data = d, aes(y = as.numeric(d[,input$summary.vis.bp.var]), x = input$summary.vis.bp.var)) + 
-    geom_boxplot() + ylab(input$summary.vis.bp.var) + xlab("")
-}) 
