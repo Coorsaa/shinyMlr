@@ -20,13 +20,29 @@ output$summary.vis.hist.nbins = renderUI({
 })
 
 
+factorvars = reactive({
+  req(data())
+  colnames(d[sapply(d, is.factor)])
+})
+
+observeEvent(input$summary.vis.var, {
+  req(factorvars())
+  req(input$summary.vis.var)
+  if (input$summary.vis.var %in% factorvars()) {
+    shinyjs::hide("summary.vis.hist.nbins", animType = "slide")
+  } else {
+    shinyjs::show("summary.vis.hist.nbins", anim = TRUE)
+  }
+})
+
+
 output$summary.vis = renderPlot({
   req(data())
   d = data()
   factors = sapply(d, is.factor)
   numerics = sapply(d, is.numeric)
-  factor_ch = colnames(d[,factors])
-  num_ch = colnames(d[,numerics])
+  factor_ch = colnames(d[factors])
+  num_ch = colnames(d[numerics])
   if (input$summary.vis.var %in% num_ch) {
     ggplot(data = d, aes(x = as.numeric(d[,input$summary.vis.var]))) + 
       geom_histogram(aes(y = ..density..), fill = "white", color = "black", stat = "bin", bins = input$summary.vis.hist.nbins) + 
