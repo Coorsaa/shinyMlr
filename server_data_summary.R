@@ -31,6 +31,22 @@ observeEvent(input$summary.vis.var, {
 })
 
 
+factorvars = reactive({
+  req(data())
+  colnames(d[sapply(d, is.factor)])
+})
+
+observeEvent(input$summary.vis.var, {
+  req(factorvars())
+  req(input$summary.vis.var)
+  if (input$summary.vis.var %in% factorvars()) {
+    shinyjs::hide("summary.vis.hist.nbins", animType = "slide")
+  } else {
+    shinyjs::show("summary.vis.hist.nbins", anim = TRUE)
+  }
+})
+
+
 output$summary.vis = renderPlot({
   req(input$summary.vis.var)
   req(data())
