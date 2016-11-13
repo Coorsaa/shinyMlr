@@ -3,7 +3,8 @@
 output$summary.datatable = renderDataTable({
   req(data())
   d = data()
-  colnames(d) = make.names(colnames(d)) 
+  colnames(d) = make.names(colnames(d))
+#  nas = sapply(d, length(is.na()))
   summarizeColumns(d)
 }, options = list(lengthMenu = c(5, 20, 50), pageLength = 5)
 )
@@ -56,3 +57,17 @@ output$summary.vis = renderPlot({
       guides(fill=FALSE)
   }
 })  
+
+
+
+##### preprocessing #####
+
+output$preproc.var = renderUI({
+  selectInput("preproc.method", "Choose data preprocessing method:", choices = c("Impute", "capLargeValues",  "createDummyFeatures", "dropFeatures", "mergeSmallFactorLevels", "normalizeFeatures", "removeConstantFeatures"))
+})
+
+output$preproc = renderUI({
+
+})
+
+

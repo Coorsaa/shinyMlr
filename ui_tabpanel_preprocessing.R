@@ -1,3 +1,9 @@
 tabpanel.preprocessing = fluidRow(
-  box(width = 12, title = "Data Preprocessing"  )
+  box(width = 12, title = "Data Preprocessing",
+    fluidRow(
+      column(6, uiOutput("preproc.var")),
+      column(6, "")
+    ),
+    uiOutput("preproc")
+  )
 )
