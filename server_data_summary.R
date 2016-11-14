@@ -67,7 +67,22 @@ output$preproc.var = renderUI({
 })
 
 output$preproc = renderUI({
-
+  req(data())
+  req(input$preproc.method)
+  d = data()
+  preproc.select(d, input$preproc.method)
 })
 
+preproc.select = function (d, method) {
+  if (method == "Impute") {
+    selectInput("impute.target", "Choose the imputation target", choices = colnames(d))
+    fluidRow(
+      column(6,
+        selectInput("impute.methods.num", "Choose imputation method for numeric variables", selected = "imputeMean",
+          choices = c("imputeConstant", "imputeMean", "imputeMedian", "imputeMode", "imputeMin", "imputeMax", "imputeNormal", "imputeHist"))),
+      column(6,  
+        selectInput("impute.methods.fac", "Choose imputation method for factor variables", selected = "imputeMode",
+          choices = c("imputeConstant", "imputeMode", "imputeMin", "imputeMax"))))
+  }
+}
 
