@@ -56,9 +56,8 @@ learners.params = reactive({
 
 learners.params.ui = reactive({
   req(learners.par.sets())
-  req(learners.params())
   par.sets = learners.par.sets()
-  params.inp = learners.params()
+  params.inp = isolate({learners.params()})
   makeLearnerParamUI(par.sets, params.inp)
 })
 
