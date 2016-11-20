@@ -31,6 +31,24 @@ data = reactive({
   }
 })
 
+data.name = reactive({
+  req(input$import.type)
+  type = input$import.type
+  if (type == "mlr") {
+    return(getTaskId(get(input$import.mlr)))
+  } else {
+    if (type == "OpenML") {
+      return(as.character(input$import.OpenML))
+    } else {
+      if (type == "CSV") {
+        return(input$import.csv$name)
+      } else {
+        return(input$import.arff$name)
+      }
+    }
+  }
+})
+
 
 output$import.preview = renderDataTable({
   d = data(); if (is.null(d)) return(NULL)
