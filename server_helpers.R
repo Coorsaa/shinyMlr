@@ -258,3 +258,11 @@ determinePredType = function(pred.type) {
   }
 }
 
+makePerformanceUI = function(performance) {
+  ms.names = names(performance)
+  boxes = Map(function(perf, ms.name) {
+    valueBox(ms.name, perf, color = "aqua", width = 2)
+  }, performance, ms.names)
+  boxes
+}
+

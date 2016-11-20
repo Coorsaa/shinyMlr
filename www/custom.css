@@ -9,3 +9,12 @@
 .skin-blue .main-header .logo:hover {
   background-color: #3c8dbc;
 }
+.small-box {
+  height: 85px;
+}
+.small-box h3{
+  font-size: 24px;
+}
+.small-box p{
+  font-size: 22px;
+}

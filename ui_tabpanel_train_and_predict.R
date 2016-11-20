@@ -1,46 +1,57 @@
-tabpanel.train = fluidRow(
-  box(width = 7, align = "center", title = "Train",
-    uiOutput("train.learner.sel"),
-    br(),
-    actionButton("train.run", label = "Train")
-  ),
-  box(width = 5,
-    infoBoxOutput("train.overview")
-  )
-)
-
-
-tabpanel.predict = list(
-  h2("Predict"),
-  fluidRow(
-    box(width = 3,
-      uiOutput("import.pred.ui")
-    ),
-    box(width = 9,
-      dataTableOutput("import.pred.preview")
+tabpanel.modelling = tabBox(width = 12,
+  tabPanel(title = "Train",
+    fluidRow(
+      box(width = 12,
+        fluidRow(
+          column(width = 12, align = "center",
+            uiOutput("train.learner.sel"),
+            actionButton("train.run", label = "Train")
+          )
+        ),
+        br(),
+        br(),
+        fluidRow(
+          verbatimTextOutput("model.overview")
+        )
+      )
     )
   ),
-  fluidRow(
-    box(width = 3,
-      actionButton("predict.run", label = "Predict")
-    ),
-    box(width = 9,
-      dataTableOutput("pred.overview")
-    )
-  )
-)
-
-tabpanel.performance = list(
-  fluidRow(
-    box(align = "center", title = "Performance", width = 12,
-      uiOutput("perf.measures.sel"),
-      actionButton("performance.run", label = "Measure Performance")
+  tabPanel(title = "Predict",
+    fluidRow(
+      box(width = 12, align = "center",
+        fluidRow(
+          box(width = 3,
+            uiOutput("import.pred.ui")
+          ),
+          box(width = 9,
+            dataTableOutput("import.pred.preview")
+          )
+        ),
+        fluidRow(
+          box(width = 3,
+            actionButton("predict.run", label = "Predict"),
+            br(),
+            br(),
+            conditionalPanel(condition = "output.predoverview",
+              downloadButton("predict.download", "download predictions")
+            )
+          ),
+          box(width = 9,
+            dataTableOutput("predoverview")
+          )
+        )
+      )
     )
   ),
-  fluidRow(
-    box(width = 12, align = "center",
-      tableOutput("performance.overview")
+  tabPanel(title = "Performance",
+    fluidRow(
+      box(width = 12, align = "center",
+        uiOutput("perf.measures.sel"),
+        actionButton("performance.run", label = "Measure Performance"),
+        br(),
+        br(),
+        uiOutput("performance.overview", align = "left")
+      )
     )
-  )
+  )  
 )
-
