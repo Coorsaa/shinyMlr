@@ -1,9 +1,8 @@
 ##### task #####
 
 output$task.id = renderUI({
-  # id = file_path_sans_ext(input$import.file$name)
-  # FIXME: quickinit / remove later
-  id = "iris"
+  req(data.name)
+  id = data.name()
   textInput("task.id", "Task ID", value = id)
 })
 
