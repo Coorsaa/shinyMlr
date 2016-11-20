@@ -4,13 +4,13 @@ output$summary.datatable = renderDataTable({
   req(data())
   d = data()
   colnames(d) = make.names(colnames(d))
-#  nas = sapply(d, length(is.na()))
   summarizeColumns(d)
 }, options = list(lengthMenu = c(5, 20, 50), pageLength = 5)
 )
 
 
 output$summary.vis.var = renderUI({
+  req(data())
   d = data()
   choices = as.list(colnames(data()))
   selectInput("summary.vis.var", "Choose a variable:", choices = choices, selected = getLast(choices), width = "95%")
@@ -39,7 +39,7 @@ observeEvent(input$summary.vis.var, {
 
 output$summary.vis = renderPlot({
   req(data())
-  d = data()
+  d = na.omit(data())
   factors = sapply(d, is.factor)
   numerics = sapply(d, is.numeric)
   factor_ch = colnames(d[factors])
@@ -75,14 +75,53 @@ output$preproc = renderUI({
 
 preproc.select = function (d, method) {
   if (method == "Impute") {
-    selectInput("impute.target", "Choose the imputation target", choices = colnames(d))
     fluidRow(
       column(6,
         selectInput("impute.methods.num", "Choose imputation method for numeric variables", selected = "imputeMean",
           choices = c("imputeConstant", "imputeMean", "imputeMedian", "imputeMode", "imputeMin", "imputeMax", "imputeNormal", "imputeHist"))),
       column(6,  
         selectInput("impute.methods.fac", "Choose imputation method for factor variables", selected = "imputeMode",
-          choices = c("imputeConstant", "imputeMode", "imputeMin", "imputeMax"))))
-  }
+          choices = c("imputeConstant", "imputeMode", "imputeMin", "imputeMax"))),
+      column(1),
+      column(5,
+        numericInput("impute.constant.num.input", "Constant value:", min = -Inf,  max = Inf, value = 0)
+      ),
+      column(5,
+        numericInput("impute.constant.fac.input", "Constant value:", min = -Inf,  max = Inf, value = 0)
+      ),
+      column(1),
+    actionButton("impute.start", "Start imputation"))
+  } 
 }
+
+impute.methods.num = reactive(
+  input$impute.methods.num
+)
+
+impute_data = eventReactive(input$impute.start, {
+  d = data()
+ if (input$impute.methods.num == "imputeConstant") {
+   imputed = impute(d, classes = list(numeric = imputeConstant(input$impute.constant.input), factor = match.fun(input$impute.methods.fac)()))
+ } else {
+    imputed = impute(d, classes = list(numeric = match.fun(input$impute.methods.num)(), factor = match.fun(input$impute.methods.fac)()))
+ }
+  imputed$data
+})
+
+output$impute.datatable = renderDataTable({
+  req(impute_data())
+  d = impute_data()
+  colnames(d) = make.names(colnames(d))
+  d
+}, options = list(lengthMenu = c(5, 20, 50), pageLength = 5)
+)
+
+preproc.method = reactive(input$preproc.method)
+observeEvent(preproc.method(), {
+  if (preproc.method() != "Impute") {
+    shinyjs::hide("impute.datatable")
+  } else {
+    shinyjs::show("impute.datatable")
+  }
+})
 

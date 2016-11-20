@@ -29,6 +29,8 @@ data = reactive({
     if (is.null(f)) return(NULL)
     readARFF(f)
   }
+  #if (!is.null(impute_data))
+  #  return(impute_data)
 })
 
 data.name = reactive({
@@ -51,8 +53,8 @@ data.name = reactive({
 
 
 output$import.preview = renderDataTable({
-  d = data(); if (is.null(d)) return(NULL)
-  colnames(d) = make.names(colnames(d)) 
+  req(data())
+  colnames(d) = make.names(colnames(d))
   d
 }, options = list(lengthMenu = c(5, 20, 50), pageLength = 5, scrollX = TRUE)
 )
