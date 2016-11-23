@@ -154,6 +154,51 @@ observeEvent(preproc_method(), {
 })
 
 
+### createDummyFeature
+
+output$preproc_createdummy = renderUI({
+  req(data())
+  choices = as.list(colnames(data()))
+  req(input$preproc_method)
+  fluidRow(
+    conditionalPanel("input.preproc_method == 'createDummyFeatures'",
+      column(6,
+        selectInput("createdummy_method", "Choose Method", selected = "1-of-n", choices = c("1-of-n", "reference"))
+      ),
+      column(6, 
+        selectizeInput("createdummy_cols", "Choose columns (optional)", choices = choices, multiple = TRUE)
+      ),
+      column(12,
+        actionButton("createdummy_start", "create Dummy Feature")
+      )
+    )
+  )
+})
+
+createdummy_data = eventReactive(input$createdummy_start, {
+  req(data())
+  d = data()
+  createDummyFeatures(d, target = input$preproc_target, method = input$createdummy_method, cols = input$createdummy_cols)
+})
+
+output$createdummy_datatable = renderDataTable({
+  req(createdummy_data())
+  d = createdummy_data()
+  colnames(d) = make.names(colnames(d))
+  d
+}, options = list(lengthMenu = c(5, 20, 50), pageLength = 5)
+)
+
+
+observeEvent(preproc_method(), {
+  if (preproc_method() != "dropFeatures") {
+    shinyjs::hide("dropfeature_datatable")
+  } else {
+    shinyjs::show("dropfeature_datatable")
+  }
+})
+
+
 ### dropFeature
 
 output$preproc_dropfeature = renderUI({

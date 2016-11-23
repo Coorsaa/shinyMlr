@@ -11,11 +11,17 @@ tabpanel.preprocessing = fluidRow(
       column(12,
         uiOutput("preproc_impute")
       ),
+      column(12,
+        uiOutput("preproc_createdummy")
+      ),
+      column(12,
       uiOutput("preproc_dropfeature")
+      )
     ),
-    column(10,
+    column(12,
       fluidRow(
         dataTableOutput("impute_datatable"),
+        dataTableOutput("createdummy_datatable"),
         dataTableOutput("dropfeature_datatable")
       )
     )
