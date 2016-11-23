@@ -34,7 +34,7 @@ observeEvent(input$summary.vis.var, {
 factorvars = reactive({
   req(data())
   d = data()
-  colnames(d[sapply(d, is.factor)])
+  colnames(d[vlapply(d, is.factor)])
 })
 
 observeEvent(input$summary.vis.var, {
