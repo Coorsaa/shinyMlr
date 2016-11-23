@@ -174,7 +174,8 @@ makeLearnerThresholdUI = function(lrns.names, pred.types.inp, threshs.inp,
   }, lrns.names, threshs.inp, pred.types.inp)
 }
 
-makeLearnerConstructionUI = function(lrns.names, par.sets, params, pred.types, thresholds) {
+makeLearnerConstructionUI = function(lrns.names, par.sets, params, pred.types,
+  thresholds, tab.box.sel) {
   lrn.tabs = Map(function (par.set, lrn.name, hyppar, pred.type, threshold) {
     par.tab = renderTable({ParamHelpers:::getParSetPrintData(par.set)},
      rownames = TRUE)
@@ -197,7 +198,8 @@ makeLearnerConstructionUI = function(lrns.names, par.sets, params, pred.types, t
   }, par.sets, lrns.names, params, pred.types, thresholds)
 
   names(lrn.tabs) = NULL
-  do.call(tabBox, c(lrn.tabs, width = 12))
+  do.call(tabBox, c(lrn.tabs, width = 12, id = "learners.tabBox",
+    selected = tab.box.sel))
 }
 
 

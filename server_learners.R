@@ -110,10 +110,12 @@ output$learners.ui = renderUI({
   req(learners.params.ui)
   lrns.sel = input$learners.sel
   par.sets = isolate(learners.par.sets())
-  params = learners.params.ui()
-  pred.types = learners.pred.types.ui()
+  params = isolate(learners.params.ui())
+  pred.types = isolate(learners.pred.types.ui())
   thresholds = learners.threshold.ui()
-  makeLearnerConstructionUI(lrns.sel, par.sets, params, pred.types, thresholds)
+  lrns.tab.box.sel = input$learners.tabBox
+  makeLearnerConstructionUI(lrns.sel, par.sets, params, pred.types,
+    thresholds, lrns.tab.box.sel)
 })
 
 learners = reactive({ 
