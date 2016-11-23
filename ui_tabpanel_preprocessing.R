@@ -3,26 +3,24 @@ tabpanel.preprocessing = fluidRow(
     fluidRow(
       column(6, 
         selectInput("preproc_method", "Choose data preprocessing method:",
-          choices = c("Impute", "capLargeValues",  "createDummyFeatures", "dropFeatures", "mergeSmallFactorLevels", "normalizeFeatures", "removeConstantFeatures"))
+          choices = c("Impute", "createDummyFeatures", "dropFeatures", "capLargeValues", "mergeSmallFactorLevels", "normalizeFeatures", "removeConstantFeatures"))
       ),
       column(6,
         uiOutput("preproc_target")
       ),
       column(12,
-        uiOutput("preproc_impute")
-      ),
-      column(12,
-        uiOutput("preproc_createdummy")
-      ),
-      column(12,
-      uiOutput("preproc_dropfeature")
+        uiOutput("preproc_impute"),
+        uiOutput("preproc_createdummy"),
+        uiOutput("preproc_dropfeature"),
+        uiOutput("preproc_caplarge")
       )
     ),
     column(12,
       fluidRow(
         dataTableOutput("impute_datatable"),
         dataTableOutput("createdummy_datatable"),
-        dataTableOutput("dropfeature_datatable")
+        dataTableOutput("dropfeature_datatable"),
+        dataTableOutput("caplarge_datatable")
       )
     )
   )

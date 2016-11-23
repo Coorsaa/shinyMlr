@@ -24,7 +24,7 @@ output$summary.vis.hist.nbins = renderUI({
 factorvars = reactive({
   req(data())
   d = data()
-  colnames(d[sapply(d, is.factor)])
+  colnames(d[vlapply(d, is.factor)])
 })
 
 observeEvent(input$summary.vis.var, {
@@ -42,8 +42,8 @@ output$summary.vis = renderPlot({
   req(input$summary.vis.var)
   req(data())
   d = na.omit(data())
-  factors = sapply(d, is.factor)
-  numerics = sapply(d, is.numeric)
+  factors = vlapply(d, is.factor)
+  numerics = vlapply(d, is.numeric)
   factor_ch = colnames(d[factors])
   num_ch = colnames(d[numerics])
   if (input$summary.vis.var %in% num_ch) {
@@ -154,11 +154,13 @@ observeEvent(preproc_method(), {
 })
 
 
-### createDummyFeature
+### createDummyFeatures
 
 output$preproc_createdummy = renderUI({
   req(data())
-  choices = as.list(colnames(data()))
+  d = data()
+  factors = vlapply(d, is.factor)
+  choices = as.list(colnames(d[factors]))
   req(input$preproc_method)
   fluidRow(
     conditionalPanel("input.preproc_method == 'createDummyFeatures'",
@@ -166,7 +168,7 @@ output$preproc_createdummy = renderUI({
         selectInput("createdummy_method", "Choose Method", selected = "1-of-n", choices = c("1-of-n", "reference"))
       ),
       column(6, 
-        selectizeInput("createdummy_cols", "Choose columns (optional)", choices = choices, multiple = TRUE)
+        selectInput("createdummy_cols", "Choose columns (optional)", choices = choices, multiple = TRUE)
       ),
       column(12,
         actionButton("createdummy_start", "create Dummy Feature")
@@ -206,7 +208,10 @@ output$preproc_dropfeature = renderUI({
   req(input$preproc_method)
   fluidRow(
     conditionalPanel("input.preproc_method == 'dropFeatures'",
-      actionButton("dropfeature_start", "Drop Feature"))
+      column(12,
+        actionButton("dropfeature_start", "Drop Feature")
+      )
+    )
   )
 })
 
@@ -233,3 +238,71 @@ observeEvent(preproc_method(), {
   }
 })
 
+
+### capLargeValues
+
+
+output$preproc_caplarge = renderUI({
+  req(data())
+  d = data()
+  nums = vlapply(d, is.numeric)
+  max = max(d[nums])
+  choices = as.list(colnames(d[nums]))
+  req(input$preproc_method)
+  tr = caplarge_threshold()
+  fluidRow(
+    conditionalPanel("input.preproc_method == 'capLargeValues'",
+      column(6,
+        numericInput("caplarge_threshold", "Choose threshold", value = max)#FIXME threshold cannot be changed!
+      ),
+      column(6, 
+        selectInput("caplarge_cols", "Choose columns (optional)", choices = choices, multiple = TRUE)
+      ),
+      column(6, 
+        numericInput("caplarge_impute", "Choose impute value (optional)", value = tr)
+      ),
+      column(6, 
+        selectInput("caplarge_what", "What kind of entries are affected?", selected = "abs", choices = c("abs", "pos", "neg"))
+      ),
+      column(12,
+        actionButton("caplarge_start", "cap large values")
+      )
+    )
+  )
+})
+
+caplarge_threshold = reactive({
+  req(data())
+  d = data()
+  nums = vlapply(d, is.numeric)
+  max = max(d[nums])
+  if (!is.null(input$caplarge_threshold)) {
+    return(input$caplarge_threshold)
+  } else {
+    return(max)
+  }
+})
+
+caplarge_data = eventReactive(input$caplarge_start, {
+  req(data())
+  d = data()
+  capLargeValues(d, target = input$preproc_target, cols = input$caplarge_cols, threshold = input$caplarge_threshold,
+    impute = input$caplarge_impute, what = input$caplarge_what)
+})
+
+output$caplarge_datatable = renderDataTable({
+  req(caplarge_data())
+  d = caplarge_data()
+  colnames(d) = make.names(colnames(d))
+  d
+}, options = list(lengthMenu = c(5, 20, 50), pageLength = 5)
+)
+
+
+observeEvent(preproc_method(), {
+  if (preproc_method() != "capLargeValues") {
+    shinyjs::hide("caplarge_datatable")
+  } else {
+    shinyjs::show("caplarge_datatable")
+  }
+})
