@@ -23,6 +23,7 @@ output$summary.vis.hist.nbins = renderUI({
 
 factorvars = reactive({
   req(data())
+  d = data()
   colnames(d[sapply(d, is.factor)])
 })
 
@@ -38,6 +39,7 @@ observeEvent(input$summary.vis.var, {
 
 
 output$summary.vis = renderPlot({
+  req(input$summary.vis.var)
   req(data())
   d = na.omit(data())
   factors = sapply(d, is.factor)
@@ -48,13 +50,13 @@ output$summary.vis = renderPlot({
     ggplot(data = d, aes(x = as.numeric(d[,input$summary.vis.var]))) + 
       geom_histogram(aes(y = ..density..), fill = "white", color = "black", stat = "bin", bins = input$summary.vis.hist.nbins) + 
       geom_density(fill = "blue", alpha = 0.1) + xlab(input$summary.vis.var) +
-      geom_vline(aes(xintercept = quantile(as.numeric(d[,input$summary.vis.var]), 0.05)), color = "blue", size = 0.5, linetype = "dashed") +
-      geom_vline(aes(xintercept = quantile(as.numeric(d[,input$summary.vis.var]), 0.95)), color = "blue", size = 0.5, linetype = "dashed") +
+      geom_vline(aes(xintercept = quantile(as.numeric(d[,input$summary.vis.var]), 0.25)), color = "blue", size = 0.5, linetype = "dashed") +
+      geom_vline(aes(xintercept = quantile(as.numeric(d[,input$summary.vis.var]), 0.75)), color = "blue", size = 0.5, linetype = "dashed") +
       geom_vline(aes(xintercept = quantile(as.numeric(d[,input$summary.vis.var]), 0.5)), color = "blue", size = 1, linetype = "dashed")
   } else {
     ggplot(data = d, aes(x = d[,input$summary.vis.var])) + 
       geom_bar(aes(fill = d[,input$summary.vis.var]), stat = "count") + xlab(input$summary.vis.var) +
-      guides(fill=FALSE)
+      guides(fill = FALSE)
   }
 })  
 
@@ -62,53 +64,79 @@ output$summary.vis = renderPlot({
 
 ##### preprocessing #####
 
-output$preproc.var = renderUI({
-  selectInput("preproc.method", "Choose data preprocessing method:", choices = c("Impute", "capLargeValues",  "createDummyFeatures", "dropFeatures", "mergeSmallFactorLevels", "normalizeFeatures", "removeConstantFeatures"))
-})
-
-output$preproc = renderUI({
+output$preproc_target = renderUI({
   req(data())
-  req(input$preproc.method)
-  d = data()
-  preproc.select(d, input$preproc.method)
+  choices = as.list(colnames(data()))
+  selectInput("preproc_target", "Choose a target:", choices =  choices, selected = getLast(choices))
 })
 
-preproc.select = function (d, method) {
-  if (method == "Impute") {
+
+### Impute
+
+output$preproc_impute = renderUI({
+  req(data())
+  req(input$preproc_method)
+  d = data()
+  # box(width = 12,
     fluidRow(
+      column(6, 
+        conditionalPanel("input.preproc_method == 'Impute'",
+          selectInput("impute_methods_num", "Choose imputation method for numeric variables", selected = "imputeMean",
+            choices = c("imputeConstant", "imputeMean", "imputeMedian", "imputeMode", "imputeMin", "imputeMax", "imputeNormal", "imputeHist")
+          )
+        )
+      ),
       column(6,
-        selectInput("impute.methods.num", "Choose imputation method for numeric variables", selected = "imputeMean",
-          choices = c("imputeConstant", "imputeMean", "imputeMedian", "imputeMode", "imputeMin", "imputeMax", "imputeNormal", "imputeHist"))),
-      column(6,  
-        selectInput("impute.methods.fac", "Choose imputation method for factor variables", selected = "imputeMode",
-          choices = c("imputeConstant", "imputeMode", "imputeMin", "imputeMax"))),
-      column(1),
-      column(5,
-        numericInput("impute.constant.num.input", "Constant value:", min = -Inf,  max = Inf, value = 0)
+        conditionalPanel("input.impute_methods_num == 'imputeConstant'",
+          numericInput("impute_constant_num_input", "Constant value for numerical features:", min = -Inf,  max = Inf, value = 0)
+        )
       ),
-      column(5,
-        numericInput("impute.constant.fac.input", "Constant value:", min = -Inf,  max = Inf, value = 0)
+      column(6,
+        conditionalPanel("input.preproc_method == 'Impute'",
+          selectInput("impute_methods_fac", "Choose imputation method for factor variables", selected = "imputeMode",
+            choices = c("imputeConstant", "imputeMode")#, "imputeMin", "imputeMax")
+          )
+        )
       ),
-      column(1),
-    actionButton("impute.start", "Start imputation"))
-  } 
-}
-
-impute.methods.num = reactive(
-  input$impute.methods.num
-)
-
-impute_data = eventReactive(input$impute.start, {
-  d = data()
- if (input$impute.methods.num == "imputeConstant") {
-   imputed = impute(d, classes = list(numeric = imputeConstant(input$impute.constant.input), factor = match.fun(input$impute.methods.fac)()))
- } else {
-    imputed = impute(d, classes = list(numeric = match.fun(input$impute.methods.num)(), factor = match.fun(input$impute.methods.fac)()))
- }
-  imputed$data
+      column(6,
+        conditionalPanel("input.impute_methods_fac == 'imputeConstant'",
+          numericInput("impute_constant_fac_input", "Constant value for factors:", min = -Inf,  max = Inf, value = 0)
+        )
+      ),
+      column(12,
+        conditionalPanel("input.preproc_method == 'Impute'",
+        actionButton("impute_start", "Start imputation")
+        )
+      )
+    )
+  # )
 })
 
-output$impute.datatable = renderDataTable({
+impute_data = eventReactive(input$impute_start, {
+  req(data())
+  d = data()
+  req(input$impute_methods_num)
+  req(input$impute_methods_fac)
+  num = input$impute_methods_num
+  fac = input$impute_methods_fac
+  
+  if (num == "imputeConstant" ) {
+    num_impute = imputeConstant(input$impute_constant_num_input)
+  } else {
+    num_impute = match.fun(input$impute_methods_num)()
+  }
+    
+  if (fac == "imputeConstant" ) {
+    fac_impute = imputeConstant(input$impute_constant_fac_input)
+  } else {
+    fac_impute = match.fun(input$impute_methods_fac)()
+  }   
+  
+  imputed = impute(d, target = input$preproc_target, classes = list(numeric = num_impute, factor = fac_impute))
+  return(imputed$data)
+})
+
+output$impute_datatable = renderDataTable({
   req(impute_data())
   d = impute_data()
   colnames(d) = make.names(colnames(d))
@@ -116,12 +144,47 @@ output$impute.datatable = renderDataTable({
 }, options = list(lengthMenu = c(5, 20, 50), pageLength = 5)
 )
 
-preproc.method = reactive(input$preproc.method)
-observeEvent(preproc.method(), {
-  if (preproc.method() != "Impute") {
-    shinyjs::hide("impute.datatable")
+preproc_method = reactive(input$preproc_method)
+observeEvent(preproc_method(), {
+  if (preproc_method() != "Impute") {
+    shinyjs::hide("impute_datatable")
   } else {
-    shinyjs::show("impute.datatable")
+    shinyjs::show("impute_datatable")
+  }
+})
+
+
+### dropFeature
+
+output$preproc_dropfeature = renderUI({
+  req(data())
+  req(input$preproc_method)
+  fluidRow(
+    conditionalPanel("input.preproc_method == 'dropFeatures'",
+      actionButton("dropfeature_start", "Drop Feature"))
+  )
+})
+
+dropfeature_data = eventReactive(input$dropfeature_start, {
+  req(data())
+  d = data()
+  dropNamed(d, input$preproc_target)
+})
+
+output$dropfeature_datatable = renderDataTable({
+  req(dropfeature_data())
+  d = dropfeature_data()
+  colnames(d) = make.names(colnames(d))
+  d
+}, options = list(lengthMenu = c(5, 20, 50), pageLength = 5)
+)
+
+
+observeEvent(preproc_method(), {
+  if (preproc_method() != "dropFeatures") {
+    shinyjs::hide("dropfeature_datatable")
+  } else {
+    shinyjs::show("dropfeature_datatable")
   }
 })
 

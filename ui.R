@@ -2,6 +2,7 @@ library(shiny)
 library(shinydashboard)
 library(shinyjs)
 
+
 source("ui_tabpanel_import.R")
 source("ui_tabpanel_browse_openml.R")
 source("ui_tabpanel_summary.R")
@@ -63,9 +64,7 @@ shinyUI(
         tabItem(tabName = "bmrplots", tabpanel.bmrplots),
         tabItem(tabName = "predplots", tabpanel.predictionplot),
         tabItem(tabName = "partdepplots", tabpanel.partialdep),
-        tabItem(tabName = "traintab", tabpanel.train),
-        tabItem(tabName = "predtab", tabpanel.predict),
-        tabItem(tabName = "perftab", tabpanel.performance)
+        tabItem(tabName = "modelling", tabpanel.modelling)
       )
     )
   )

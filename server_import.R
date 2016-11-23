@@ -11,6 +11,13 @@ output$import.ui = renderUI({
 })
 
 data = reactive({
+  # imp = impute_data()
+  # dropf = dropfeature_data()
+  # if (!is.null(imp)) {
+    # return(imp)
+  # } else if (!is.null(dropf)) {
+    # return(dropf)
+  # } else 
   if (is.null(input$import.type)) {
     return(NULL)
   } else if (input$import.type == "mlr") {
@@ -29,8 +36,7 @@ data = reactive({
     if (is.null(f)) return(NULL)
     readARFF(f)
   }
-  #if (!is.null(impute_data))
-  #  return(impute_data)
+  
 })
 
 data.name = reactive({
@@ -54,6 +60,7 @@ data.name = reactive({
 
 output$import.preview = renderDataTable({
   req(data())
+  d = data()
   colnames(d) = make.names(colnames(d))
   d
 }, options = list(lengthMenu = c(5, 20, 50), pageLength = 5, scrollX = TRUE)

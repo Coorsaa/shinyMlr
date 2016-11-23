@@ -8,7 +8,9 @@ tabpanel.summary = fluidRow(
         uiOutput("summary.vis.var")),
       column(8,
         uiOutput("summary.vis.hist.nbins")),
+      column(12,
       plotOutput("summary.vis")
+      )
     )
   )
 )
