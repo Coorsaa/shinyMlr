@@ -4,19 +4,6 @@ pasteDot = function(...) {
   paste(..., sep = ".")
 }
 
-# numeric variables
-numericFeatures = reactive({
-  req(data())
-  d = data()
-  colnames(d[vlapply(d, is.numeric)])
-})
-
-# factor variables
-factorFeatures = reactive({
-  req(data())
-  d = data()
-  colnames(d[vlapply(d, is.factor)])
-})
 
 # FIXME: mlr: create makeAutoTask or whatever depending on target? 
 sMakeTask = function(id, target, data) {

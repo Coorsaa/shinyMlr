@@ -1,5 +1,21 @@
 ##### data summary #####
 
+# numeric variables
+numericFeatures = reactive({
+  req(data())
+  d = data()
+  return(colnames(d[vlapply(d, is.numeric)]))
+})
+
+# factor variables
+factorFeatures = reactive({
+  req(data())
+  d = data()
+  return(colnames(d[vlapply(d, is.factor)]))
+})
+
+
+
 output$summary.datatable = renderDataTable({
   req(data())
   d = data()
@@ -24,23 +40,6 @@ observeEvent(input$summary.vis.var, {
   req(factorFeatures())
   req(input$summary.vis.var)
   if (input$summary.vis.var %in% factorFeatures()) {
-    shinyjs::hide("summary.vis.hist.nbins", animType = "slide")
-  } else {
-    shinyjs::show("summary.vis.hist.nbins", anim = TRUE)
-  }
-})
-
-
-factorvars = reactive({
-  req(data())
-  d = data()
-  colnames(d[vlapply(d, is.factor)])
-})
-
-observeEvent(input$summary.vis.var, {
-  req(factorvars())
-  req(input$summary.vis.var)
-  if (input$summary.vis.var %in% factorvars()) {
     shinyjs::hide("summary.vis.hist.nbins", animType = "slide")
   } else {
     shinyjs::show("summary.vis.hist.nbins", anim = TRUE)
