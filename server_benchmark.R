@@ -63,7 +63,7 @@ measures = reactive({
 })
 
 bmr = eventReactive(input$benchmark.run, {
-  tt = task(); if (is.null(tt)) return(NULL)
+  req(learners())
   ms = measures()
   lrns = learners()[input$benchmark.learners.sel]
   rd = rdesc()

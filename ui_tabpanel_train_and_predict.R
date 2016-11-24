@@ -1,3 +1,4 @@
+source("ui_helpers.R")
 tabpanel.modelling = tabBox(width = 12,
   tabPanel(title = "Train",
     fluidRow(
@@ -11,7 +12,9 @@ tabpanel.modelling = tabBox(width = 12,
         br(),
         br(),
         fluidRow(
-          verbatimTextOutput("model.overview")
+          box(width = 12,
+            verbatimTextOutput("model.overview")
+          )
         )
       )
     )

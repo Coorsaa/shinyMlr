@@ -53,9 +53,10 @@ makeImportSideBar = function(type) {
       box(width = 8, height = 250,
         checkboxInput("import.header", "Header", TRUE),
         selectInput("import.sep", "Separator", selected = ",",
-          choices = c(Comma = ",", Semicolon = ";", Tab = "\t")),
+          choices = c(Comma = ",", Semicolon = ";", Tab = "\t"), width = 200),
         selectInput("import.quote", "Quote", selected = '"',
-          choices = c(None = "", "Double Quote" = '"', "Single Quote" = "'"))
+          choices = c(None = "", "Double Quote" = '"', "Single Quote" = "'"),
+          width = 200)
       )#,
       #      textInput("import.rownames", "Row Names", NULL)
     ),
@@ -267,4 +268,5 @@ makePerformanceUI = function(performance) {
   }, performance, ms.names)
   boxes
 }
+
 
