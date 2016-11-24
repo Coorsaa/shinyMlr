@@ -67,7 +67,9 @@ output$summary.vis = renderPlot({
 output$preproc_target = renderUI({
   req(data())
   choices = as.list(colnames(data()))
-  selectInput("preproc_target", "Choose a target:", choices =  choices, selected = getLast(choices))
+   conditionalPanel("input.preproc_method != 'removeConstantFeatures'",
+     selectInput("preproc_target", "Choose a target:", choices =  choices, selected = getLast(choices))
+   )
 })
 
 
@@ -77,7 +79,6 @@ output$preproc_impute = renderUI({
   req(data())
   req(input$preproc_method)
   d = data()
-  # box(width = 12,
     fluidRow(
       column(6, 
         conditionalPanel("input.preproc_method == 'Impute'",
@@ -94,7 +95,7 @@ output$preproc_impute = renderUI({
       column(6,
         conditionalPanel("input.preproc_method == 'Impute'",
           selectInput("impute_methods_fac", "Choose imputation method for factor variables", selected = "imputeMode",
-            choices = c("imputeConstant", "imputeMode")#, "imputeMin", "imputeMax")
+            choices = c("imputeConstant", "imputeMode")
           )
         )
       ),
@@ -109,7 +110,6 @@ output$preproc_impute = renderUI({
         )
       )
     )
-  # )
 })
 
 impute_data = eventReactive(input$impute_start, {
@@ -171,7 +171,7 @@ output$preproc_createdummy = renderUI({
         selectInput("createdummy_cols", "Choose columns (optional)", choices = choices, multiple = TRUE)
       ),
       column(12,
-        actionButton("createdummy_start", "create Dummy Feature")
+        actionButton("createdummy_start", "Create dummy features")
       )
     )
   )
@@ -239,6 +239,119 @@ observeEvent(preproc_method(), {
 })
 
 
+### removeConstantFeatures
+
+
+output$preproc_remconst = renderUI({
+  req(data())
+  d = data()
+  choices = as.list(colnames(d))
+  req(input$preproc_method)
+  fluidRow(
+    conditionalPanel("input.preproc_method == 'removeConstantFeatures'",
+      column(6,
+        sliderInput("remconst_perc", "Choose % of feat. values different from mode", value = 0L, min = 0L, max = 1L, step = 0.01)
+      ),
+      column(6, 
+        selectInput("remconst_cols", "Choose columns which must not deleted", choices = choices, multiple = TRUE)
+      ),
+      column(6, 
+        radioButtons("remconst_na", "Ignore NAs in %-calculation?", choices = c("TRUE", "FALSE"), selected = "FALSE")
+      ),
+      column(12,
+        actionButton("remconst_start", "Remove constant features")
+      )
+    )
+  )
+})
+
+
+remconst_data = eventReactive(input$remconst_start, {
+  req(data())
+  d = data()
+  removeConstantFeatures(d, perc = input$remconst_perc, dont.rm = input$remconst_cols, na.ignore = as.logical(input$remconst_na))
+})
+
+output$remconst_datatable = renderDataTable({
+  req(remconst_data())
+  d = remconst_data()
+  colnames(d) = make.names(colnames(d))
+  d
+}, options = list(lengthMenu = c(5, 20, 50), pageLength = 5)
+)
+
+
+observeEvent(preproc_method(), {
+  if (preproc_method() != "removeConstantFeatures") {
+    shinyjs::hide("remconst_datatable")
+  } else {
+    shinyjs::show("remconst_datatable")
+  }
+})
+
+
+
+### normalizeFeatures
+
+
+output$preproc_normfeat = renderUI({
+  req(data())
+  d = data()
+  nums = vlapply(d, is.numeric)
+  choices = as.list(colnames(d[nums]))
+  req(input$preproc_method)
+  fluidRow(
+    conditionalPanel("input.preproc_method == 'normalizeFeatures'",
+      column(6,
+        selectInput("normfeat_method", "Choose method", selected = "standardize", choices = c("center", "scale", "standardize", "range"))
+      ),
+      column(6, 
+        conditionalPanel("input.normfeat_method == 'range'",
+          sliderInput("normfeat_range", "Choose range", min = -10L, max = 10L, value = c(0, 1), round = TRUE, step = 1L) #FIXME What would be the best range?
+        )  
+      ),
+      column(6, 
+        selectInput("normfeat_cols", "Choose columns (optional)", choices = choices, multiple = TRUE)
+      ),
+      column(6, 
+        conditionalPanel("input.normfeat_method != 'center'",
+          selectInput("normfeat_on_constant", "How should constant vectors be treated?", selected = "quiet",
+            choices = c("quiet", "warn", "stop"))
+        )
+      ),
+      column(12,
+        actionButton("normfeat_start", "Normalize features")
+      )
+    )
+  )
+})
+
+
+normfeat_data = eventReactive(input$normfeat_start, {
+  req(data())
+  d = data()
+  normalizeFeatures(d, target = input$preproc_target, method = input$normfeat_method, cols = input$normfeat_cols,
+    range = input$normfeat_range, on.constant = input$normfeat_on_constant)
+})
+
+output$normfeat_datatable = renderDataTable({
+  req(normfeat_data())
+  d = normfeat_data()
+  colnames(d) = make.names(colnames(d))
+  d
+}, options = list(lengthMenu = c(5, 20, 50), pageLength = 5)
+)
+
+
+observeEvent(preproc_method(), {
+  if (preproc_method() != "normalizeFeatures") {
+    shinyjs::hide("normfeat_datatable")
+  } else {
+    shinyjs::show("normfeat_datatable")
+  }
+})
+
+
 ### capLargeValues
 
 
@@ -265,7 +378,7 @@ output$preproc_caplarge = renderUI({
         selectInput("caplarge_what", "What kind of entries are affected?", selected = "abs", choices = c("abs", "pos", "neg"))
       ),
       column(12,
-        actionButton("caplarge_start", "cap large values")
+        actionButton("caplarge_start", "Cap large values")
       )
     )
   )
@@ -306,3 +419,5 @@ observeEvent(preproc_method(), {
     shinyjs::show("caplarge_datatable")
   }
 })
+
+
