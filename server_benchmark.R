@@ -67,9 +67,10 @@ bmr = eventReactive(input$benchmark.run, {
   ms = measures()
   lrns = learners()[input$benchmark.learners.sel]
   rd = rdesc()
+  tsk = task()
   
   withCallingHandlers({
-    benchmark(lrns, tt, rd, measures = ms, show.info = TRUE)
+    benchmark(lrns, tsk, rd, measures = ms, show.info = TRUE)
   },
     message = function(m) {
       shinyjs::html(id = "benchmark.text", html = m$message, add = FALSE)

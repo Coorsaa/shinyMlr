@@ -1,10 +1,10 @@
 tabpanel.task = list(fluidRow(
   box(collapsible = TRUE, width = 12, title = "Task",
     fluidRow(
-      box(
+      column(width = 6,
         uiOutput("task.id")
       ),
-      box(
+      column(width = 6,
         uiOutput("task.target")
       )
     ),
