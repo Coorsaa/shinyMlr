@@ -18,3 +18,10 @@
 .small-box p{
   font-size: 22px;
 }
+
+.box {
+border-bottom-color:#ffffff;
+border-left-color:#ffffff;
+border-right-color:#ffffff;
+border-top-color:#ffffff;
+}

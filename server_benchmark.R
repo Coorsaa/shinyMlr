@@ -63,13 +63,14 @@ measures = reactive({
 })
 
 bmr = eventReactive(input$benchmark.run, {
-  tt = task(); if (is.null(tt)) return(NULL)
+  req(learners())
   ms = measures()
   lrns = learners()[input$benchmark.learners.sel]
   rd = rdesc()
+  tsk = task()
   
   withCallingHandlers({
-    benchmark(lrns, tt, rd, measures = ms, show.info = TRUE)
+    benchmark(lrns, tsk, rd, measures = ms, show.info = TRUE)
   },
     message = function(m) {
       shinyjs::html(id = "benchmark.text", html = m$message, add = FALSE)

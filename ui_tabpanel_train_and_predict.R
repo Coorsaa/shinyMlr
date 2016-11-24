@@ -1,51 +1,45 @@
 tabpanel.modelling = tabBox(width = 12,
   tabPanel(title = "Train",
     fluidRow(
-      box(width = 12,
-        fluidRow(
-          column(width = 12, align = "center",
-            uiOutput("train.learner.sel"),
-            actionButton("train.run", label = "Train")
-          )
-        ),
-        br(),
-        br(),
-        fluidRow(
-          verbatimTextOutput("model.overview")
-        )
+      column(width = 12, align = "center",
+        uiOutput("train.learner.sel"),
+        actionButton("train.run", label = "Train")
+      )
+    ),
+    br(),
+    br(),
+    fluidRow(
+      column(width = 12,
+        verbatimTextOutput("model.overview")
       )
     )
   ),
   tabPanel(title = "Predict",
     fluidRow(
-      box(width = 12, align = "center",
-        fluidRow(
-          box(width = 3,
-            uiOutput("import.pred.ui")
-          ),
-          box(width = 9,
-            dataTableOutput("import.pred.preview")
-          )
-        ),
-        fluidRow(
-          box(width = 3,
-            actionButton("predict.run", label = "Predict"),
-            br(),
-            br(),
-            conditionalPanel(condition = "output.predoverview",
-              downloadButton("predict.download", "download predictions")
-            )
-          ),
-          box(width = 9,
-            dataTableOutput("predoverview")
-          )
+      column(width = 3, align = "center",
+        uiOutput("import.pred.ui")
+      ),
+      column(width = 9,
+        dataTableOutput("import.pred.preview")
+      )
+    ),
+    fluidRow(
+      column(width = 3, align = "center",
+        actionButton("predict.run", label = "Predict"),
+        br(),
+        br(),
+        conditionalPanel(condition = "output.predoverview",
+          downloadButton("predict.download", "download predictions")
         )
+      ),
+      column(width = 9,
+        dataTableOutput("predoverview")
       )
     )
   ),
   tabPanel(title = "Performance",
     fluidRow(
-      box(width = 12, align = "center",
+      column(width = 12, align = "center",
         uiOutput("perf.measures.sel"),
         actionButton("performance.run", label = "Measure Performance"),
         br(),
