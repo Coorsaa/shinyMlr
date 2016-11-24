@@ -20,17 +20,10 @@ output$summary.vis.hist.nbins = renderUI({
   sliderInput("summary.vis.hist.nbins", "Number of bins", min = 1L, max = 100L, value = 30L, step = 1L, width = "95%")
 })
 
-
-factorvars = reactive({
-  req(data())
-  d = data()
-  colnames(d[vlapply(d, is.factor)])
-})
-
 observeEvent(input$summary.vis.var, {
-  req(factorvars())
+  req(factorFeatures())
   req(input$summary.vis.var)
-  if (input$summary.vis.var %in% factorvars()) {
+  if (input$summary.vis.var %in% factorFeatures()) {
     shinyjs::hide("summary.vis.hist.nbins", animType = "slide")
   } else {
     shinyjs::show("summary.vis.hist.nbins", anim = TRUE)
@@ -41,12 +34,9 @@ observeEvent(input$summary.vis.var, {
 output$summary.vis = renderPlot({
   req(input$summary.vis.var)
   req(data())
+  req(numericFeatures())
   d = na.omit(data())
-  factors = vlapply(d, is.factor)
-  numerics = vlapply(d, is.numeric)
-  factor_ch = colnames(d[factors])
-  num_ch = colnames(d[numerics])
-  if (input$summary.vis.var %in% num_ch) {
+  if (input$summary.vis.var %in% numericFeatures()) {
     ggplot(data = d, aes(x = as.numeric(d[,input$summary.vis.var]))) + 
       geom_histogram(aes(y = ..density..), fill = "white", color = "black", stat = "bin", bins = input$summary.vis.hist.nbins) + 
       geom_density(fill = "blue", alpha = 0.1) + xlab(input$summary.vis.var) +
@@ -159,8 +149,7 @@ observeEvent(preproc_method(), {
 output$preproc_createdummy = renderUI({
   req(data())
   d = data()
-  factors = vlapply(d, is.factor)
-  choices = as.list(colnames(d[factors]))
+  choices = factorFeatures()
   req(input$preproc_method)
   fluidRow(
     conditionalPanel("input.preproc_method == 'createDummyFeatures'",
@@ -297,8 +286,7 @@ observeEvent(preproc_method(), {
 output$preproc_normfeat = renderUI({
   req(data())
   d = data()
-  nums = vlapply(d, is.numeric)
-  choices = as.list(colnames(d[nums]))
+  choices = numericFeatures()
   req(input$preproc_method)
   fluidRow(
     conditionalPanel("input.preproc_method == 'normalizeFeatures'",
@@ -358,9 +346,8 @@ observeEvent(preproc_method(), {
 output$preproc_caplarge = renderUI({
   req(data())
   d = data()
-  nums = vlapply(d, is.numeric)
-  max = max(d[nums])
-  choices = as.list(colnames(d[nums]))
+  max = max(d[vlapply(d, is.numeric)])
+  choices = numericFeatures()
   req(input$preproc_method)
   tr = caplarge_threshold()
   fluidRow(
@@ -387,8 +374,7 @@ output$preproc_caplarge = renderUI({
 caplarge_threshold = reactive({
   req(data())
   d = data()
-  nums = vlapply(d, is.numeric)
-  max = max(d[nums])
+  max = max(d[vlapply(d, is.numeric)])
   if (!is.null(input$caplarge_threshold)) {
     return(input$caplarge_threshold)
   } else {
