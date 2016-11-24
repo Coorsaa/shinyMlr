@@ -1,0 +1,27 @@
+.main-header .logo {
+  font-family: "Trebuchet MS", "trebuchet", sans-serif;
+  font-weight: bold;
+  font-size: 32px;
+}
+.skin-blue .main-header .logo {
+  background-color: #3c8dbc;
+}
+.skin-blue .main-header .logo:hover {
+  background-color: #3c8dbc;
+}
+.small-box {
+  height: 85px;
+}
+.small-box h3{
+  font-size: 24px;
+}
+.small-box p{
+  font-size: 22px;
+}
+
+.box {
+border-bottom-color:#ffffff;
+border-left-color:#ffffff;
+border-right-color:#ffffff;
+border-top-color:#ffffff;
+}
