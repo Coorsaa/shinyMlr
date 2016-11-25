@@ -2,23 +2,23 @@
 
 # numeric variables
 numericFeatures = reactive({
-  req(data())
-  d = data()
+  req(data$data)
+  d = data$data
   return(colnames(d[vlapply(d, is.numeric)]))
 })
 
 # factor variables
 factorFeatures = reactive({
-  req(data())
-  d = data()
+  req(data$data)
+  d = data$data
   return(colnames(d[vlapply(d, is.factor)]))
 })
 
 
 
 output$summary.datatable = renderDataTable({
-  req(data())
-  d = data()
+  req(data$data)
+  d = data$data
   colnames(d) = make.names(colnames(d))
   summarizeColumns(d)
 }, options = list(lengthMenu = c(5, 20, 50), pageLength = 5)
@@ -26,9 +26,9 @@ output$summary.datatable = renderDataTable({
 
 
 output$summary.vis.var = renderUI({
-  req(data())
-  d = data()
-  choices = as.list(colnames(data()))
+  req(data$data)
+  d = data$data
+  choices = as.list(colnames(data$data))
   selectInput("summary.vis.var", "Choose a variable:", choices = choices, selected = getLast(choices), width = "95%")
 })
 
@@ -49,9 +49,9 @@ observeEvent(input$summary.vis.var, {
 
 output$summary.vis = renderPlot({
   req(input$summary.vis.var)
-  req(data())
+  req(data$data)
   req(numericFeatures())
-  d = na.omit(data())
+  d = na.omit(data$data)
   if (input$summary.vis.var %in% numericFeatures()) {
     ggplot(data = d, aes(x = as.numeric(d[,input$summary.vis.var]))) + 
       geom_histogram(aes(y = ..density..), fill = "white", color = "black", stat = "bin", bins = input$summary.vis.hist.nbins) + 
@@ -71,8 +71,8 @@ output$summary.vis = renderPlot({
 ##### preprocessing #####
 
 output$preproc_target = renderUI({
-  req(data())
-  choices = as.list(colnames(data()))
+  req(data$data)
+  choices = as.list(colnames(data$data))
    conditionalPanel("input.preproc_method != 'removeConstantFeatures'",
      selectInput("preproc_target", "Choose a target:", choices =  choices, selected = getLast(choices))
    )
@@ -82,9 +82,9 @@ output$preproc_target = renderUI({
 ### Impute
 
 output$preproc_impute = renderUI({
-  req(data())
+  req(data$data)
   req(input$preproc_method)
-  d = data()
+  d = data$data
     fluidRow(
       column(6, 
         conditionalPanel("input.preproc_method == 'Impute'",
@@ -118,9 +118,9 @@ output$preproc_impute = renderUI({
     )
 })
 
-impute_data = eventReactive(input$impute_start, {
-  req(data())
-  d = data()
+observeEvent(input$impute_start, {
+  req(data$data)
+  d = data$data
   req(input$impute_methods_num)
   req(input$impute_methods_fac)
   num = input$impute_methods_num
@@ -139,32 +139,15 @@ impute_data = eventReactive(input$impute_start, {
   }   
   
   imputed = impute(d, target = input$preproc_target, classes = list(numeric = num_impute, factor = fac_impute))
-  return(imputed$data)
-})
-
-output$impute_datatable = renderDataTable({
-  req(impute_data())
-  d = impute_data()
-  colnames(d) = make.names(colnames(d))
-  d
-}, options = list(lengthMenu = c(5, 20, 50), pageLength = 5)
-)
-
-preproc_method = reactive(input$preproc_method)
-observeEvent(preproc_method(), {
-  if (preproc_method() != "Impute") {
-    shinyjs::hide("impute_datatable")
-  } else {
-    shinyjs::show("impute_datatable")
-  }
+  data$data = imputed$data
 })
 
 
 ### createDummyFeatures
 
 output$preproc_createdummy = renderUI({
-  req(data())
-  d = data()
+  req(data$data)
+  d = data$data
   choices = factorFeatures()
   req(input$preproc_method)
   fluidRow(
@@ -182,34 +165,17 @@ output$preproc_createdummy = renderUI({
   )
 })
 
-createdummy_data = eventReactive(input$createdummy_start, {
-  req(data())
-  d = data()
-  createDummyFeatures(d, target = input$preproc_target, method = input$createdummy_method, cols = input$createdummy_cols)
-})
-
-output$createdummy_datatable = renderDataTable({
-  req(createdummy_data())
-  d = createdummy_data()
-  colnames(d) = make.names(colnames(d))
-  d
-}, options = list(lengthMenu = c(5, 20, 50), pageLength = 5)
-)
-
-
-observeEvent(preproc_method(), {
-  if (preproc_method() != "dropFeatures") {
-    shinyjs::hide("dropfeature_datatable")
-  } else {
-    shinyjs::show("dropfeature_datatable")
-  }
+observeEvent(input$createdummy_start, {
+  req(data$data)
+  d = data$data
+  data$data = createDummyFeatures(d, target = input$preproc_target, method = input$createdummy_method, cols = input$createdummy_cols)
 })
 
 
 ### dropFeature
 
 output$preproc_dropfeature = renderUI({
-  req(data())
+  req(data$data)
   req(input$preproc_method)
   fluidRow(
     conditionalPanel("input.preproc_method == 'dropFeatures'",
@@ -220,27 +186,10 @@ output$preproc_dropfeature = renderUI({
   )
 })
 
-dropfeature_data = eventReactive(input$dropfeature_start, {
-  req(data())
-  d = data()
-  dropNamed(d, input$preproc_target)
-})
-
-output$dropfeature_datatable = renderDataTable({
-  req(dropfeature_data())
-  d = dropfeature_data()
-  colnames(d) = make.names(colnames(d))
-  d
-}, options = list(lengthMenu = c(5, 20, 50), pageLength = 5)
-)
-
-
-observeEvent(preproc_method(), {
-  if (preproc_method() != "dropFeatures") {
-    shinyjs::hide("dropfeature_datatable")
-  } else {
-    shinyjs::show("dropfeature_datatable")
-  }
+observeEvent(input$dropfeature_start, {
+  req(data$data)
+  d = data$data
+  data$data = dropNamed(d, input$preproc_target)
 })
 
 
@@ -248,8 +197,8 @@ observeEvent(preproc_method(), {
 
 
 output$preproc_remconst = renderUI({
-  req(data())
-  d = data()
+  req(data$data)
+  d = data$data
   choices = as.list(colnames(d))
   req(input$preproc_method)
   fluidRow(
@@ -271,37 +220,19 @@ output$preproc_remconst = renderUI({
 })
 
 
-remconst_data = eventReactive(input$remconst_start, {
-  req(data())
-  d = data()
-  removeConstantFeatures(d, perc = input$remconst_perc, dont.rm = input$remconst_cols, na.ignore = as.logical(input$remconst_na))
+observeEvent(input$remconst_start, {
+  req(data$data)
+  d = data$data
+  data$data = removeConstantFeatures(d, perc = input$remconst_perc, dont.rm = input$remconst_cols, na.ignore = as.logical(input$remconst_na))
 })
-
-output$remconst_datatable = renderDataTable({
-  req(remconst_data())
-  d = remconst_data()
-  colnames(d) = make.names(colnames(d))
-  d
-}, options = list(lengthMenu = c(5, 20, 50), pageLength = 5)
-)
-
-
-observeEvent(preproc_method(), {
-  if (preproc_method() != "removeConstantFeatures") {
-    shinyjs::hide("remconst_datatable")
-  } else {
-    shinyjs::show("remconst_datatable")
-  }
-})
-
 
 
 ### normalizeFeatures
 
 
 output$preproc_normfeat = renderUI({
-  req(data())
-  d = data()
+  req(data$data)
+  d = data$data
   choices = numericFeatures()
   req(input$preproc_method)
   fluidRow(
@@ -331,28 +262,11 @@ output$preproc_normfeat = renderUI({
 })
 
 
-normfeat_data = eventReactive(input$normfeat_start, {
-  req(data())
-  d = data()
-  normalizeFeatures(d, target = input$preproc_target, method = input$normfeat_method, cols = input$normfeat_cols,
+observeEvent(input$normfeat_start, {
+  req(data$data)
+  d = data$data
+  data$data = normalizeFeatures(d, target = input$preproc_target, method = input$normfeat_method, cols = input$normfeat_cols,
     range = input$normfeat_range, on.constant = input$normfeat_on_constant)
-})
-
-output$normfeat_datatable = renderDataTable({
-  req(normfeat_data())
-  d = normfeat_data()
-  colnames(d) = make.names(colnames(d))
-  d
-}, options = list(lengthMenu = c(5, 20, 50), pageLength = 5)
-)
-
-
-observeEvent(preproc_method(), {
-  if (preproc_method() != "normalizeFeatures") {
-    shinyjs::hide("normfeat_datatable")
-  } else {
-    shinyjs::show("normfeat_datatable")
-  }
 })
 
 
@@ -360,8 +274,8 @@ observeEvent(preproc_method(), {
 
 
 output$preproc_caplarge = renderUI({
-  req(data())
-  d = data()
+  req(data$data)
+  d = data$data
   max = max(d[vlapply(d, is.numeric)])
   choices = numericFeatures()
   req(input$preproc_method)
@@ -388,8 +302,8 @@ output$preproc_caplarge = renderUI({
 })
 
 caplarge_threshold = reactive({
-  req(data())
-  d = data()
+  req(data$data)
+  d = data$data
   max = max(d[vlapply(d, is.numeric)])
   if (!is.null(input$caplarge_threshold)) {
     return(input$caplarge_threshold)
@@ -398,28 +312,26 @@ caplarge_threshold = reactive({
   }
 })
 
-caplarge_data = eventReactive(input$caplarge_start, {
-  req(data())
-  d = data()
-  capLargeValues(d, target = input$preproc_target, cols = input$caplarge_cols, threshold = input$caplarge_threshold,
+observeEvent(input$caplarge_start, {
+  req(data$data)
+  d = data$data
+  data$data = capLargeValues(d, target = input$preproc_target, cols = input$caplarge_cols, threshold = input$caplarge_threshold,
     impute = input$caplarge_impute, what = input$caplarge_what)
 })
 
-output$caplarge_datatable = renderDataTable({
-  req(caplarge_data())
-  d = caplarge_data()
+
+### preproc_data
+
+output$preproc_data = renderDataTable({
+  req(data$data)
+  d = data$data
   colnames(d) = make.names(colnames(d))
   d
-}, options = list(lengthMenu = c(5, 20, 50), pageLength = 5)
+}, options = list(lengthMenu = c(5, 20, 50), pageLength = 5, scrollX = TRUE)
 )
 
 
-observeEvent(preproc_method(), {
-  if (preproc_method() != "capLargeValues") {
-    shinyjs::hide("caplarge_datatable")
-  } else {
-    shinyjs::show("caplarge_datatable")
-  }
-})
+
+
 
 

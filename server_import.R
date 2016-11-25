@@ -10,7 +10,38 @@ output$import.ui = renderUI({
   makeImportSideBar(type)
 })
 
-data = reactive({
+data = reactiveValues(data = NULL)
+
+
+observe({
+  req(input$import.type)
+  if (is.null(input$import.type)) {
+    data$data = NULL
+  } else if (input$import.type == "mlr") {
+    data$data = getTaskData(get(input$import.mlr))
+  } else if (input$import.type == "OpenML") {
+    t = getOMLDataSet(data.id = as.integer(input$import.OpenML))
+    data$data = t$data
+  } else if (input$import.type == "CSV") {
+    f = input$import.csv$datapath
+    if (is.null(f)) {
+      data$data = NULL
+    } else {
+      data$data = read.csv(f, header = input$import.header, sep = input$import.sep,
+      quote = input$import.quote)
+    }
+  } else if (input$import.type == "ARFF") {
+    f = input$import.arff$datapath
+    if (is.null(f)) {
+      data$data = NULL
+    } else {
+      data$data = readARFF(f)
+    }
+  }
+})
+
+
+# data = reactive({
   # imp = impute_data()
   # dropf = dropfeature_data()
   # if (!is.null(imp)) {
@@ -18,26 +49,26 @@ data = reactive({
   # } else if (!is.null(dropf)) {
     # return(dropf)
   # } else 
-  if (is.null(input$import.type)) {
-    return(NULL)
-  } else if (input$import.type == "mlr") {
-    return(getTaskData(get(input$import.mlr)))
-  } else if (input$import.type == "OpenML") {
-    t = getOMLDataSet(data.id = as.integer(input$import.OpenML))
-    return(t$data)
-  } else if (input$import.type == "CSV") {
-    f = input$import.csv$datapath
-    if (is.null(f)) return(NULL)
-    #rn = as.numeric(input$import.rownames)
-    read.csv(f, header = input$import.header, sep = input$import.sep,
-      quote = input$import.quote) #, row.names = rn)
-  } else if (input$import.type == "ARFF") {
-    f = input$import.arff$datapath
-    if (is.null(f)) return(NULL)
-    readARFF(f)
-  }
-  
-})
+#   if (is.null(input$import.type)) {
+#     return(NULL)
+#   } else if (input$import.type == "mlr") {
+#     return(getTaskData(get(input$import.mlr)))
+#   } else if (input$import.type == "OpenML") {
+#     t = getOMLDataSet(data.id = as.integer(input$import.OpenML))
+#     return(t$data)
+#   } else if (input$import.type == "CSV") {
+#     f = input$import.csv$datapath
+#     if (is.null(f)) return(NULL)
+#     #rn = as.numeric(input$import.rownames)
+#     read.csv(f, header = input$import.header, sep = input$import.sep,
+#       quote = input$import.quote) #, row.names = rn)
+#   } else if (input$import.type == "ARFF") {
+#     f = input$import.arff$datapath
+#     if (is.null(f)) return(NULL)
+#     readARFF(f)
+#   }
+#   
+# })
 
 data.name = reactive({
   req(input$import.type)
@@ -59,8 +90,8 @@ data.name = reactive({
 
 
 output$import.preview = renderDataTable({
-  req(data())
-  d = data()
+  req(data$data)
+  d = data$data
   colnames(d) = make.names(colnames(d))
   d
 }, options = list(lengthMenu = c(5, 20, 50), pageLength = 5, scrollX = TRUE)

@@ -20,12 +20,7 @@ tabpanel.preprocessing = fluidRow(
     ),
     column(12,
       fluidRow(
-        dataTableOutput("impute_datatable"),
-        dataTableOutput("createdummy_datatable"),
-        dataTableOutput("dropfeature_datatable"),
-        dataTableOutput("remconst_datatable"),
-        dataTableOutput("normfeat_datatable"),
-        dataTableOutput("caplarge_datatable")
+        dataTableOutput("preproc_data")
       )
     )
   )
