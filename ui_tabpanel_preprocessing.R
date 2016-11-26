@@ -3,8 +3,8 @@ tabpanel.preprocessing = fluidRow(
     fluidRow(
       column(6, 
         selectInput("preproc_method", "Choose data preprocessing method:",
-          choices = c("Impute", "createDummyFeatures", "dropFeatures", "capLargeValues",# "mergeSmallFactorLevels",
-            "normalizeFeatures", "removeConstantFeatures"))
+          choices = c("Impute", "Create dummy features", "Drop variable", "Cap large values",# "mergeSmallFactorLevels",
+            "Normalize variables", "Remove constant variables"))
       ),
       column(6,
         uiOutput("preproc_target")

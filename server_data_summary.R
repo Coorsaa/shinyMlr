@@ -72,9 +72,9 @@ output$summary.vis = renderPlot({
 
 output$preproc_target = renderUI({
   req(data$data)
-  choices = as.list(colnames(data$data))
-   conditionalPanel("input.preproc_method != 'removeConstantFeatures'",
-     selectInput("preproc_target", "Choose a target:", choices =  choices, selected = getLast(choices))
+  choices = as.list(c("", colnames(data$data)))
+   conditionalPanel("input.preproc_method != 'Remove constant variables'",
+     selectInput("preproc_target", "Choose a target:", choices =  choices)
    )
 })
 
@@ -110,7 +110,7 @@ output$preproc_impute = renderUI({
           numericInput("impute_constant_fac_input", "Constant value for factors:", min = -Inf,  max = Inf, value = 0)
         )
       ),
-      column(12,
+      column(12, align = "center",
         conditionalPanel("input.preproc_method == 'Impute'",
         actionButton("impute_start", "Start imputation")
         )
@@ -138,8 +138,17 @@ observeEvent(input$impute_start, {
     fac_impute = match.fun(input$impute_methods_fac)()
   }   
   
-  imputed = impute(d, target = input$preproc_target, classes = list(numeric = num_impute, factor = fac_impute))
+  imputed = impute(d, target = preproc_target(), classes = list(numeric = num_impute, factor = fac_impute))
   data$data = imputed$data
+})
+
+preproc_target = reactive({
+  tar = input$preproc_target
+  if (is.null(tar) | tar == "") {
+    return(character(0L))
+  } else {
+    tar
+  }
 })
 
 
@@ -151,14 +160,14 @@ output$preproc_createdummy = renderUI({
   choices = factorFeatures()
   req(input$preproc_method)
   fluidRow(
-    conditionalPanel("input.preproc_method == 'createDummyFeatures'",
+    conditionalPanel("input.preproc_method == 'Create dummy features'",
       column(6,
         selectInput("createdummy_method", "Choose Method", selected = "1-of-n", choices = c("1-of-n", "reference"))
       ),
       column(6, 
         selectInput("createdummy_cols", "Choose columns (optional)", choices = choices, multiple = TRUE)
       ),
-      column(12,
+      column(12, align = "center",
         actionButton("createdummy_start", "Create dummy features")
       )
     )
@@ -168,7 +177,7 @@ output$preproc_createdummy = renderUI({
 observeEvent(input$createdummy_start, {
   req(data$data)
   d = data$data
-  data$data = createDummyFeatures(d, target = input$preproc_target, method = input$createdummy_method, cols = input$createdummy_cols)
+  data$data = createDummyFeatures(d, target = preproc_target(), method = input$createdummy_method, cols = input$createdummy_cols)
 })
 
 
@@ -178,9 +187,9 @@ output$preproc_dropfeature = renderUI({
   req(data$data)
   req(input$preproc_method)
   fluidRow(
-    conditionalPanel("input.preproc_method == 'dropFeatures'",
-      column(12,
-        actionButton("dropfeature_start", "Drop Feature")
+    conditionalPanel("input.preproc_method == 'Drop variable'",
+      column(12, align = "center",
+        actionButton("dropfeature_start", "Drop variable")
       )
     )
   )
@@ -189,7 +198,7 @@ output$preproc_dropfeature = renderUI({
 observeEvent(input$dropfeature_start, {
   req(data$data)
   d = data$data
-  data$data = dropNamed(d, input$preproc_target)
+  data$data = dropNamed(d, preproc_target())
 })
 
 
@@ -202,7 +211,7 @@ output$preproc_remconst = renderUI({
   choices = as.list(colnames(d))
   req(input$preproc_method)
   fluidRow(
-    conditionalPanel("input.preproc_method == 'removeConstantFeatures'",
+    conditionalPanel("input.preproc_method == 'Remove constant variables'",
       column(6,
         sliderInput("remconst_perc", "Choose % of feat. values different from mode", value = 0L, min = 0L, max = 1L, step = 0.01)
       ),
@@ -212,8 +221,8 @@ output$preproc_remconst = renderUI({
       column(6, 
         radioButtons("remconst_na", "Ignore NAs in %-calculation?", choices = c("TRUE", "FALSE"), selected = "FALSE")
       ),
-      column(12,
-        actionButton("remconst_start", "Remove constant features")
+      column(12, align = "center",
+        actionButton("remconst_start", "Remove constant variables")
       )
     )
   )
@@ -236,7 +245,7 @@ output$preproc_normfeat = renderUI({
   choices = numericFeatures()
   req(input$preproc_method)
   fluidRow(
-    conditionalPanel("input.preproc_method == 'normalizeFeatures'",
+    conditionalPanel("input.preproc_method == 'Normalize variables'",
       column(6,
         selectInput("normfeat_method", "Choose method", selected = "standardize", choices = c("center", "scale", "standardize", "range"))
       ),
@@ -254,8 +263,8 @@ output$preproc_normfeat = renderUI({
             choices = c("quiet", "warn", "stop"))
         )
       ),
-      column(12,
-        actionButton("normfeat_start", "Normalize features")
+      column(12, align = "center",
+        actionButton("normfeat_start", "Normalize variables")
       )
     )
   )
@@ -265,7 +274,7 @@ output$preproc_normfeat = renderUI({
 observeEvent(input$normfeat_start, {
   req(data$data)
   d = data$data
-  data$data = normalizeFeatures(d, target = input$preproc_target, method = input$normfeat_method, cols = input$normfeat_cols,
+  data$data = normalizeFeatures(d, target = preproc_target(), method = input$normfeat_method, cols = input$normfeat_cols,
     range = input$normfeat_range, on.constant = input$normfeat_on_constant)
 })
 
@@ -274,16 +283,23 @@ observeEvent(input$normfeat_start, {
 
 
 output$preproc_caplarge = renderUI({
-  req(data$data)
+  req(input$preproc_method)
   d = data$data
   max = max(d[vlapply(d, is.numeric)])
   choices = numericFeatures()
-  req(input$preproc_method)
-  tr = caplarge_threshold()
+  tr = input$caplarge_threshold
+  
+  if (!is.null(tr) && !is.na(tr)) {
+    imp = tr
+  } else {
+    imp = NA
+  }
+  
+  
   fluidRow(
-    conditionalPanel("input.preproc_method == 'capLargeValues'",
+    conditionalPanel("input.preproc_method == 'Cap large values'",
       column(6,
-        numericInput("caplarge_threshold", "Choose threshold", value = max)#FIXME threshold cannot be changed!
+        numericInput("caplarge_threshold", "Choose threshold", value = imp)#FIXME threshold cannot be changed!
       ),
       column(6, 
         selectInput("caplarge_cols", "Choose columns (optional)", choices = choices, multiple = TRUE)
@@ -294,29 +310,35 @@ output$preproc_caplarge = renderUI({
       column(6, 
         selectInput("caplarge_what", "What kind of entries are affected?", selected = "abs", choices = c("abs", "pos", "neg"))
       ),
-      column(12,
+      column(12, align = "center",
         actionButton("caplarge_start", "Cap large values")
       )
     )
   )
 })
 
-caplarge_threshold = reactive({
-  req(data$data)
-  d = data$data
-  max = max(d[vlapply(d, is.numeric)])
-  if (!is.null(input$caplarge_threshold)) {
-    return(input$caplarge_threshold)
-  } else {
-    return(max)
-  }
-})
+# caplarge_threshold = reactive({
+#   req(data$data)
+#   # d = data$data
+#   # max = max(d[vlapply(d, is.numeric)])
+#   if (!is.na(input$caplarge_threshold)) #{
+#     return(input$caplarge_threshold)
+#   # } else {
+#     # return(max)
+#   }
+# })
 
 observeEvent(input$caplarge_start, {
   req(data$data)
   d = data$data
-  data$data = capLargeValues(d, target = input$preproc_target, cols = input$caplarge_cols, threshold = input$caplarge_threshold,
-    impute = input$caplarge_impute, what = input$caplarge_what)
+  tr = isolate(input$caplarge_threshold)
+  if(is.na(tr))
+    tr = Inf
+  imp = isolate(input$caplarge_impute)
+  if(is.na(imp))
+    imp = Inf
+  data$data = capLargeValues(d, target = preproc_target(), cols = isolate(input$caplarge_cols), threshold = tr,
+    impute = imp, what = isolate(input$caplarge_what))
 })
 
 
