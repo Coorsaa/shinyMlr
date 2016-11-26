@@ -1,6 +1,8 @@
 tabpanel.preprocessing = fluidRow(
   box(width = 12, title = "Data Preprocessing",
     fluidRow(
+      column(12, align = "right",
+        actionButton("preproc_undo", "Undo last change")),
       column(6, 
         selectInput("preproc_method", "Choose data preprocessing method:",
           choices = c("Impute", "Create dummy features", "Drop variable", "Cap large values",# "mergeSmallFactorLevels",
