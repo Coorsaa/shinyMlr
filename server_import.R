@@ -67,6 +67,7 @@ data.name = reactive({
 
 
 output$import.preview = renderDataTable({
+  # reqAndAssign(data$data, "d")
   req(data$data)
   d = data$data
   colnames(d) = make.names(colnames(d))

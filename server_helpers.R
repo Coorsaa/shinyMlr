@@ -4,6 +4,11 @@ pasteDot = function(...) {
   paste(..., sep = ".")
 }
 
+reqAndAssign = function(obj, name) {
+  req(obj)
+  assign(name, obj, pos = 1L)
+}
+
 
 # FIXME: mlr: create makeAutoTask or whatever depending on target? 
 sMakeTask = function(id, target, data) {
