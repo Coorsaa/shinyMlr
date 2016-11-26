@@ -120,6 +120,7 @@ output$preproc_impute = renderUI({
 
 observeEvent(input$impute_start, {
   req(data$data)
+  data$data_old = data$data
   d = data$data
   req(input$impute_methods_num)
   req(input$impute_methods_fac)
@@ -176,6 +177,7 @@ output$preproc_createdummy = renderUI({
 
 observeEvent(input$createdummy_start, {
   req(data$data)
+  data$data_old = data$data
   d = data$data
   data$data = createDummyFeatures(d, target = preproc_target(), method = input$createdummy_method, cols = input$createdummy_cols)
 })
@@ -197,6 +199,7 @@ output$preproc_dropfeature = renderUI({
 
 observeEvent(input$dropfeature_start, {
   req(data$data)
+  data$data_old = data$data
   d = data$data
   data$data = dropNamed(d, preproc_target())
 })
@@ -231,6 +234,7 @@ output$preproc_remconst = renderUI({
 
 observeEvent(input$remconst_start, {
   req(data$data)
+  data$data_old = data$data
   d = data$data
   data$data = removeConstantFeatures(d, perc = input$remconst_perc, dont.rm = input$remconst_cols, na.ignore = as.logical(input$remconst_na))
 })
@@ -273,6 +277,7 @@ output$preproc_normfeat = renderUI({
 
 observeEvent(input$normfeat_start, {
   req(data$data)
+  data$data_old = data$data
   d = data$data
   data$data = normalizeFeatures(d, target = preproc_target(), method = input$normfeat_method, cols = input$normfeat_cols,
     range = input$normfeat_range, on.constant = input$normfeat_on_constant)
@@ -317,25 +322,16 @@ output$preproc_caplarge = renderUI({
   )
 })
 
-# caplarge_threshold = reactive({
-#   req(data$data)
-#   # d = data$data
-#   # max = max(d[vlapply(d, is.numeric)])
-#   if (!is.na(input$caplarge_threshold)) #{
-#     return(input$caplarge_threshold)
-#   # } else {
-#     # return(max)
-#   }
-# })
 
 observeEvent(input$caplarge_start, {
   req(data$data)
+  data$data_old = data$data
   d = data$data
   tr = isolate(input$caplarge_threshold)
-  if(is.na(tr))
+  if (is.na(tr))
     tr = Inf
   imp = isolate(input$caplarge_impute)
-  if(is.na(imp))
+  if (is.na(imp))
     imp = Inf
   data$data = capLargeValues(d, target = preproc_target(), cols = isolate(input$caplarge_cols), threshold = tr,
     impute = imp, what = isolate(input$caplarge_what))
@@ -351,6 +347,15 @@ output$preproc_data = renderDataTable({
   d
 }, options = list(lengthMenu = c(5, 20, 50), pageLength = 5, scrollX = TRUE)
 )
+
+
+
+### undo
+
+observeEvent(input$preproc_undo, {
+  req(data$data_old)
+  data$data = data$data_old
+})
 
 
 
