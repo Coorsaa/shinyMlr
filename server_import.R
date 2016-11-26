@@ -20,7 +20,13 @@ observe({
   } else if (input$import.type == "mlr") {
     data$data = getTaskData(get(input$import.mlr))
   } else if (input$import.type == "OpenML") {
-    t = getOMLDataSet(data.id = as.integer(input$import.OpenML))
+    imp.status = need(!is.null(input$import.OpenML), "")
+    if (is.null(imp.status)) {
+      data.id = as.integer(input$import.OpenML)
+    } else {
+      data.id = 61L
+    }
+    t = getOMLDataSet(data.id = data.id)
     data$data = t$data
   } else if (input$import.type == "CSV") {
     f = input$import.csv$datapath
