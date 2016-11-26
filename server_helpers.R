@@ -4,6 +4,7 @@ pasteDot = function(...) {
   paste(..., sep = ".")
 }
 
+
 # FIXME: mlr: create makeAutoTask or whatever depending on target? 
 sMakeTask = function(id, target, data) {
   y = data[, target]

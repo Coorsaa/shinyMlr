@@ -7,12 +7,12 @@ output$task.id = renderUI({
 })
 
 output$task.target = renderUI({
-  choices = as.list(colnames(data()))
+  choices = as.list(colnames(data$data))
   selectInput("task.target", "Choose a target:", choices = choices, selected = getLast(choices))
 })
 
 task = eventReactive(input$create.task, {
-  d = isolate({data()})
+  d = isolate({na.omit(data$data)})
   if (is.null(d)) return(NULL)
   colnames(d) = make.names(colnames(d)) 
   sMakeTask(input$task.id, input$task.target, d)
