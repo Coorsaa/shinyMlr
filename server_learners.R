@@ -1,8 +1,7 @@
 ##### learners #####
 
 learners.avail = reactive({
-  validate(need(input$create.task != 0L,
-    "create a task first to list suitable learners"))
+  validateTask(input$create.task, task.data(), data$data)
   tsk = task()
   listLearners(tsk)
 })
@@ -16,23 +15,21 @@ learners.default = reactive({
 })
 
 output$learners.sel = renderUI({
-  req(learners.avail())
-  ls = learners.avail()
+  reqAndAssign(learners.avail(), "ls")
   ls.ids = ls$class
   selectInput("learners.sel", "", choices = ls.ids, multiple = TRUE,
     selected = learners.default())
 })
 
 learners.par.sets = reactive({
-  lrns.sel = input$learners.sel
+  reqAndAssign(input$learners.sel, "lrns.sel")
   par.sets = lapply(lrns.sel, getParamSet)
   names(par.sets) = lrns.sel
   return(par.sets)
 })
 
 learners.params = reactive({
-  req(learners.par.sets())
-  par.sets = learners.par.sets()
+  reqAndAssign(learners.par.sets(), "par.sets")
   lrns.names = names(par.sets)
   params = extractSubList(par.sets, "pars")
   params.names = lapply(params, names)
@@ -55,8 +52,7 @@ learners.params = reactive({
 })
 
 learners.params.ui = reactive({
-  req(learners.par.sets())
-  par.sets = learners.par.sets()
+  reqAndAssign(learners.par.sets(), "par.sets")
   params.inp = isolate({learners.params()})
   makeLearnerParamUI(par.sets, params.inp)
 })
@@ -72,9 +68,8 @@ learners.pred.types = reactive({
 })
 
 learners.pred.types.ui = reactive({
-  req(learners.pred.types())
+  reqAndAssign(learners.pred.types(), "pred.types")
   lrns.sel = input$learners.sel
-  pred.types = learners.pred.types()
   makeLearnerPredTypesUI(lrns.sel, pred.types)
 })
 
@@ -97,20 +92,19 @@ learners.threshold = reactive({
 })
 
 learners.threshold.ui = reactive({
-  req(learners.threshold())
+  reqAndAssign(learners.threshold(), "threshs")
   lrns.sel = input$learners.sel
-  threshs = learners.threshold()
   pred.types = learners.pred.types()
   tsk = isolate({task()})
   target.levels = target.levels()
   makeLearnerThresholdUI(lrns.sel, pred.types, threshs, target.levels)
 })
 
-output$learners.ui = renderUI({
-  req(learners.params.ui)
+output$learners.ui = renderUI({ 
+  req(task.is.consistent())
   lrns.sel = input$learners.sel
   par.sets = isolate(learners.par.sets())
-  params = isolate(learners.params.ui())
+  params = learners.params.ui()
   pred.types = isolate(learners.pred.types.ui())
   thresholds = learners.threshold.ui()
   lrns.tab.box.sel = input$learners.tabBox
@@ -119,8 +113,7 @@ output$learners.ui = renderUI({
 })
 
 learners = reactive({ 
-  req(learners.params())
-  lrns.params = learners.params()
+  reqAndAssign(learners.params(), "lrns.params")
   lrns.sel = input$learners.sel
   pred.types = learners.pred.types()
   threshs = learners.threshold()

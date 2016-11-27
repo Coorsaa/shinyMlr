@@ -1,11 +1,13 @@
 #### train ####
 
 output$train.learner.sel = renderUI({
-  req(learners())
-  lrns = learners()
+  validateTask(input$create.task, task.data(), data$data, req = TRUE)
+  reqAndAssign(learners(), "lrns")
   lrns.ids = names(lrns)
-  selectInput("train.learner.sel", "Learners",
+  sel.inp = selectInput("train.learner.sel", "Learners",
     choices = lrns.ids, width = 250)
+  tr.button = actionButton("train.run", label = "Train")
+  list(sel.inp, tr.button)
 })
 
 train.learner = reactive({
@@ -24,6 +26,7 @@ model = eventReactive(input$train.run, {
 
 output$model.overview = renderPrint({
   validate(need(input$train.run != 0L, "No model trained yet"))
+  validateTask(input$create.task, task.data(), data$data)
   input$train.run
   mod = isolate(model())
   print(mod)

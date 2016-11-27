@@ -2,8 +2,7 @@ tabpanel.modelling = tabBox(width = 12,
   tabPanel(title = "Train",
     fluidRow(
       column(width = 12, align = "center",
-        uiOutput("train.learner.sel"),
-        actionButton("train.run", label = "Train")
+        uiOutput("train.learner.sel")
       )
     ),
     br(),

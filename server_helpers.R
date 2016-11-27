@@ -9,6 +9,18 @@ reqAndAssign = function(obj, name) {
   assign(name, obj, pos = 1L)
 }
 
+#### needy functions
+validateTask = function(tsk.button, tsk.df, df, req = FALSE) {
+  validate(need(tsk.button != 0L, "you didn't create a task yet"))
+  state.ok = identical(tsk.df, df)
+  if (req) {
+    req(state.ok)
+  } else {
+    validate(need(state.ok, "data refreshed, create new task..."))
+  }
+}
+
+  
 
 # FIXME: mlr: create makeAutoTask or whatever depending on target? 
 sMakeTask = function(id, target, data) {
