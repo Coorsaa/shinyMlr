@@ -56,8 +56,8 @@ output$summary.vis = renderPlot({
     ggplot(data = d, aes(x = as.numeric(d[,input$summary.vis.var]))) + 
       geom_histogram(aes(y = ..density..), fill = "white", color = "black", stat = "bin", bins = input$summary.vis.hist.nbins) + 
       geom_density(fill = "blue", alpha = 0.1) + xlab(input$summary.vis.var) +
-      geom_vline(aes(xintercept = quantile(as.numeric(d[,input$summary.vis.var]), 0.25)), color = "blue", size = 0.5, linetype = "dashed") +
-      geom_vline(aes(xintercept = quantile(as.numeric(d[,input$summary.vis.var]), 0.75)), color = "blue", size = 0.5, linetype = "dashed") +
+      geom_vline(aes(xintercept = quantile(as.numeric(d[,input$summary.vis.var]), 0.05)), color = "blue", size = 0.5, linetype = "dashed") +
+      geom_vline(aes(xintercept = quantile(as.numeric(d[,input$summary.vis.var]), 0.95)), color = "blue", size = 0.5, linetype = "dashed") +
       geom_vline(aes(xintercept = quantile(as.numeric(d[,input$summary.vis.var]), 0.5)), color = "blue", size = 1, linetype = "dashed")
   } else {
     ggplot(data = d, aes(x = d[,input$summary.vis.var])) + 
