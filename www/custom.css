@@ -25,3 +25,12 @@ border-left-color:#ffffff;
 border-right-color:#ffffff;
 border-top-color:#ffffff;
 }
+
+.shiny-output-error-validation {
+  margin: auto;
+  width: 50%;
+  text-align: center;
+  color: #D8000C;
+  font-size: 1em;
+  vertical-align: middle;
+}

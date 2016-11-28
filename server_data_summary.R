@@ -2,14 +2,14 @@
 
 # numeric variables
 numericFeatures = reactive({
-  req(data$data)
+  # req(data$data)
   d = data$data
   return(colnames(d[vlapply(d, is.numeric)]))
 })
 
 # factor variables
 factorFeatures = reactive({
-  req(data$data)
+  # req(data$data)
   d = data$data
   return(colnames(d[vlapply(d, is.factor)]))
 })
@@ -17,7 +17,7 @@ factorFeatures = reactive({
 
 
 output$summary.datatable = renderDataTable({
-  req(data$data)
+  # req(data$data)
   d = data$data
   colnames(d) = make.names(colnames(d))
   summarizeColumns(d)
@@ -26,7 +26,7 @@ output$summary.datatable = renderDataTable({
 
 
 output$summary.vis.var = renderUI({
-  req(data$data)
+  # req(data$data)
   d = data$data
   choices = as.list(colnames(data$data))
   selectInput("summary.vis.var", "Choose a variable:", choices = choices, selected = getLast(choices), width = "95%")
@@ -37,7 +37,7 @@ output$summary.vis.hist.nbins = renderUI({
 })
 
 observeEvent(input$summary.vis.var, {
-  req(factorFeatures())
+  # req(factorFeatures())
   req(input$summary.vis.var)
   if (input$summary.vis.var %in% factorFeatures()) {
     shinyjs::hide("summary.vis.hist.nbins", animType = "slide")
@@ -49,8 +49,8 @@ observeEvent(input$summary.vis.var, {
 
 output$summary.vis = renderPlot({
   req(input$summary.vis.var)
-  req(data$data)
-  req(numericFeatures())
+  # req(data$data)
+  # req(numericFeatures())
   d = na.omit(data$data)
   if (input$summary.vis.var %in% numericFeatures()) {
     ggplot(data = d, aes(x = as.numeric(d[,input$summary.vis.var]))) + 
@@ -71,7 +71,7 @@ output$summary.vis = renderPlot({
 ##### preprocessing #####
 
 output$preproc_target = renderUI({
-  req(data$data)
+  # req(data$data)
   choices = as.list(c("", colnames(data$data)))
    conditionalPanel("input.preproc_method != 'Remove constant variables'",
      selectInput("preproc_target", "Choose a target:", choices =  choices)
@@ -82,7 +82,7 @@ output$preproc_target = renderUI({
 ### Impute
 
 output$preproc_impute = renderUI({
-  req(data$data)
+  # req(data$data)
   req(input$preproc_method)
   d = data$data
     fluidRow(
@@ -119,7 +119,7 @@ output$preproc_impute = renderUI({
 })
 
 observeEvent(input$impute_start, {
-  req(data$data)
+  # req(data$data)
   data$data_old = data$data
   d = data$data
   req(input$impute_methods_num)
@@ -156,7 +156,7 @@ preproc_target = reactive({
 ### createDummyFeatures
 
 output$preproc_createdummy = renderUI({
-  req(data$data)
+  # req(data$data)
   d = data$data
   choices = factorFeatures()
   req(input$preproc_method)
@@ -176,7 +176,7 @@ output$preproc_createdummy = renderUI({
 })
 
 observeEvent(input$createdummy_start, {
-  req(data$data)
+  # req(data$data)
   data$data_old = data$data
   d = data$data
   data$data = createDummyFeatures(d, target = preproc_target(), method = input$createdummy_method, cols = input$createdummy_cols)
@@ -186,7 +186,7 @@ observeEvent(input$createdummy_start, {
 ### dropFeature
 
 output$preproc_dropfeature = renderUI({
-  req(data$data)
+  # req(data$data)
   req(input$preproc_method)
   fluidRow(
     conditionalPanel("input.preproc_method == 'Drop variable'",
@@ -198,7 +198,7 @@ output$preproc_dropfeature = renderUI({
 })
 
 observeEvent(input$dropfeature_start, {
-  req(data$data)
+  # req(data$data)
   data$data_old = data$data
   d = data$data
   data$data = dropNamed(d, preproc_target())
@@ -209,7 +209,7 @@ observeEvent(input$dropfeature_start, {
 
 
 output$preproc_remconst = renderUI({
-  req(data$data)
+  # req(data$data)
   d = data$data
   choices = as.list(colnames(d))
   req(input$preproc_method)
@@ -233,7 +233,7 @@ output$preproc_remconst = renderUI({
 
 
 observeEvent(input$remconst_start, {
-  req(data$data)
+  # req(data$data)
   data$data_old = data$data
   d = data$data
   data$data = removeConstantFeatures(d, perc = input$remconst_perc, dont.rm = input$remconst_cols, na.ignore = as.logical(input$remconst_na))
@@ -244,7 +244,7 @@ observeEvent(input$remconst_start, {
 
 
 output$preproc_normfeat = renderUI({
-  req(data$data)
+  # req(data$data)
   d = data$data
   choices = numericFeatures()
   req(input$preproc_method)
@@ -276,7 +276,7 @@ output$preproc_normfeat = renderUI({
 
 
 observeEvent(input$normfeat_start, {
-  req(data$data)
+  # req(data$data)
   data$data_old = data$data
   d = data$data
   data$data = normalizeFeatures(d, target = preproc_target(), method = input$normfeat_method, cols = input$normfeat_cols,
@@ -288,7 +288,7 @@ observeEvent(input$normfeat_start, {
 
 
 output$preproc_caplarge = renderUI({
-  req(input$preproc_method)
+  # req(input$preproc_method)
   d = data$data
   max = max(d[vlapply(d, is.numeric)])
   choices = numericFeatures()
@@ -324,7 +324,7 @@ output$preproc_caplarge = renderUI({
 
 
 observeEvent(input$caplarge_start, {
-  req(data$data)
+  # req(data$data)
   data$data_old = data$data
   d = data$data
   tr = isolate(input$caplarge_threshold)
@@ -341,7 +341,7 @@ observeEvent(input$caplarge_start, {
 ### preproc_data
 
 output$preproc_data = renderDataTable({
-  req(data$data)
+  # req(data$data)
   d = data$data
   colnames(d) = make.names(colnames(d))
   d
@@ -353,7 +353,7 @@ output$preproc_data = renderDataTable({
 ### undo
 
 observeEvent(input$preproc_undo, {
-  req(data$data_old)
+  # req(data$data_old)
   data$data = data$data_old
 })
 

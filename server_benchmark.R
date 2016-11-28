@@ -1,9 +1,10 @@
 ##### benchmark #####
 
 output$benchmark.learners.sel = renderUI({
-  req(learners())
-  ls.ids = names(learners())
-  selectInput("benchmark.learners.sel", "Learners", choices = ls.ids,
+  reqAndAssign(learners(), "lrns")
+  validateTask(input$create.task, task.data(), data$data, req = TRUE)
+  lrn.ids = names(lrns)
+  selectInput("benchmark.learners.sel", "Learners", choices = lrn.ids,
     multiple = TRUE, selected = ls.ids)
 })
 
@@ -41,25 +42,25 @@ rdesc = reactive({
 
 
 measures.avail = reactive({
-  tt = task(); if (is.null(tt)) return(NULL)
-  listMeasures(tt, create = FALSE)
+  reqAndAssign(task(), "tsk")
+  listMeasures(tsk, create = FALSE)
 })
 
 measures.default = reactive({
-  tt = getTaskType(task()); if (is.null(tt)) return(NULL)
-  switch(tt, 
+  reqAndAssign(task.type(), "tsk.type")
+  switch(tsk.type, 
     classif = "acc",
     regr = "mse")
 })
 
 output$benchmark.measures.sel = renderUI({
-  ms = measures.avail(); if (is.null(ms)) return(NULL)
+  reqAndAssign(measures.avail(), "ms")
   selectInput("benchmark.measures.sel", "Measures", choices = ms, multiple = TRUE, selected = measures.default())
 })
 
 measures = reactive({
-  tt = task(); if (is.null(tt)) return(NULL)
-  listMeasures(tt, create = TRUE)[input$benchmark.measures.sel]
+  req(input$benchmark.measures.sel)
+  listMeasures(task(), create = TRUE)[input$benchmark.measures.sel]
 })
 
 bmr = eventReactive(input$benchmark.run, {
@@ -78,7 +79,7 @@ bmr = eventReactive(input$benchmark.run, {
 })
 
 output$benchmark.overview = renderDataTable({
-  b = bmr(); if (is.null(b)) return(NULL)
+  reqAndAssign(bmr(), "b")
   getBMRAggrPerformances(b, as.df = TRUE)
 }, options = list(lengthMenu = c(10, 20), pageLength = 10,
   scrollX = TRUE)

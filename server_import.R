@@ -14,12 +14,13 @@ data = reactiveValues(data = NULL)
 
 
 observe({
-  req(input$import.type)
-  if (is.null(input$import.type)) {
+  reqAndAssign(input$import.type, "import.type")
+  if (is.null(import.type)) {
     data$data = NULL
-  } else if (input$import.type == "mlr") {
+  } else if (import.type == "mlr") {
     data$data = getTaskData(get(input$import.mlr))
-  } else if (input$import.type == "OpenML") {
+  } else if (import.type == "OpenML") {
+    show("loading.message")
     imp.status = need(!is.null(input$import.OpenML), "")
     if (is.null(imp.status)) {
       data.id = as.integer(input$import.OpenML)
@@ -27,8 +28,9 @@ observe({
       data.id = 61L
     }
     t = getOMLDataSet(data.id = data.id)
+    hide("loading.message")
     data$data = t$data
-  } else if (input$import.type == "CSV") {
+  } else if (import.type == "CSV") {
     f = input$import.csv$datapath
     if (is.null(f)) {
       data$data = NULL
@@ -36,7 +38,7 @@ observe({
       data$data = read.csv(f, header = input$import.header, sep = input$import.sep,
       quote = input$import.quote)
     }
-  } else if (input$import.type == "ARFF") {
+  } else if (import.type == "ARFF") {
     f = input$import.arff$datapath
     if (is.null(f)) {
       data$data = NULL
@@ -46,9 +48,7 @@ observe({
   }
 })
 
-
 data.name = reactive({
-  req(input$import.type)
   type = input$import.type
   if (type == "mlr") {
     return(getTaskId(get(input$import.mlr)))
@@ -67,13 +67,15 @@ data.name = reactive({
 
 
 output$import.preview = renderDataTable({
-  req(data$data)
-  d = data$data
+  reqAndAssign(data$data, "d")
   colnames(d) = make.names(colnames(d))
   d
 }, options = list(lengthMenu = c(5, 20, 50), pageLength = 5, scrollX = TRUE)
 )
 
 output$import.browse.openml = renderDataTable({
-  listOMLDataSets()[,c(1:5,10:12)]
+  show("loading.message2")
+  df = listOMLDataSets()[,c(1:5,10:12)]
+  hide("loading.message2")
+  df
 })
