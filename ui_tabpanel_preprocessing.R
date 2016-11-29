@@ -3,13 +3,10 @@ tabpanel.preprocessing = fluidRow(
     fluidRow(
       column(12, align = "right",
         actionButton("preproc_undo", "Undo last change")),
-      column(6, 
+      column(12, align = "left", 
         selectInput("preproc_method", "Choose data preprocessing method:",
-          choices = c("Impute", "Create dummy features", "Drop variable", "Cap large values",# "mergeSmallFactorLevels",
+          choices = c("Impute", "Create dummy features", "Drop variable(s)", "Cap large values",# "mergeSmallFactorLevels",
             "Normalize variables", "Remove constant variables"))
-      ),
-      column(6,
-        uiOutput("preproc_target")
       ),
       column(12,
         uiOutput("preproc_impute"),
