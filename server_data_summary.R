@@ -179,6 +179,7 @@ observeEvent(input$createdummy_start, {
 ### dropFeature
 
 output$preproc_dropfeature = renderUI({
+  d = data$data
   req(input$preproc_method)
   fluidRow(
     conditionalPanel("input.preproc_method == 'Drop variable(s)'",
@@ -208,7 +209,6 @@ observeEvent(input$dropfeature_start, {
 
 
 output$preproc_remconst = renderUI({
-  # req(data$data)
   d = data$data
   choices = as.list(colnames(d))
   req(input$preproc_method)
@@ -364,6 +364,47 @@ observeEvent(input$caplarge_start, {
 })
 
 
+### convert columns
+
+
+output$preproc_convar = renderUI({
+  req(input$preproc_method)
+  d = data$data
+  fluidRow(
+    conditionalPanel("input.preproc_method == 'Convert variable'",
+      column(6,
+        selectInput("convar_cols", "Choose column", choices = as.list(colnames(d)), multiple = FALSE)
+      ),
+      column(6,
+        selectInput("convar_type", "Convert to", choices = c("numeric", "factor", "integer"))
+      ),
+      column(12, align = "center",
+        actionButton("convar_start", "Convert variable(s)")
+      )
+    )
+  )
+})
+
+convar_target = reactive({
+  tar = input$convar_cols
+  ifelse (is.null(tar) | tar == "", character(0L), tar)
+})
+
+observeEvent(input$convar_start, {
+  data$data_old = data$data
+  type = input$convar_type
+  
+  if (type == "numeric")
+    data$data[,convar_target()] = as.numeric(data$data[,convar_target()])
+  
+  if (type == "factor")
+    data$data[,convar_target()] = as.factor(data$data[,convar_target()])
+  
+  if (type == "integer")
+    data$data[,convar_target()] = as.integer(data$data[,convar_target()])
+})
+
+
 ### preproc_data
 
 output$preproc_data = renderDataTable({
@@ -372,8 +413,6 @@ output$preproc_data = renderDataTable({
   d
 }, options = list(lengthMenu = c(5, 20, 50), pageLength = 5, scrollX = TRUE)
 )
-
-
 
 ### undo
 
