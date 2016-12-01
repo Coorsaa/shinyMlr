@@ -16,22 +16,20 @@ tabpanel.modelling = tabBox(width = 12,
   tabPanel(title = "Predict",
     fluidRow(
       column(width = 3, align = "center",
-        uiOutput("import.pred.ui")
-      ),
-      column(width = 9,
-        dataTableOutput("import.pred.preview")
-      )
-    ),
-    fluidRow(
-      column(width = 3, align = "center",
-        actionButton("predict.run", label = "Predict"),
-        br(),
-        br(),
-        conditionalPanel(condition = "output.predoverview",
-          downloadButton("predict.download", "download predictions")
+        box(background = "light-blue", width = NULL, height = 450,
+          selectInput("newdata.type", "Predict on:", choices = c("task", "new data"),
+            selected = "task"),
+          uiOutput("import.pred.ui"),
+          actionButton("predict.run", label = "Predict"),
+          br(),
+          br(),
+          conditionalPanel(condition = "output.predoverview",
+            downloadButton("predict.download", "download predictions")
+          )
         )
       ),
       column(width = 9,
+        dataTableOutput("import.pred.preview"),
         dataTableOutput("predoverview")
       )
     )

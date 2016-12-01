@@ -37,33 +37,39 @@ output$model.overview = renderPrint({
 ##### prediction data import #####
 
 output$import.pred.ui = renderUI({
+  # req(model())
   type = input$import.pred.type; 
-  if (is.null(type)) 
-    type = "mlr"
-  makeImportPredSideBar(type)
+  newdata.type = input$newdata.type
+  makeImportPredSideBar(type, newdata.type)
 })
 
 data.pred = reactive({
-  req(input$import.pred.type)
-  if (input$import.pred.type == "mlr") {
-    return(getTaskData(get(input$import.pred.mlr)))
+  req(task())
+  req(input$newdata.type)
+  newdata.type = input$newdata.type
+  if (newdata.type == "task") {
+    task.data()
   } else {
-    if (input$import.pred.type == "CSV") {
-      f = input$import.pred.csv$datapath
-      if (is.null(f))
-        return(NULL)
-      read.csv(f, header = input$import.pred.header, sep = input$import.pred.sep,
-        quote = input$import.pred.quote)
+    if (input$import.pred.type == "mlr") {
+      return(getTaskData(get(input$import.pred.mlr)))
     } else {
-      if (input$import.pred.type == "OpenML") {
-        t = getOMLDataSet(data.id = input$import.pred.OpenML)
-        return(t$data)
+      if (input$import.pred.type == "CSV") {
+        f = input$import.pred.csv$datapath
+        if (is.null(f))
+          return(NULL)
+        read.csv(f, header = input$import.pred.header, sep = input$import.pred.sep,
+          quote = input$import.pred.quote)
       } else {
-        if (input$import.type == "ARFF") {
-          f = input$import.pred.arff$datapath
-          if (is.null(f))
-            return(NULL)
-          readARFF(f)
+        if (input$import.pred.type == "OpenML") {
+          t = getOMLDataSet(data.id = input$import.pred.OpenML)
+          return(t$data)
+        } else {
+          if (input$import.type == "ARFF") {
+            f = input$import.pred.arff$datapath
+            if (is.null(f))
+              return(NULL)
+            readARFF(f)
+          }
         }
       }
     }
@@ -71,7 +77,7 @@ data.pred = reactive({
 })
 
 output$import.pred.preview = renderDataTable({
-  d = data.pred()
+  reqAndAssign(data.pred(), "d")
   colnames(d) = make.names(colnames(d))
   d
 }, options = list(lengthMenu = c(5, 30, 50), pageLength = 5))
