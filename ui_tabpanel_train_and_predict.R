@@ -17,8 +17,12 @@ tabpanel.modelling = tabBox(width = 12,
     fluidRow(
       column(width = 3, align = "center",
         box(background = "light-blue", width = NULL, height = 450,
-          selectInput("newdata.type", "Predict on:", choices = c("task", "new data"),
+          selectInput("newdatatype", "Predict on:", choices = c("task", "new data"),
             selected = "task"),
+          conditionalPanel("input.newdatatype == 'new data'",
+            selectInput("import.pred.type", "Type", selected = "mlr",
+              choices = c("mlr", "OpenML", "CSV", "ARFF"))
+          ),
           uiOutput("import.pred.ui"),
           actionButton("predict.run", label = "Predict"),
           br(),

@@ -38,29 +38,33 @@ output$model.overview = renderPrint({
 
 output$import.pred.ui = renderUI({
   # req(model())
-  type = input$import.pred.type; 
-  newdata.type = input$newdata.type
+  newdata.type = input$newdatatype
+  type = input$import.pred.type
+  # if (is.null(type))
+  #   type = "mlr"
   makeImportPredSideBar(type, newdata.type)
 })
 
 data.pred = reactive({
   req(task())
-  req(input$newdata.type)
-  newdata.type = input$newdata.type
+  reqAndAssign(input$newdatatype, "newdata.type")
+  import.pred.type = input$import.pred.type
+  if (is.null(import.pred.type))
+    import.pred.type = "mlr"
   if (newdata.type == "task") {
     task.data()
   } else {
-    if (input$import.pred.type == "mlr") {
+    if (import.pred.type == "mlr") {
       return(getTaskData(get(input$import.pred.mlr)))
     } else {
-      if (input$import.pred.type == "CSV") {
+      if (import.pred.type == "CSV") {
         f = input$import.pred.csv$datapath
         if (is.null(f))
           return(NULL)
         read.csv(f, header = input$import.pred.header, sep = input$import.pred.sep,
           quote = input$import.pred.quote)
       } else {
-        if (input$import.pred.type == "OpenML") {
+        if (import.pred.type == "OpenML") {
           t = getOMLDataSet(data.id = input$import.pred.OpenML)
           return(t$data)
         } else {
@@ -88,7 +92,11 @@ output$import.pred.preview = renderDataTable({
 pred = eventReactive(input$predict.run, {
   model = model()
   newdata = data.pred()
-  colnames(newdata) = make.names(colnames(newdata)) 
+  colnames(newdata) = make.names(colnames(newdata))
+  feat.names = task.feature.names()
+  validate(need(all(colnames(newdata) %in% feat.names),
+    sprintf("Column names %d must be present in data",
+      paste(feat.names, collapse = " ")))) 
   predict(model, newdata = newdata)
 })
 

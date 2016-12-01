@@ -26,8 +26,6 @@ task.type = reactive({
 })
 
 target.levels = reactive({
-  # req(task())
-  tsk = task()
   tsk.type = task.type()
   tar.levels = NULL
   if (tsk.type == "classif")
@@ -37,6 +35,10 @@ target.levels = reactive({
 
 task.data = reactive({
   getTaskData(task())
+})
+
+task.feature.names = reactive({
+  getTaskFeatureNames(task)
 })
 
 output$task.overview = renderPrint({
