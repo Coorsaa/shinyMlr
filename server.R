@@ -16,7 +16,7 @@ source("server_helpers.R")
 # setting this option. Here we'll raise limit to 9MB.
 options(shiny.maxRequestSize = 9*1024^2)
 
-shinyServer(function(input, output) {
+shinyServer(function(input, output, session) {
   
   source("server_import.R", local = TRUE)
   source("server_data_summary.R", local = TRUE)

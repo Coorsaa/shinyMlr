@@ -10,6 +10,7 @@ reqAndAssign = function(obj, name) {
 }
 
 #### needy functions
+
 validateTask = function(tsk.button, tsk.df, df, req = FALSE) {
   validate(need(tsk.button != 0L, "you didn't create a task yet"))
   state.ok = identical(tsk.df, df)
@@ -18,6 +19,21 @@ validateTask = function(tsk.button, tsk.df, df, req = FALSE) {
   } else {
     validate(need(state.ok, "data refreshed, create new task..."))
   }
+}
+
+validatePlotLearnerPrediction = function(tsk.type, feats) {
+  res = NULL
+  nfeats = length(feats)
+  if (tsk.type == "regr") {
+    if (nfeats %nin% 1:2)
+      res = "You must choose one or two features to plot learner predictions."
+  } else {
+    if (tsk.type == "classif") {
+      if (nfeats != 2L)
+        res = "You must choose exactly two features to plot learner predictions."
+    }
+  }
+  return(res)
 }
 
   
@@ -280,9 +296,30 @@ determinePredType = function(pred.type) {
 makePerformanceUI = function(performance) {
   ms.names = names(performance)
   boxes = Map(function(perf, ms.name) {
-    valueBox(ms.name, perf, color = "aqua", width = 2)
+    valueBox(ms.name, perf, color = "light-blue", width = 2)
   }, performance, ms.names)
   boxes
+}
+
+makePredictionPlot = function(tsk.type, plot.type, lrn, feats, preds, ms, num.levels, resplot.type) {
+  if (plot.type == "prediction") {
+    validate(validatePlotLearnerPrediction(tsk.type, feats))
+    q = plotLearnerPrediction(learner = lrn, task = tsk, features = feats,
+      measures = ms, cv = 0)
+  } else {
+    if (plot.type == "residuals") {
+      resplot.type = switch(resplot.type,
+        scatterplot = "scatterplot",
+        "histogram" = "hist")
+      q = plotResiduals(preds, type = resplot.type)
+    } else {
+      validate(need(tsk.type == "classif" && num.levels == 2L,
+        "Task needs to be a binary classification problem to plot ROC curves."))
+      df = generateThreshVsPerfData(preds, measures = ms)
+      q = plotROCCurves(df)
+    }
+  }
+  return(q)
 }
 
 

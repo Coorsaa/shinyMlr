@@ -13,10 +13,12 @@
   height: 85px;
 }
 .small-box h3{
-  font-size: 24px;
+  font-size: 20px;
+  text-align: center;
 }
 .small-box p{
-  font-size: 22px;
+  font-size: 20px;
+  text-align: center;
 }
 
 .box {
@@ -26,6 +28,10 @@ border-right-color:#ffffff;
 border-top-color:#ffffff;
 }
 
+/*.box-solid .bg-light-blue {
+  opacity: 0.2;
+}*/
+
 .shiny-output-error-validation {
   margin: auto;
   width: 50%;
@@ -34,3 +40,11 @@ border-top-color:#ffffff;
   font-size: 1em;
   vertical-align: middle;
 }
+
+/*.dataTables_paginate {
+    /*margin-top: 15px;*/
+/*    position: center;
+    position: center;
+    text-align: right;*/
+    /*left: -10%;*/
+/*}*/

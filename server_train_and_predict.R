@@ -24,6 +24,15 @@ model = eventReactive(input$train.run, {
   train(lrn, tsk)
 })
 
+# output$model.overview = renderPrint({
+#   validate(need(input$train.run != 0L, "No model trained yet"))
+#   validateTask(input$create.task, task.data(), data$data)
+#   input$train.run
+#   mod = isolate(model())
+#   print(mod)
+# })
+
+
 output$model.overview = renderPrint({
   validate(need(input$train.run != 0L, "No model trained yet"))
   validateTask(input$create.task, task.data(), data$data)
@@ -81,10 +90,13 @@ data.pred = reactive({
 })
 
 output$import.pred.preview = renderDataTable({
-  reqAndAssign(data.pred(), "d")
+  validate(need(data.pred(), "No predictions available. Make sure you trained
+    a model"))
+  # reqAndAssign(data.pred(), "d")
+  d = data.pred()
   colnames(d) = make.names(colnames(d))
   d
-}, options = list(lengthMenu = c(5, 30, 50), pageLength = 5))
+}, options = list(lengthMenu = c(5, 30, 50), pageLength = 5, autoWidth = FALSE))
 
 
 ##### predict on new data #####
@@ -94,16 +106,21 @@ pred = eventReactive(input$predict.run, {
   newdata = data.pred()
   colnames(newdata) = make.names(colnames(newdata))
   feat.names = task.feature.names()
-  validate(need(all(colnames(newdata) %in% feat.names),
-    sprintf("Column names %d must be present in data",
+  validate(need(all(feat.names %in% colnames(newdata) ),
+    sprintf("Column names %s must be present in data",
       paste(feat.names, collapse = " ")))) 
   predict(model, newdata = newdata)
 })
 
+observeEvent(input$predict.run, {
+  updateTabItems(session, "predict.tab", "pred.res")
+})
+
 output$predoverview = renderDataTable({
+  validate(need(model(), "Train a model first to make predictions"))
   p = pred()
   p$data
-}, options = list(lengthMenu = c(5, 30, 50), pageLength = 5)
+}, options = list(lengthMenu = c(5, 30), pageLength = 5, autoWidth = FALSE)
 )
 
 output$predict.download = downloadHandler(

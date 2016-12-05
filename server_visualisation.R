@@ -16,15 +16,15 @@ output$bmrplots = renderPlot({
 ##### prediction plot ####
 
 output$predictionplot.learner.sel = renderUI({
-  lrns = learners(); if (is.null(lrns)) return(NULL)
+  reqAndAssign(learners(), "lrns")
   lids = names(lrns)
-  selectInput("predictionplot.learner.sel", "Choose a learner:", choices = lids)
+  selectInput("predictionplot.learner.sel", "Choose a learner:", choices = lids,
+    width = 200)
 })
 
 output$predictionplot.x.sel = renderUI({
-  tt = task(); if (is.null(tt)) return(NULL)
-  fnames = getTaskFeatureNames(tt)
-  selectInput("predictionplot.x.sel", "Select two variables:", choices = fnames, multiple = TRUE)
+  fnames = getTaskFeatureNames(task())
+  selectInput("predictionplot.x.sel", "Select two variables:", choices = fnames,multiple = TRUE)
 })
 
 output$predictionplot = renderPlot({
@@ -34,6 +34,63 @@ output$predictionplot = renderPlot({
   if (length(feats) %in% 1:2) {
     plotLearnerPrediction(learner = lrn, task = task(), features = feats, measures = ms, cv = 0)
   }
+})
+
+output$predictionplot.settings = renderUI({
+  reqAndAssign(pred(), "preds")
+  fnames = task.feature.names()
+  ms = measures.train.avail()
+  ms.def = measures.default()
+  plot.type = input$prediction.plot.sel
+  width = 200
+  if (plot.type == "prediction") {
+    settings.inp = list(
+        selectInput("predictionplot.feat.sel", "Select two variables:",
+          choices = fnames, multiple = TRUE, width = width),
+        selectInput("plot.measures.sel", "Choose performance measure",
+          choices = ms, multiple = TRUE, selected = ms.def, width = width)
+    )
+  } else {
+    if(plot.type == "residuals") {
+      settings.inp = selectInput("residualplot.type", "Select type of plot:",
+        choices = c("scatterplot", "histogram"), selected = "scatterplot",
+        width = width)
+    } else {
+      settings.inp = selectInput("roc.measures.sel", "Choose performance measure",
+        choices = ms, multiple = TRUE, selected = ms.def, width = width)
+    }
+  }
+  return(settings.inp)
+})
+
+measures.plot = reactive({
+  # req(input$plot.type != "residuals")
+  tsk = isolate(task())
+  plot.type = input$prediction.plot.sel
+  if (plot.type == "prediction") {
+    ms = input$plot.measures.sel
+  } else {
+    if (plot.type == "ROC") {
+      ms = input$roc.measures.sel
+    } else {
+      ms = 1L
+    }
+  }
+  listMeasures(tsk, create = TRUE)[ms]
+})
+
+output$prediction.plot = renderPlot({
+  reqAndAssign(task(), "tsk")
+  tsk.type = task.type()
+  plot.type = input$prediction.plot.sel
+  lrn = input$predictionplot.learner.sel
+  feats = input$predictionplot.feat.sel
+  preds = pred()
+  ms = measures.plot()
+  num.levels = length(target.levels())
+  resplot.type = input$residualplot.type
+  makePredictionPlot(tsk.type, plot.type, lrn, feats, preds, ms,
+    num.levels, resplot.type)
 })
 
 ##### partial dependency #####
