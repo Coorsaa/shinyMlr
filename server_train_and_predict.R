@@ -24,15 +24,6 @@ model = eventReactive(input$train.run, {
   train(lrn, tsk)
 })
 
-# output$model.overview = renderPrint({
-#   validate(need(input$train.run != 0L, "No model trained yet"))
-#   validateTask(input$create.task, task.data(), data$data)
-#   input$train.run
-#   mod = isolate(model())
-#   print(mod)
-# })
-
-
 output$model.overview = renderPrint({
   validate(need(input$train.run != 0L, "No model trained yet"))
   validateTask(input$create.task, task.data(), data$data)
@@ -46,11 +37,8 @@ output$model.overview = renderPrint({
 ##### prediction data import #####
 
 output$import.pred.ui = renderUI({
-  # req(model())
   newdata.type = input$newdatatype
   type = input$import.pred.type
-  # if (is.null(type))
-  #   type = "mlr"
   makeImportPredSideBar(type, newdata.type)
 })
 
@@ -90,18 +78,17 @@ data.pred = reactive({
 })
 
 output$import.pred.preview = renderDataTable({
-  validate(need(data.pred(), "No predictions available. Make sure you trained
-    a model"))
-  # reqAndAssign(data.pred(), "d")
+  reqAndAssign(data.pred(), "d")
   d = data.pred()
   colnames(d) = make.names(colnames(d))
   d
-}, options = list(lengthMenu = c(5, 30, 50), pageLength = 5, autoWidth = FALSE))
+}, options = list(lengthMenu = c(5, 30, 50), pageLength = 5, scrollX = TRUE, pagingType = "simple"))
 
 
 ##### predict on new data #####
 
 pred = eventReactive(input$predict.run, {
+  validate(need(!is.null(model()), "Train a model first to make predictions"))
   model = model()
   newdata = data.pred()
   colnames(newdata) = make.names(colnames(newdata))
@@ -117,10 +104,9 @@ observeEvent(input$predict.run, {
 })
 
 output$predoverview = renderDataTable({
-  validate(need(model(), "Train a model first to make predictions"))
   p = pred()
   p$data
-}, options = list(lengthMenu = c(5, 30), pageLength = 5, autoWidth = FALSE)
+}, options = list(lengthMenu = c(5, 30), pageLength = 5)
 )
 
 output$predict.download = downloadHandler(

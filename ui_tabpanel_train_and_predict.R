@@ -27,30 +27,11 @@ tabpanel.modelling = fluidRow(
             uiOutput("import.pred.ui"),
             actionButton("predict.run", label = "Predict"),
             br(),
-            br()# ,
-            # conditionalPanel(condition = "output.predoverview",
-            #   
-            # )
+            br()
           )
         ),
         column(width = 9, align = "center",
-          tabBox(id = "predict.tab", selected = "Test Set", side = "right", width = 12,
-            tabPanel("Prediction Plots",
-              fluidRow(
-                column(width = 6,
-                  selectInput("prediction.plot.sel", "Choose plot",
-                    choices = c("prediction", "residuals", "ROC"),
-                    selected = "prediction plot", width = 200),
-                  uiOutput("predictionplot.learner.sel")
-                ),
-                column(width = 6,
-                  uiOutput("predictionplot.settings")
-                )
-              ),
-              fluidRow(
-                plotOutput("prediction.plot")
-              )
-            ),
+          tabBox(id = "predict.tab", selected = "test.set", side = "right", width = 12,
             tabPanel("Predictions", value = "pred.res",
               dataTableOutput("predoverview"),
               br(),
@@ -72,6 +53,24 @@ tabpanel.modelling = fluidRow(
           br(),
           br(),
           uiOutput("performance.overview", align = "left")
+        )
+      )
+    ),
+    tabPanel("Visualisations",
+      fluidRow(
+        div(align = "center",
+          column(width = 4,
+            selectInput("prediction.plot.sel", "Choose plot",
+              choices = c("prediction", "residuals", "ROC"),
+              selected = "prediction plot", width = 200
+            )
+          ),
+          uiOutput("predictionplot.settings")
+        )
+      ),
+      fluidRow(
+        column(width = 12,
+          plotOutput("prediction.plot")
         )
       )
     )

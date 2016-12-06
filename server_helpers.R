@@ -21,7 +21,7 @@ validateTask = function(tsk.button, tsk.df, df, req = FALSE) {
   }
 }
 
-validatePlotLearnerPrediction = function(tsk.type, feats) {
+checkPlotLearnerPrediction = function(tsk.type, feats) {
   res = NULL
   nfeats = length(feats)
   if (tsk.type == "regr") {
@@ -35,6 +35,15 @@ validatePlotLearnerPrediction = function(tsk.type, feats) {
   }
   return(res)
 }
+
+checkPlotROCCurves = function(tsk.type, num.levels, lrn) {
+  validate(
+    need(tsk.type == "classif" && num.levels == 2L,
+      "Task needs to be a binary classification problem to plot ROC curves."),
+    need(lrn$predict.type == "prob", "You must predict probabilities to plot ROC curves.")  
+  )
+}
+
 
   
 
@@ -303,23 +312,49 @@ makePerformanceUI = function(performance) {
 
 makePredictionPlot = function(tsk.type, plot.type, lrn, feats, preds, ms, num.levels, resplot.type) {
   if (plot.type == "prediction") {
-    validate(validatePlotLearnerPrediction(tsk.type, feats))
+    validate(checkPlotLearnerPrediction(tsk.type, feats))
     q = plotLearnerPrediction(learner = lrn, task = tsk, features = feats,
       measures = ms, cv = 0)
   } else {
     if (plot.type == "residuals") {
+      req(resplot.type)
       resplot.type = switch(resplot.type,
         scatterplot = "scatterplot",
         "histogram" = "hist")
       q = plotResiduals(preds, type = resplot.type)
     } else {
-      validate(need(tsk.type == "classif" && num.levels == 2L,
-        "Task needs to be a binary classification problem to plot ROC curves."))
+      checkPlotROCCurves(tsk.type, num.levels, lrn)
       df = generateThreshVsPerfData(preds, measures = ms)
       q = plotROCCurves(df)
     }
   }
   return(q)
+}
+
+
+makePredictionPlotSettingsUI = function(plot.type, fnames, ms.def, ms, width = 200) {
+  if (plot.type == "prediction") {
+    settings.inp = list(
+      selectInput("predictionplot.feat.sel", "Select variables:",
+        choices = fnames, multiple = TRUE, width = width),
+      selectInput("plot.measures.sel", "Choose performance measure",
+        choices = ms, multiple = TRUE, selected = ms.def, width = width))
+    settings.ui = lapply(settings.inp, function(inp) {
+      column(width = 3, inp)
+    })
+  } else {
+    if(plot.type == "residuals") {
+      settings.inp = selectInput("residualplot.type", "Select type of plot:",
+        choices = c("scatterplot", "histogram"), selected = "scatterplot",
+        width = width)
+      settings.ui = column(4, settings.inp)
+    } else {
+      settings.inp = selectInput("roc.measures.sel", "Choose performance measure",
+        choices = ms, multiple = TRUE, selected = ms.def, width = width)
+      settings.ui = column(4, settings.inp)
+    }
+  }
+  return(settings.ui)
 }
 
 
