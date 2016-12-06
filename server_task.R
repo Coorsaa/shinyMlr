@@ -13,8 +13,7 @@ output$task.target = renderUI({
 
 task = eventReactive(input$create.task, {
   req(data$data)
-  d = isolate(data$data)
-  # if (is.null(d)) return(NULL)
+  d = data$data
   colnames(d) = make.names(colnames(d)) 
   sMakeTask(input$task.id, input$task.target, d)
 })
@@ -26,7 +25,6 @@ task.type = reactive({
 })
 
 target.levels = reactive({
-  # req(task())
   tsk = task()
   tsk.type = task.type()
   tar.levels = NULL
