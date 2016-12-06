@@ -13,7 +13,7 @@ reqAndAssign = function(obj, name) {
 
 validateTask = function(tsk.button, tsk.df, df, req = FALSE) {
   validate(need(tsk.button != 0L, "you didn't create a task yet"))
-  state.ok = identical(tsk.df, df)
+  state.ok = all.equal(tsk.df, df)
   if (req) {
     req(state.ok)
   } else {
@@ -50,9 +50,10 @@ checkPlotROCCurves = function(tsk.type, num.levels, lrn) {
 # FIXME: mlr: create makeAutoTask or whatever depending on target? 
 sMakeTask = function(id, target, data) {
   y = data[, target]
-  if (is.numeric(y))
+  validate(need(all(!is.na(y)), "Target can't have missing values"))
+  if (is.numeric(y) | is.integer(y))
     makeRegrTask(id = id, data = data, target = target)
-  else if (is.factor(y))
+  else if (is.factor(y) | is.character(y))
     makeClassifTask(id = id, data = data, target = target)
 }
 
