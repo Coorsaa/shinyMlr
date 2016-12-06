@@ -13,7 +13,7 @@ output$task.target = renderUI({
 
 task = eventReactive(input$create.task, {
   req(data$data)
-  d = isolate({na.omit(data$data)})
+  d = isolate(data$data)
   # if (is.null(d)) return(NULL)
   colnames(d) = make.names(colnames(d)) 
   sMakeTask(input$task.id, input$task.target, d)

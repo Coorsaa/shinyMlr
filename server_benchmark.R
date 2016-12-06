@@ -5,7 +5,7 @@ output$benchmark.learners.sel = renderUI({
   validateTask(input$create.task, task.data(), data$data, req = TRUE)
   lrn.ids = names(lrns)
   selectInput("benchmark.learners.sel", "Learners", choices = lrn.ids,
-    multiple = TRUE, selected = ls.ids)
+    multiple = TRUE, selected = lrn.ids)
 })
 
 output$stratText = renderText({
