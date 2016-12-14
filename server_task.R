@@ -19,22 +19,24 @@ task = eventReactive(input$create.task, {
 })
 
 task.type = reactive({
-  req(task())
-  tsk = task()
+  reqAndAssign(task(), "tsk")
   getTaskType(tsk)
 })
 
 target.levels = reactive({
-  tsk = task()
   tsk.type = task.type()
   tar.levels = NULL
   if (tsk.type == "classif")
-    tar.levels = getTaskClassLevels(tsk)
+    tar.levels = getTaskClassLevels(task())
   return(tar.levels)
 })
 
 task.data = reactive({
   getTaskData(task())
+})
+
+task.feature.names = reactive({
+  getTaskFeatureNames(task())
 })
 
 output$task.overview = renderPrint({

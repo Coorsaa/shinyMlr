@@ -1,50 +1,78 @@
-tabpanel.modelling = tabBox(width = 12,
-  tabPanel(title = "Train",
-    fluidRow(
-      column(width = 12, align = "center",
-        uiOutput("train.learner.sel")
-      )
-    ),
-    br(),
-    br(),
-    fluidRow(
-      column(width = 12,
-        verbatimTextOutput("model.overview")
-      )
-    )
-  ),
-  tabPanel(title = "Predict",
-    fluidRow(
-      column(width = 3, align = "center",
-        uiOutput("import.pred.ui")
-      ),
-      column(width = 9,
-        dataTableOutput("import.pred.preview")
-      )
-    ),
-    fluidRow(
-      column(width = 3, align = "center",
-        actionButton("predict.run", label = "Predict"),
-        br(),
-        br(),
-        conditionalPanel(condition = "output.predoverview",
-          downloadButton("predict.download", "download predictions")
+tabpanel.modelling = fluidRow(
+  tabBox(width = 12,
+    tabPanel(title = "Train",
+      fluidRow(
+        column(width = 12, align = "center",
+          uiOutput("train.learner.sel")
         )
       ),
-      column(width = 9,
-        dataTableOutput("predoverview")
+      br(),
+      br(),
+      fluidRow(
+        column(width = 12,
+          verbatimTextOutput("model.overview")
+        )
+      )
+    ),
+    tabPanel(title = "Predict",
+      fluidRow(
+        column(width = 3, align = "center",
+          box(background = "light-blue", width = NULL, height = 520,
+            selectInput("newdatatype", "Predict on:", choices = c("task", "new data"),
+              selected = "task"),
+            conditionalPanel("input.newdatatype == 'new data'",
+              selectInput("import.pred.type", "Type", selected = "mlr",
+                choices = c("mlr", "OpenML", "CSV", "ARFF"))
+            ),
+            uiOutput("import.pred.ui"),
+            actionButton("predict.run", label = "Predict"),
+            br(),
+            br()
+          )
+        ),
+        column(width = 9, align = "center",
+          tabBox(id = "predict.tab", selected = "test.set", side = "right", width = 12,
+            tabPanel("Predictions", value = "pred.res",
+              dataTableOutput("predoverview"),
+              br(),
+              br(),
+              downloadButton("predict.download", "download predictions")
+            ),
+            tabPanel("Test Set", value = "test.set",
+              dataTableOutput("import.pred.preview")
+            )
+          )
+        )
+      )
+    ),
+    tabPanel(title = "Performance",
+      fluidRow(
+        column(width = 12, align = "center",
+          uiOutput("perf.measures.sel"),
+          actionButton("performance.run", label = "Measure Performance"),
+          br(),
+          br(),
+          uiOutput("performance.overview", align = "left")
+        )
+      )
+    ),
+    tabPanel("Visualisations",
+      fluidRow(
+        div(align = "center",
+          column(width = 4,
+            selectInput("prediction.plot.sel", "Choose plot",
+              choices = c("prediction", "residuals", "ROC"),
+              selected = "prediction plot", width = 200
+            )
+          ),
+          uiOutput("predictionplot.settings")
+        )
+      ),
+      fluidRow(
+        column(width = 12,
+          plotOutput("prediction.plot")
+        )
       )
     )
-  ),
-  tabPanel(title = "Performance",
-    fluidRow(
-      column(width = 12, align = "center",
-        uiOutput("perf.measures.sel"),
-        actionButton("performance.run", label = "Measure Performance"),
-        br(),
-        br(),
-        uiOutput("performance.overview", align = "left")
-      )
-    )
-  )  
+  )
 )

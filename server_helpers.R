@@ -10,6 +10,7 @@ reqAndAssign = function(obj, name) {
 }
 
 #### needy functions
+
 validateTask = function(tsk.button, tsk.df, df, req = FALSE) {
   validate(need(tsk.button != 0L, "you didn't create a task yet"))
   state.ok = all.equal(tsk.df, df)
@@ -19,6 +20,30 @@ validateTask = function(tsk.button, tsk.df, df, req = FALSE) {
     validate(need(state.ok, "data refreshed, create new task..."))
   }
 }
+
+checkPlotLearnerPrediction = function(tsk.type, feats) {
+  res = NULL
+  nfeats = length(feats)
+  if (tsk.type == "regr") {
+    if (nfeats %nin% 1:2)
+      res = "You must choose one or two features to plot learner predictions."
+  } else {
+    if (tsk.type == "classif") {
+      if (nfeats != 2L)
+        res = "You must choose exactly two features to plot learner predictions."
+    }
+  }
+  return(res)
+}
+
+checkPlotROCCurves = function(tsk.type, num.levels, lrn) {
+  validate(
+    need(tsk.type == "classif" && num.levels == 2L,
+      "Task needs to be a binary classification problem to plot ROC curves."),
+    need(lrn$predict.type == "prob", "You must predict probabilities to plot ROC curves.")  
+  )
+}
+
 
   
 
@@ -89,35 +114,33 @@ makeImportSideBar = function(type) {
   )
 }
 
-makeImportPredSideBar = function(type) {
-  imptype.sel.input = selectInput("import.pred.type", "Type", selected = type, choices = c("mlr", "OpenML", "CSV", "ARFF"))
-  switch(type, 
-    mlr = list(
-      imptype.sel.input,
-      selectInput("import.pred.mlr", "Choose toy task", choices = c("iris.task", "bh.task", "sonar.task"))
-    ),
-    OpenML = list(
-      imptype.sel.input,
-      numericInput("import.pred.OpenML", "Choose OpenML Data ID", value = 61L)
-    ),
-    CSV = list(
-      imptype.sel.input,
-      fileInput("import.pred.csv", "Choose CSV File",
-        accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv")),
-      tags$hr(),
-      checkboxInput("import.pred.header", "Header", TRUE),
-      selectInput("import.pred.sep", "Separator", selected = ",",
-        choices = c(Comma = ",", Semicolon = ";", Tab = "\t")),
-      selectInput("import.pred.quote", "Quote", selected = '"',
-        choices = c(None = "", "Double Quote" = '"', "Single Quote" = "'"))#,
-      # textInput("import.rownames", "Row Names", NULL)
-    ),
-    ARFF = list(
-      imptype.sel.input,
-      fileInput("import.pred.arff", "Choose ARFF File",
-        accept = c("text/arff", "text/comma-separated-values,text/plain", ".arff"))
+makeImportPredSideBar = function(type, newdata.type) {
+  if (newdata.type == "task") {
+    return(NULL)
+  } else {
+    switch(type, 
+      mlr = list(
+        selectInput("import.pred.mlr", "Choose toy task", choices = c("iris.task", "bh.task", "sonar.task"))
+      ),
+      OpenML = list(
+        numericInput("import.pred.OpenML", "Choose OpenML Data ID", value = 61L)
+      ),
+      CSV = list(
+        fileInput("import.pred.csv", "Choose CSV File",
+          accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv")),
+        tags$hr(),
+        checkboxInput("import.pred.header", "Header", TRUE),
+        selectInput("import.pred.sep", "Separator", selected = ",",
+          choices = c(Comma = ",", Semicolon = ";", Tab = "\t")),
+        selectInput("import.pred.quote", "Quote", selected = '"',
+          choices = c(None = "", "Double Quote" = '"', "Single Quote" = "'"))
+      ),
+      ARFF = list(
+        fileInput("import.pred.arff", "Choose ARFF File",
+          accept = c("text/arff", "text/comma-separated-values,text/plain", ".arff"))
+      )
     )
-  )
+  }
 }
 
 makeLearnerParamUI = function(par.sets, params.inp, inp.width = 200) {
@@ -283,9 +306,56 @@ determinePredType = function(pred.type) {
 makePerformanceUI = function(performance) {
   ms.names = names(performance)
   boxes = Map(function(perf, ms.name) {
-    valueBox(ms.name, perf, color = "aqua", width = 2)
+    valueBox(ms.name, perf, color = "light-blue", width = 2)
   }, performance, ms.names)
   boxes
+}
+
+makePredictionPlot = function(tsk.type, plot.type, lrn, feats, preds, ms, num.levels, resplot.type) {
+  if (plot.type == "prediction") {
+    validate(checkPlotLearnerPrediction(tsk.type, feats))
+    q = plotLearnerPrediction(learner = lrn, task = tsk, features = feats,
+      measures = ms, cv = 0)
+  } else {
+    if (plot.type == "residuals") {
+      req(resplot.type)
+      resplot.type = switch(resplot.type,
+        scatterplot = "scatterplot",
+        "histogram" = "hist")
+      q = plotResiduals(preds, type = resplot.type)
+    } else {
+      checkPlotROCCurves(tsk.type, num.levels, lrn)
+      df = generateThreshVsPerfData(preds, measures = ms)
+      q = plotROCCurves(df)
+    }
+  }
+  return(q)
+}
+
+
+makePredictionPlotSettingsUI = function(plot.type, fnames, ms.def, ms, width = 200) {
+  if (plot.type == "prediction") {
+    settings.inp = list(
+      selectInput("predictionplot.feat.sel", "Select variables:",
+        choices = fnames, multiple = TRUE, width = width),
+      selectInput("plot.measures.sel", "Choose performance measure",
+        choices = ms, multiple = TRUE, selected = ms.def, width = width))
+    settings.ui = lapply(settings.inp, function(inp) {
+      column(width = 3, inp)
+    })
+  } else {
+    if(plot.type == "residuals") {
+      settings.inp = selectInput("residualplot.type", "Select type of plot:",
+        choices = c("scatterplot", "histogram"), selected = "scatterplot",
+        width = width)
+      settings.ui = column(4, settings.inp)
+    } else {
+      settings.inp = selectInput("roc.measures.sel", "Choose performance measure",
+        choices = ms, multiple = TRUE, selected = ms.def, width = width)
+      settings.ui = column(4, settings.inp)
+    }
+  }
+  return(settings.ui)
 }
 
 

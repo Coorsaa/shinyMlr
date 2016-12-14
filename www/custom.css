@@ -13,10 +13,12 @@
   height: 85px;
 }
 .small-box h3{
-  font-size: 24px;
+  font-size: 20px;
+  text-align: center;
 }
 .small-box p{
-  font-size: 22px;
+  font-size: 20px;
+  text-align: center;
 }
 
 .box {
@@ -33,4 +35,13 @@ border-top-color:#ffffff;
   color: #D8000C;
   font-size: 1em;
   vertical-align: middle;
+}
+
+.shiny-datatable-output {
+
+  pagingType: simple;
+}
+
+.dataTable {
+  pagingType: simple;
 }

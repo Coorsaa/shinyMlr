@@ -15,25 +15,64 @@ output$bmrplots = renderPlot({
 
 ##### prediction plot ####
 
-output$predictionplot.learner.sel = renderUI({
-  lrns = learners(); if (is.null(lrns)) return(NULL)
-  lids = names(lrns)
-  selectInput("predictionplot.learner.sel", "Choose a learner:", choices = lids)
-})
+# output$predictionplot.learner.sel = renderUI({
+#   reqAndAssign(learners(), "lrns")
+#   lids = names(lrns)
+#   selectInput("predictionplot.learner.sel", "Choose a learner:", choices = lids,
+#     width = 200)
+# })
 
 output$predictionplot.x.sel = renderUI({
-  tt = task(); if (is.null(tt)) return(NULL)
-  fnames = getTaskFeatureNames(tt)
-  selectInput("predictionplot.x.sel", "Select two variables:", choices = fnames, multiple = TRUE)
+  fnames = getTaskFeatureNames(task())
+  selectInput("predictionplot.x.sel", "Select variables:", choices = fnames,
+    multiple = TRUE)
 })
 
-output$predictionplot = renderPlot({
-  feats = input$predictionplot.x.sel
-  lrn = input$predictionplot.learner.sel
-  ms = getFirst(measures())
-  if (length(feats) %in% 1:2) {
-    plotLearnerPrediction(learner = lrn, task = task(), features = feats, measures = ms, cv = 0)
+# output$predictionplot = renderPlot({
+#   feats = input$predictionplot.x.sel
+#   lrn = input$predictionplot.learner.sel
+#   ms = getFirst(measures())
+#   if (length(feats) %in% 1:2) {
+#     plotLearnerPrediction(learner = lrn, task = task(), features = feats, measures = ms, cv = 0)
+#   }
+# })
+
+output$predictionplot.settings = renderUI({
+  reqAndAssign(pred(), "preds")
+  fnames = task.feature.names()
+  ms = measures.train.avail()
+  ms.def = measures.default()
+  plot.type = input$prediction.plot.sel
+  makePredictionPlotSettingsUI(plot.type, fnames, ms.def, ms)
+})
+
+measures.plot = reactive({
+  tsk = isolate(task())
+  plot.type = input$prediction.plot.sel
+  if (plot.type == "prediction") {
+    ms = input$plot.measures.sel
+  } else {
+    if (plot.type == "ROC") {
+      ms = input$roc.measures.sel
+    } else {
+      ms = 1L
+    }
   }
+  listMeasures(tsk, create = TRUE)[ms]
+})
+
+output$prediction.plot = renderPlot({
+  reqAndAssign(task(), "tsk")
+  tsk.type = task.type()
+  plot.type = input$prediction.plot.sel
+  lrn = learners()[[input$train.learner.sel]]
+  feats = input$predictionplot.feat.sel
+  preds = pred()
+  ms = measures.plot()
+  num.levels = length(target.levels())
+  resplot.type = input$residualplot.type
+  makePredictionPlot(tsk.type, plot.type, lrn, feats, preds, ms,
+    num.levels, resplot.type)
 })
 
 ##### partial dependency #####

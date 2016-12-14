@@ -70,8 +70,7 @@ output$import.preview = renderDataTable({
   reqAndAssign(data$data, "d")
   colnames(d) = make.names(colnames(d))
   d
-}, options = list(lengthMenu = c(5, 20, 50), pageLength = 5, scrollX = TRUE)
-)
+}, options = list(lengthMenu = c(5, 20, 50), pageLength = 5, scrollX = TRUE))
 
 output$import.browse.openml = renderDataTable({
   show("loading.message2")
