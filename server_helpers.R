@@ -351,7 +351,7 @@ makePredictionPlotSettingsUI = function(plot.type, fnames, ms.def, ms, width = 2
       settings.ui = column(4, settings.inp)
     } else {
       settings.inp = selectInput("roc.measures.sel", "Choose performance measure",
-        choices = ms, multiple = TRUE, selected = ms.def, width = width)
+        choices = ms, multiple = TRUE, selected = c("fpr", "tpr"), width = width)
       settings.ui = column(4, settings.inp)
     }
   }
