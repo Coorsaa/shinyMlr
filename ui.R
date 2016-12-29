@@ -36,12 +36,12 @@ shinyUI(
         menuItem("Task", tabName = "task", icon = icon("flag")),
         menuItem("Learners", tabName = "learners", icon = icon("cog")),
         menuItem("Train and Predict", tabName = "modelling", icon = icon("graduation-cap")),
-        menuItem("Benchmark", tabName = "benchmark", icon = icon("hourglass-start")),
-        menuItem("Visualisations", tabName = "visualisations", icon = icon("area-chart"),
-          menuSubItem("Benchmark Plots", tabName = "bmrplots"),
-          menuSubItem("Prediction Plots", tabName = "predplots"),
-          menuSubItem("Partial Dep. Plots", tabName = "partdepplots")
-        )
+        menuItem("Benchmark", tabName = "benchmark", icon = icon("hourglass-start"))#,
+        #menuItem("Visualisations", tabName = "visualisations", icon = icon("area-chart"),
+        #  menuSubItem("Benchmark Plots", tabName = "bmrplots"),
+        #  menuSubItem("Prediction Plots", tabName = "predplots"),
+        #  menuSubItem("Partial Dep. Plots", tabName = "partdepplots")
+        #)
       )
     ),
     
@@ -58,9 +58,9 @@ shinyUI(
         tabItem(tabName = "task", tabpanel.task),
         tabItem(tabName = "learners", tabpanel.learners),
         tabItem(tabName = "benchmark", tabpanel.benchmark),
-        tabItem(tabName = "bmrplots", tabpanel.bmrplots),
-        tabItem(tabName = "predplots", tabpanel.predictionplot),
-        tabItem(tabName = "partdepplots", tabpanel.partialdep),
+        # tabItem(tabName = "bmrplots", tabpanel.bmrplots),
+        # tabItem(tabName = "predplots", tabpanel.predictionplot),
+        # tabItem(tabName = "partdepplots", tabpanel.partialdep),
         tabItem(tabName = "modelling", tabpanel.modelling)
       )
     )
