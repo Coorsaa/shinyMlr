@@ -98,7 +98,7 @@ output$confusion.matrix = DT::renderDataTable({
 observeEvent(input$prediction.plot.sel, {
   reqAndAssign(input$prediction.plot.sel, "plot.type")
   if (plot.type == "confusion matrix") {
-    shinyjs::show("confusion.matrix", animType = "slide")
+    shinyjs::show("confusion.matrix", animType = "fade")
   } else {
     shinyjs::hide("confusion.matrix", anim = TRUE)
   }
