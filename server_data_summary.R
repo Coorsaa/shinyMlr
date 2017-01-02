@@ -40,7 +40,7 @@ observeEvent(input$summary.vis.var, {
   # req(factorFeatures())
   req(input$summary.vis.var)
   if (input$summary.vis.var %in% factorFeatures()) {
-    shinyjs::hide("summary.vis.hist.nbins", animType = "slide")
+    shinyjs::hide("summary.vis.hist.nbins", animType = "fade")
   } else {
     shinyjs::show("summary.vis.hist.nbins", anim = TRUE)
   }

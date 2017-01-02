@@ -22,11 +22,20 @@ output$bmrplots = renderPlot({
 #     width = 200)
 # })
 
+output$visualisation.selection = renderUI({
+  reqAndAssign(task(), "tsk")
+  column(width = 4,
+    makeVisualisationSelectionUI(tsk)
+  )
+})
+
 output$predictionplot.x.sel = renderUI({
-  fnames = getTaskFeatureNames(task())
+  fnames = task.feature.names() #FIXME
   selectInput("predictionplot.x.sel", "Select variables:", choices = fnames,
     multiple = TRUE)
 })
+
+
 
 # output$predictionplot = renderPlot({
 #   feats = input$predictionplot.x.sel
@@ -39,7 +48,7 @@ output$predictionplot.x.sel = renderUI({
 
 output$predictionplot.settings = renderUI({
   reqAndAssign(pred(), "preds")
-  fnames = task.feature.names()
+  reqAndAssign(task.numeric.feature.names(), "fnames") #FIXME
   ms = measures.train.avail()
   ms.def = measures.default()
   plot.type = input$prediction.plot.sel
@@ -53,7 +62,7 @@ measures.plot = reactive({
     ms = input$plot.measures.sel
   } else {
     if (plot.type == "ROC") {
-      ms = input$roc.measures.sel
+      ms = c("fpr", "tpr")
     } else {
       ms = 1L
     }
@@ -73,6 +82,26 @@ output$prediction.plot = renderPlot({
   resplot.type = input$residualplot.type
   makePredictionPlot(tsk.type, plot.type, lrn, feats, preds, ms,
     num.levels, resplot.type)
+})
+
+output$confusion.matrix = DT::renderDataTable({
+  reqAndAssign(pred(), "preds")
+  plot.type = input$prediction.plot.sel
+  if (plot.type == "confusion matrix") {
+    t = makeConfusionMatrix(plot.type, preds)
+    datatable(t, rownames = TRUE)
+  } else {
+    return(NULL)
+  }
+})
+
+observeEvent(input$prediction.plot.sel, {
+  reqAndAssign(input$prediction.plot.sel, "plot.type")
+  if (plot.type == "confusion matrix") {
+    shinyjs::show("confusion.matrix", animType = "slide")
+  } else {
+    shinyjs::hide("confusion.matrix", anim = TRUE)
+  }
 })
 
 ##### partial dependency #####

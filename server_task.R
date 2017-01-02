@@ -39,6 +39,20 @@ task.feature.names = reactive({
   getTaskFeatureNames(task())
 })
 
+task.numeric.feature.names = reactive({
+  reqAndAssign(task(), "tsk")
+  d = data$data
+  names = colnames(d[vlapply(d, is.numeric)])
+  setdiff(names, getTaskTargetNames(tsk))
+})
+
+task.factor.feature.names = reactive({
+  reqAndAssign(task(), "tsk")
+  d = data$data
+  names = colnames(d[vlapply(d, is.factor)])
+  setdiff(names, getTaskTargetNames(tsk))
+})
+
 output$task.overview = renderPrint({
   validateTask(input$create.task, task.data(), data$data)
   tsk = task()
