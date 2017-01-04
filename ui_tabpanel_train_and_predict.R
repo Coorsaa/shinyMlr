@@ -65,7 +65,7 @@ tabpanel.modelling = fluidRow(
       ),
       fluidRow(
         column(width = 12,
-          dataTableOutput("confusion.matrix")
+          verbatimTextOutput("confusion.matrix")
         )
       ),
       fluidRow(

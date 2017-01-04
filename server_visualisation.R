@@ -51,13 +51,13 @@ output$predictionplot.settings = renderUI({
   reqAndAssign(task.numeric.feature.names(), "fnames") #FIXME
   ms = measures.train.avail()
   ms.def = measures.default()
-  plot.type = input$prediction.plot.sel
+  reqAndAssign(input$prediction.plot.sel, "plot.type")
   makePredictionPlotSettingsUI(plot.type, fnames, ms.def, ms)
 })
 
 measures.plot = reactive({
   tsk = isolate(task())
-  plot.type = input$prediction.plot.sel
+  reqAndAssign(input$prediction.plot.sel, "plot.type")
   if (plot.type == "prediction") {
     ms = input$plot.measures.sel
   } else {
@@ -84,14 +84,15 @@ output$prediction.plot = renderPlot({
     num.levels, resplot.type)
 })
 
-output$confusion.matrix = DT::renderDataTable({
-  reqAndAssign(pred(), "preds")
-  plot.type = input$prediction.plot.sel
+output$confusion.matrix = renderPrint({
+  reqAndAssign(isolate(pred()), "preds")
+  reqAndAssign(input$prediction.plot.sel, "plot.type")
   if (plot.type == "confusion matrix") {
     t = makeConfusionMatrix(plot.type, preds)
-    datatable(t, rownames = TRUE)
+    #dt = datatable(t, rownames = TRUE)
+    print(t)
   } else {
-    return(NULL)
+    invisible(NULL)
   }
 })
 
