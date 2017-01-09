@@ -27,19 +27,15 @@ checkPlotLearnerPrediction = function(tsk.type, feats) {
   if (tsk.type == "regr") {
     if (nfeats %nin% 1:2)
       res = "You must choose one or two features to plot learner predictions."
-  } else {
-    if (tsk.type == "classif") {
-      if (nfeats != 2L)
-        res = "You must choose exactly two features to plot learner predictions."
-    }
+  } else if (tsk.type == "classif") {
+    if (nfeats != 2L)
+      res = "You must choose exactly two features to plot learner predictions."
   }
   return(res)
 }
 
-checkPlotROCCurves = function(tsk.type, num.levels, lrn) {
+checkPlotROCCurves = function(lrn) {
   validate(
-    need(tsk.type == "classif" && num.levels == 2L,
-      "Task needs to be a binary classification problem to plot ROC curves."),
     need(lrn$predict.type == "prob", "You must predict probabilities to plot ROC curves.")  
   )
 }
@@ -311,11 +307,10 @@ makePerformanceUI = function(performance) {
   boxes
 }
 
-makePredictionPlot = function(tsk.type, plot.type, lrn, feats, preds, ms, num.levels, resplot.type) {
+makePredictionPlot = function(tsk.type, plot.type, lrn, feats, preds, ms, resplot.type) {
   if (plot.type == "prediction") {
     validate(checkPlotLearnerPrediction(tsk.type, feats))
-    q = plotLearnerPrediction(learner = lrn, task = tsk, features = feats,
-      measures = ms, cv = 0)
+    q = plotLearnerPrediction(learner = lrn, features = feats, task = tsk, cv = 0)
   } else if (plot.type == "residuals") {
     req(resplot.type)
     resplot.type = switch(resplot.type,
@@ -325,7 +320,7 @@ makePredictionPlot = function(tsk.type, plot.type, lrn, feats, preds, ms, num.le
   } else if (plot.type == "confusion matrix") {
     q = NULL
   } else {
-    checkPlotROCCurves(tsk.type, num.levels, lrn)
+    checkPlotROCCurves(lrn)
       df = generateThreshVsPerfData(preds, measures = ms)
       q = plotROCCurves(df)
   }
@@ -341,25 +336,16 @@ makeConfusionMatrix = function(plot.type, preds) {
 
 makePredictionPlotSettingsUI = function(plot.type, fnames, ms.def, ms, width = 200) {
   if (plot.type == "prediction") {
-    settings.inp = list(
-      selectInput("predictionplot.feat.sel", "Select variables:",
-        choices = fnames, multiple = TRUE, width = width), #FIXME
-      selectInput("plot.measures.sel", "Choose performance measure",
-        choices = ms, multiple = TRUE, selected = ms.def, width = width))
-    settings.ui = lapply(settings.inp, function(inp) {
-      column(width = 3, inp)
-    })
+    settings.inp = selectInput("predictionplot.feat.sel", "Select variables:",
+      choices = fnames, multiple = TRUE, width = width)
+    settings.ui = column(width = 4, settings.inp)
   } else if (plot.type == "residuals") {
       settings.inp = selectInput("residualplot.type", "Select type of plot:",
         choices = c("scatterplot", "histogram"), selected = "scatterplot",
         width = width)
       settings.ui = column(4, settings.inp)
-  } else if (plot.type == "confusion matrix") {
-      settings.ui = column(4, NULL)
   } else {
-    settings.inp = NULL #selectInput("roc.measures.sel", "Choose performance measure",
-      #choices = ms, multiple = TRUE, selected = c("fpr", "tpr"), width = width)
-    settings.ui = column(4, settings.inp)
+    settings.ui = column(4, NULL)
   }
   return(settings.ui)
 }
@@ -369,12 +355,12 @@ makeVisualisationSelectionUI = function(tsk) {
   if (tsk$type == "classif") {
     if (length(getTaskClassLevels(tsk)) == 2) {
       vis.inp = selectInput("prediction.plot.sel", "Choose plot",
-        choices = c("prediction", "confusion matrix", "ROC"),
+        choices = c("prediction", "residuals", "confusion matrix", "ROC"),
         selected = "prediction plot", width = 200
       )
     } else {
       vis.inp = selectInput("prediction.plot.sel", "Choose plot",
-        choices = c("prediction", "confusion matrix"),
+        choices = c("prediction", "residuals", "confusion matrix"),
         selected = "prediction plot", width = 200
       )
     }

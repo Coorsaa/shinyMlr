@@ -48,7 +48,7 @@ output$predictionplot.x.sel = renderUI({
 
 output$predictionplot.settings = renderUI({
   reqAndAssign(pred(), "preds")
-  reqAndAssign(task.numeric.feature.names(), "fnames") #FIXME
+  reqAndAssign(task.numeric.feature.names(), "fnames")
   ms = measures.train.avail()
   ms.def = measures.default()
   reqAndAssign(input$prediction.plot.sel, "plot.type")
@@ -57,9 +57,9 @@ output$predictionplot.settings = renderUI({
 
 measures.plot = reactive({
   tsk = isolate(task())
-  reqAndAssign(input$prediction.plot.sel, "plot.type")
+  reqAndAssign(measures.default(), "ms.def")
   if (plot.type == "prediction") {
-    ms = input$plot.measures.sel
+    ms = ms.def
   } else {
     if (plot.type == "ROC") {
       ms = c("fpr", "tpr")
@@ -73,15 +73,13 @@ measures.plot = reactive({
 output$prediction.plot = renderPlot({
   reqAndAssign(task(), "tsk")
   tsk.type = task.type()
-  plot.type = input$prediction.plot.sel
+  reqAndAssign(input$prediction.plot.sel, "plot.type")
   lrn = learners()[[input$train.learner.sel]]
   feats = input$predictionplot.feat.sel
   preds = pred()
   ms = measures.plot()
-  num.levels = length(target.levels())
   resplot.type = input$residualplot.type
-  makePredictionPlot(tsk.type, plot.type, lrn, feats, preds, ms,
-    num.levels, resplot.type)
+  makePredictionPlot(tsk.type, plot.type, lrn, feats, preds, ms, resplot.type)
 })
 
 output$confusion.matrix = renderPrint({
