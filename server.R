@@ -8,7 +8,7 @@ library(ParamHelpers)
 library(farff)
 library(OpenML)
 library(ggplot2)
-
+library(DT)
 
 source("server_helpers.R")
 

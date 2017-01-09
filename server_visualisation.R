@@ -22,11 +22,20 @@ output$bmrplots = renderPlot({
 #     width = 200)
 # })
 
+output$visualisation.selection = renderUI({
+  reqAndAssign(task(), "tsk")
+  column(width = 4,
+    makeVisualisationSelectionUI(tsk)
+  )
+})
+
 output$predictionplot.x.sel = renderUI({
-  fnames = getTaskFeatureNames(task())
+  fnames = task.feature.names() #FIXME
   selectInput("predictionplot.x.sel", "Select variables:", choices = fnames,
     multiple = TRUE)
 })
+
+
 
 # output$predictionplot = renderPlot({
 #   feats = input$predictionplot.x.sel
@@ -39,21 +48,21 @@ output$predictionplot.x.sel = renderUI({
 
 output$predictionplot.settings = renderUI({
   reqAndAssign(pred(), "preds")
-  fnames = task.feature.names()
+  reqAndAssign(task.numeric.feature.names(), "fnames")
   ms = measures.train.avail()
   ms.def = measures.default()
-  plot.type = input$prediction.plot.sel
+  reqAndAssign(input$prediction.plot.sel, "plot.type")
   makePredictionPlotSettingsUI(plot.type, fnames, ms.def, ms)
 })
 
 measures.plot = reactive({
   tsk = isolate(task())
-  plot.type = input$prediction.plot.sel
+  reqAndAssign(measures.default(), "ms.def")
   if (plot.type == "prediction") {
-    ms = input$plot.measures.sel
+    ms = ms.def
   } else {
     if (plot.type == "ROC") {
-      ms = input$roc.measures.sel
+      ms = c("fpr", "tpr")
     } else {
       ms = 1L
     }
@@ -64,15 +73,34 @@ measures.plot = reactive({
 output$prediction.plot = renderPlot({
   reqAndAssign(task(), "tsk")
   tsk.type = task.type()
-  plot.type = input$prediction.plot.sel
+  reqAndAssign(input$prediction.plot.sel, "plot.type")
   lrn = learners()[[input$train.learner.sel]]
   feats = input$predictionplot.feat.sel
   preds = pred()
   ms = measures.plot()
-  num.levels = length(target.levels())
   resplot.type = input$residualplot.type
-  makePredictionPlot(tsk.type, plot.type, lrn, feats, preds, ms,
-    num.levels, resplot.type)
+  makePredictionPlot(tsk.type, plot.type, lrn, feats, preds, ms, resplot.type)
+})
+
+output$confusion.matrix = renderPrint({
+  reqAndAssign(isolate(pred()), "preds")
+  reqAndAssign(input$prediction.plot.sel, "plot.type")
+  if (plot.type == "confusion matrix") {
+    t = makeConfusionMatrix(plot.type, preds)
+    #dt = datatable(t, rownames = TRUE)
+    print(t)
+  } else {
+    invisible(NULL)
+  }
+})
+
+observeEvent(input$prediction.plot.sel, {
+  reqAndAssign(input$prediction.plot.sel, "plot.type")
+  if (plot.type == "confusion matrix") {
+    shinyjs::show("confusion.matrix", animType = "fade")
+  } else {
+    shinyjs::hide("confusion.matrix", anim = TRUE)
+  }
 })
 
 ##### partial dependency #####

@@ -59,13 +59,13 @@ tabpanel.modelling = fluidRow(
     tabPanel("Visualisations",
       fluidRow(
         div(align = "center",
-          column(width = 4,
-            selectInput("prediction.plot.sel", "Choose plot",
-              choices = c("prediction", "residuals", "ROC"),
-              selected = "prediction plot", width = 200
-            )
-          ),
+          uiOutput("visualisation.selection"),
           uiOutput("predictionplot.settings")
+        )
+      ),
+      fluidRow(
+        column(width = 12,
+          verbatimTextOutput("confusion.matrix")
         )
       ),
       fluidRow(
