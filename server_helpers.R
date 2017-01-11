@@ -295,21 +295,20 @@ makeLearnerPredTypesUI = function(pred.types, thresholds) {
   }, pred.types, thresholds)
 }
 
-makeLearnerConstructionUI = function(lrns.names, par.sets, params, pred.types,
-  thresholds, tab.box.sel) {
-  lrn.tabs = Map(function (par.set, lrn.name, hyppar, pred.type, threshold) {
+makeLearnerConstructionUI = function(lrns.names, par.sets, params, pred.types, tab.box.sel) {
+  lrn.tabs = Map(function (par.set, lrn.name, hyppar, pred.type) {
     
     tabPanel(title = lrn.name, width = 12,
       fluidRow(
         pred.type
       ),
-      h3("Hyper parameters:"),
+      h3("Hyperparameters:"),
       br(),
       fluidRow(
         column(width = 12, hyppar)
       )
     )
-  }, par.sets, lrns.names, params, pred.types, thresholds)
+  }, par.sets, lrns.names, params, pred.types)
 
   names(lrn.tabs) = NULL
   do.call(tabBox, c(lrn.tabs, width = 12, id = "learners.tabBox",

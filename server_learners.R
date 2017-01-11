@@ -29,12 +29,6 @@ learners.par.sets = reactive({
   return(par.sets)
 })
 
-# learners.par.infos = reactive({
-#   reqAndAssign(par.sets(), "par.sets")
-#   par.infos = getLearnerParamInfo(par.sets)
-#   return(par.infos)
-# })
-
 learners.params = reactive({
   reqAndAssign(learners.par.sets(), "par.sets")
   lrns.names = names(par.sets)
@@ -71,7 +65,6 @@ learners.pred.types = reactive({
     pred.type = pasteDot("lrn.prob.sel", lrn)
     pred.type = input[[pred.type]]
     pred.type = determinePredType(pred.type, tsk.type)
-    # determinePredType(pred.type)
   })
   lrns.pred.types
 })
@@ -97,8 +90,7 @@ learners.threshold = reactive({
     names(threshold) = target.levels
     return(threshold)
   })
-  
-  lrns.threshold
+  return(lrns.threshold)
 })
 
 learners.threshold.ui = reactive({
@@ -109,7 +101,6 @@ learners.threshold.ui = reactive({
   target.levels = target.levels()
   makeLearnerThresholdInputs(lrns.sel, pred.types, threshs, target.levels)
 })
-
 
 learners.pred.types.ui = reactive({
   reqAndAssign(learners.pred.types.inputs(), "pred.types")
@@ -122,11 +113,9 @@ output$learners.ui = renderUI({
   lrns.sel = input$learners.sel
   par.sets = isolate(learners.par.sets())
   params = learners.params.ui()
-  pred.types = isolate(learners.pred.types.ui())
-  thresholds = isolate(learners.threshold.ui())
+  pred.types = learners.pred.types.ui()
   lrns.tab.box.sel = isolate(input$learners.tabBox)
-  makeLearnerConstructionUI(lrns.sel, par.sets, params, pred.types,
-    thresholds, lrns.tab.box.sel)
+  makeLearnerConstructionUI(lrns.sel, par.sets, params, pred.types, lrns.tab.box.sel)
 })
 
 learners = reactive({ 
