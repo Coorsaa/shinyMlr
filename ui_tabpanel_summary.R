@@ -1,6 +1,6 @@
 tabpanel.summary = fluidRow(
   box(width = 12, title = "Data Summary",
-    dataTableOutput("summary.datatable")
+    DT::dataTableOutput("summary.datatable")
   ),
   box(width = 12, title = "Variable Visualization",
     fluidRow(

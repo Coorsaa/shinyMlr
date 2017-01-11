@@ -10,6 +10,6 @@ tabpanel.browse.openml = fluidRow(
         h4("Loading datasets from OpenML")
       )
     ),
-    column(12, dataTableOutput("import.browse.openml"))
+    column(12, DT::dataTableOutput("import.browse.openml"))
   )
 )
