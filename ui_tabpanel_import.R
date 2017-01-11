@@ -9,7 +9,7 @@ tabpanel.import = list(fluidRow(
   )),
   fluidRow(
     box(width = 12,
-      dataTableOutput("import.preview")
+      DT::dataTableOutput("import.preview")
     )
   )
 )

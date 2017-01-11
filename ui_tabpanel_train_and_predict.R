@@ -33,13 +33,13 @@ tabpanel.modelling = fluidRow(
         column(width = 9, align = "center",
           tabBox(id = "predict.tab", selected = "test.set", side = "right", width = 12,
             tabPanel("Predictions", value = "pred.res",
-              dataTableOutput("predoverview"),
+              DT::dataTableOutput("predoverview"),
               br(),
               br(),
               downloadButton("predict.download", "download predictions")
             ),
             tabPanel("Test Set", value = "test.set",
-              dataTableOutput("import.pred.preview")
+              DT::dataTableOutput("import.pred.preview")
             )
           )
         )
