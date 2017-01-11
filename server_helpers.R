@@ -9,6 +9,10 @@ reqAndAssign = function(obj, name) {
   assign(name, obj, pos = 1L)
 }
 
+writeBold = function(chr) {
+  tags$b(chr)
+}
+
 #### needy functions
 
 validateTask = function(tsk.button, tsk.df, df, req = FALSE) {
@@ -139,7 +143,56 @@ makeImportPredSideBar = function(type, newdata.type) {
   }
 }
 
-makeLearnerParamUI = function(par.sets, params.inp, inp.width = 200) {
+# getLearnerParamInfo = function(par.sets) {  
+#   pars.infos = lapply(par.sets, function(par.set) {
+#     ids = extractSubList(par.set, "id")
+#     types = extractSubList(par.set, "type")
+#     lowers = extractSubList(par.set, "lower")
+#     uppers = extractSubList(par.set, "upper")
+#     whens = extractSubList(par.set, "whens")
+#     info = list(ids, types, lowers, uppers, whens)
+#     return(info)
+#   })
+#   names(pars.infos) = names(par.sets)
+#   return(pars.infos)
+# }
+
+filterParSetsForUI = function(par.sets) {
+  allowed.types = c("integer", "numeric", "integervector", "numericvector",
+    "logical", "discrete")
+  par.sets = lapply(par.sets, function(par.set) {
+    filterParams(par.set, type = allowed.types)
+  })
+  return(par.sets)
+}
+
+# par.type, par.lower, par.upper, par.when
+makeLearnerParamInfoUI = function(par) {
+  par.when = par$when
+  par.type = par$type
+  par.def = par$default
+  if (is.null(par.def))
+    par.def = "-"
+  info.ui = list(column(width = 4, writeBold("type"), h5(par.type)),
+    column(width = 2, writeBold("when"), h5(par.when)),
+    column(width = 3, writeBold("default"), h5(par.def)))
+  if (par.type %in% c("numeric", "integer")) {
+    par.lower = par$lower
+    par.upper = par$upper
+    if (is.null(par.lower))
+      par.lower = "-"
+    if (is.null(par.upper))
+      par.upper = "-"
+    
+    info.ui = list(info.ui, column(width = 3, writeBold("lower"), h5(par.lower)),
+      column(width = 3, writeBold("upper"), h5(par.upper)))    
+  }
+
+  return(info.ui)
+}
+
+makeLearnerParamUI = function(par.sets, params.inp, inp.width = 150) {
+  lab.val = "value"
   params = Map(function(par.set, lrn.name) {
     Map(function(par, par.name) {
       par.type = par$type
@@ -163,20 +216,39 @@ makeLearnerParamUI = function(par.sets, params.inp, inp.width = 200) {
         if (is.null(par$upper))
           par$upper = NA
           
-        numericInput(par.id, value = par.inp, par.name, min = par$lower,
-          max = par$upper, step = step, width = inp.width)
+        inp = numericInput(par.id, value = par.inp, min = par$lower,
+          max = par$upper, step = step, width = inp.width, label = lab.val)
       } else {
         if (par.type %in% c("logical", "discrete")) {
-          radioButtons(par.id, par.name, par$values, par.inp, width = inp.width)
+          inp = radioButtons(par.id, par$values, par.inp, inline = TRUE, label = lab.val)
         } else {
-          textInput(par.id, par.name, par.inp, width = inp.width)
+          inp = textInput(par.id, par.inp, width = inp.width, label = lab.val)
         }
       }
+      par.info.ui = makeLearnerParamInfoUI(par)
+      par.ui = # fluidRow(
+        box(width = 12, height = 130, title = par.name, solidHeader = TRUE, status = "primary",
+          fluidRow(
+            column(width = 6, align = "center", div(height = "130px", inp)),
+            column(width = 6, div(height = "150px", par.info.ui))
+          )
+        )
+      return(par.ui)
     }, par.set$pars, names(par.set$pars))
   }, par.sets, names(par.sets))
   names(params) = NULL
   return(params)
 }
+
+# par.info$id
+
+# par.info$type
+
+# par.info$lower
+
+# par.info$upper
+
+# par.info$when
 
 makeLearnerPredTypesUI = function(lrns.names, pred.types.inp) {
   Map(function(lrn.name, pred.type.inp){
@@ -189,7 +261,7 @@ makeLearnerPredTypesUI = function(lrns.names, pred.types.inp) {
       }
       radioButtons(paste("lrn.prob.sel", lrn.name, sep = "."),
         "Probability estimation:", choices = c("Yes", "No"),
-        selected = pred.type.inp)
+        selected = pred.type.inp, inline = TRUE)
     } else {
       NULL
     }
@@ -213,26 +285,35 @@ makeLearnerThresholdUI = function(lrns.names, pred.types.inp, threshs.inp,
   }, lrns.names, threshs.inp, pred.types.inp)
 }
 
+
 makeLearnerConstructionUI = function(lrns.names, par.sets, params, pred.types,
   thresholds, tab.box.sel) {
   lrn.tabs = Map(function (par.set, lrn.name, hyppar, pred.type, threshold) {
-    par.tab = renderTable({ParamHelpers:::getParSetPrintData(par.set)},
-     rownames = TRUE)
+    # par.tab = renderTable({ParamHelpers:::getParSetPrintData(par.set)},
+    #  rownames = TRUE)
 
-    hyppar = split(hyppar, ceiling(seq_along(hyppar) / (length(hyppar) / 3)))
-    hyppar = lapply(hyppar, function(sub.pars) {
-        column(sub.pars, width = 4)
-    })
+    # desired.cols = 2L
+    # hyppar = split(hyppar, ceiling(seq_along(hyppar) / (length(hyppar) / desired.cols)))
+    # hyppar = lapply(hyppar, function(sub.pars) {
+    #   column(sub.pars, width = 3)
+    # })
+
     threshold = lapply(threshold, function(thresh) {
       column(thresh, width = 2)
     })
     
     tabPanel(title = lrn.name, width = 12,
-      fluidRow(column(pred.type, width = 6, align = "center")),
-      fluidRow(div(align = "center", threshold)),
-      h4("Hyperparameters"),
-      fluidRow(div(align = "center", hyppar)),
-      fluidRow(div(align = "center", par.tab))
+      fluidRow(
+        column(pred.type, width = 6, align = "center"),
+        column(width = 6, div(align = "center", threshold))
+      ),
+      fluidRow(column(width = 12, hyppar)
+        # h4("Set hyperparameters:"),
+        # column(width = 6, align = "center",
+        #   h4("Paramter set:"),
+        #   par.tab
+        # )
+      )
     )
   }, par.sets, lrns.names, params, pred.types, thresholds)
 
@@ -276,7 +357,6 @@ stringToParamValue = function (par, x) {
 }
 
 convertParamForLearner = function(lrn.par, value) {
-
   if (!is.null(value)) {
     if (is.na(value)) {
       value = NULL

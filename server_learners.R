@@ -24,9 +24,16 @@ output$learners.sel = renderUI({
 learners.par.sets = reactive({
   reqAndAssign(input$learners.sel, "lrns.sel")
   par.sets = lapply(lrns.sel, getParamSet)
+  par.sets = filterParSetsForUI(par.sets)
   names(par.sets) = lrns.sel
   return(par.sets)
 })
+
+# learners.par.infos = reactive({
+#   reqAndAssign(par.sets(), "par.sets")
+#   par.infos = getLearnerParamInfo(par.sets)
+#   return(par.infos)
+# })
 
 learners.params = reactive({
   reqAndAssign(learners.par.sets(), "par.sets")
@@ -56,6 +63,20 @@ learners.params.ui = reactive({
   params.inp = isolate({learners.params()})
   makeLearnerParamUI(par.sets, params.inp)
 })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 learners.pred.types = reactive({
   lrns = input$learners.sel
@@ -107,7 +128,7 @@ output$learners.ui = renderUI({
   params = learners.params.ui()
   pred.types = isolate(learners.pred.types.ui())
   thresholds = learners.threshold.ui()
-  lrns.tab.box.sel = input$learners.tabBox
+  lrns.tab.box.sel = isolate(input$learners.tabBox)
   makeLearnerConstructionUI(lrns.sel, par.sets, params, pred.types,
     thresholds, lrns.tab.box.sel)
 })
