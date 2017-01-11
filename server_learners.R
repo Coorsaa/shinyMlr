@@ -64,34 +64,23 @@ learners.params.ui = reactive({
   makeLearnerParamUI(par.sets, params.inp)
 })
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 learners.pred.types = reactive({
   lrns = input$learners.sel
+  tsk.type = task.type()
   lrns.pred.types = vcapply(lrns, function(lrn) {
     pred.type = pasteDot("lrn.prob.sel", lrn)
     pred.type = input[[pred.type]]
-    pred.type = determinePredType(pred.type)
+    pred.type = determinePredType(pred.type, tsk.type)
+    # determinePredType(pred.type)
   })
   lrns.pred.types
 })
 
-learners.pred.types.ui = reactive({
+learners.pred.types.inputs = reactive({
   reqAndAssign(learners.pred.types(), "pred.types")
   lrns.sel = input$learners.sel
-  makeLearnerPredTypesUI(lrns.sel, pred.types)
+  tsk.type = task.type()
+  makeLearnerPredTypesInputs(lrns.sel, pred.types, tsk.type)
 })
 
 learners.threshold = reactive({
@@ -118,7 +107,14 @@ learners.threshold.ui = reactive({
   pred.types = learners.pred.types()
   tsk = isolate({task()})
   target.levels = target.levels()
-  makeLearnerThresholdUI(lrns.sel, pred.types, threshs, target.levels)
+  makeLearnerThresholdInputs(lrns.sel, pred.types, threshs, target.levels)
+})
+
+
+learners.pred.types.ui = reactive({
+  reqAndAssign(learners.pred.types.inputs(), "pred.types")
+  threshs = learners.threshold.ui()
+  makeLearnerPredTypesUI(pred.types, threshs)
 })
 
 output$learners.ui = renderUI({ 
@@ -127,7 +123,7 @@ output$learners.ui = renderUI({
   par.sets = isolate(learners.par.sets())
   params = learners.params.ui()
   pred.types = isolate(learners.pred.types.ui())
-  thresholds = learners.threshold.ui()
+  thresholds = isolate(learners.threshold.ui())
   lrns.tab.box.sel = isolate(input$learners.tabBox)
   makeLearnerConstructionUI(lrns.sel, par.sets, params, pred.types,
     thresholds, lrns.tab.box.sel)
