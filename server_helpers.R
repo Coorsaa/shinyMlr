@@ -9,6 +9,14 @@ reqAndAssign = function(obj, name) {
   assign(name, obj, pos = 1L)
 }
 
+writeBold = function(chr) {
+  tags$b(chr)
+}
+
+makeParamInfoDescription = function(header, body, width) {
+  column(width = width, writeBold(header), h5(body)) 
+}
+
 #### needy functions
 
 validateTask = function(tsk.button, tsk.df, df, req = FALSE) {
@@ -139,7 +147,50 @@ makeImportPredSideBar = function(type, newdata.type) {
   }
 }
 
-makeLearnerParamUI = function(par.sets, params.inp, inp.width = 200) {
+filterParSetsForUI = function(par.sets) {
+  allowed.types = c("integer", "numeric", "integervector", "numericvector",
+    "logical", "discrete")
+  par.sets = lapply(par.sets, function(par.set) {
+    filterParams(par.set, type = allowed.types)
+  })
+  return(par.sets)
+}
+
+makeLearnerParamInfoUI = function(par) {
+  par.type = par$type
+  par.def = par$default
+  if (is.null(par.def))
+    par.def = "-"
+  par.tun = par$tunable
+  if (par.tun) {
+    par.tun = "yes"
+  } else {
+    par.tun = "no"
+  }
+
+  info.ui = list(makeParamInfoDescription("type", par.type, width = 2),
+    makeParamInfoDescription("default", par.def, width = 4),
+    makeParamInfoDescription("tunable", par.tun, width = 2)
+  )
+  if (par.type %in% c("numeric", "integer", "numericvector", "integervector")) {
+    par.lower = par$lower
+    par.upper = par$upper
+    if (is.null(par.lower))
+      par.lower = "-"
+    if (is.null(par.upper))
+      par.upper = "-"
+    
+    info.ui = list(info.ui,
+      makeParamInfoDescription("lower", par.lower, width = 2),
+      makeParamInfoDescription("upper", par.upper, width = 2)
+    )
+  }
+
+  return(info.ui)
+}
+
+makeLearnerParamUI = function(par.sets, params.inp, inp.width = 150) {
+  lab.val = "value"
   params = Map(function(par.set, lrn.name) {
     Map(function(par, par.name) {
       par.type = par$type
@@ -163,40 +214,55 @@ makeLearnerParamUI = function(par.sets, params.inp, inp.width = 200) {
         if (is.null(par$upper))
           par$upper = NA
           
-        numericInput(par.id, value = par.inp, par.name, min = par$lower,
-          max = par$upper, step = step, width = inp.width)
+        inp = numericInput(par.id, value = par.inp, min = par$lower,
+          max = par$upper, step = step, width = inp.width, label = lab.val)
       } else {
         if (par.type %in% c("logical", "discrete")) {
-          radioButtons(par.id, par.name, par$values, par.inp, width = inp.width)
+          inp = radioButtons(par.id, par$values, par.inp, inline = TRUE, label = lab.val)
         } else {
-          textInput(par.id, par.name, par.inp, width = inp.width)
+          inp = textInput(par.id, par.inp, width = inp.width, label = lab.val)
         }
       }
+      par.info.ui = makeLearnerParamInfoUI(par)
+      par.ui = box(width = 12, height = 130, title = par.name, solidHeader = TRUE, status = "primary",
+        fluidRow(
+          column(width = 5, div(height = "130px", inp)),
+          column(width = 7, div(height = "130px", par.info.ui))
+        )
+      )
+      return(par.ui)
     }, par.set$pars, names(par.set$pars))
   }, par.sets, names(par.sets))
   names(params) = NULL
   return(params)
 }
 
-makeLearnerPredTypesUI = function(lrns.names, pred.types.inp) {
+makeLearnerPredTypesInputs = function(lrns.names, pred.types.inp, tsk.type) {
+  if (tsk.type == "classif") {
+    prop = "prob"
+    inp.header = "Probability estimation:"
+  } else {
+    prop = "se"
+    inp.header = "Standard error estimation:"
+  }
   Map(function(lrn.name, pred.type.inp){
-    lrn.has.probs = hasLearnerProperties(lrn.name, props = "prob")
-    if (lrn.has.probs) {
-      if(pred.type.inp == "prob") {
+    lrn.has.props = hasLearnerProperties(lrn.name, props = prop)
+    if (lrn.has.props) {
+      if(pred.type.inp %in% c("prob", "se")) {
         pred.type.inp = "Yes"
       } else {
         pred.type.inp = "No"
       }
-      radioButtons(paste("lrn.prob.sel", lrn.name, sep = "."),
-        "Probability estimation:", choices = c("Yes", "No"),
-        selected = pred.type.inp)
+      inp = radioButtons(paste("lrn.prob.sel", lrn.name, sep = "."),
+        inp.header, choices = c("Yes", "No"),
+        selected = pred.type.inp, inline = TRUE)
     } else {
       NULL
     }
   }, lrns.names, pred.types.inp)
 }
 
-makeLearnerThresholdUI = function(lrns.names, pred.types.inp, threshs.inp,
+makeLearnerThresholdInputs = function(lrns.names, pred.types.inp, threshs.inp,
   target.levels, inp.width = 100) {
   Map(function(lrn.name, thresh.inp, pred.type.inp) {
     if (pred.type.inp == "prob") {
@@ -213,34 +279,41 @@ makeLearnerThresholdUI = function(lrns.names, pred.types.inp, threshs.inp,
   }, lrns.names, threshs.inp, pred.types.inp)
 }
 
-makeLearnerConstructionUI = function(lrns.names, par.sets, params, pred.types,
-  thresholds, tab.box.sel) {
-  lrn.tabs = Map(function (par.set, lrn.name, hyppar, pred.type, threshold) {
-    par.tab = renderTable({ParamHelpers:::getParSetPrintData(par.set)},
-     rownames = TRUE)
+makeLearnerPredTypesUI = function(pred.types, thresholds) {
+  Map(function(pred.type, thresh) {
+    if (is.null(pred.type)) {
+      NULL
+    } else {
+      thresh = lapply(thresh, function(thrsh) {
+        column(thrsh, width = 2)
+      })
+      box(width = 12, title = "Predict type:", status = "warning", solidHeader = TRUE,
+        column(pred.type, width = 6, align = "center"),
+        column(width = 6, div(align = "center", thresh))
+      )
+    }
+  }, pred.types, thresholds)
+}
 
-    hyppar = split(hyppar, ceiling(seq_along(hyppar) / (length(hyppar) / 3)))
-    hyppar = lapply(hyppar, function(sub.pars) {
-        column(sub.pars, width = 4)
-    })
-    threshold = lapply(threshold, function(thresh) {
-      column(thresh, width = 2)
-    })
+makeLearnerConstructionUI = function(lrns.names, par.sets, params, pred.types, tab.box.sel) {
+  lrn.tabs = Map(function (par.set, lrn.name, hyppar, pred.type) {
     
     tabPanel(title = lrn.name, width = 12,
-      fluidRow(column(pred.type, width = 6, align = "center")),
-      fluidRow(div(align = "center", threshold)),
-      h4("Hyperparameters"),
-      fluidRow(div(align = "center", hyppar)),
-      fluidRow(div(align = "center", par.tab))
+      fluidRow(
+        pred.type
+      ),
+      h3("Hyperparameters:"),
+      br(),
+      fluidRow(
+        column(width = 12, hyppar)
+      )
     )
-  }, par.sets, lrns.names, params, pred.types, thresholds)
+  }, par.sets, lrns.names, params, pred.types)
 
   names(lrn.tabs) = NULL
   do.call(tabBox, c(lrn.tabs, width = 12, id = "learners.tabBox",
     selected = tab.box.sel))
 }
-
 
 stringToParamValue = function (par, x) {
   assertClass(par, "Param")
@@ -267,16 +340,12 @@ stringToParamValue = function (par, x) {
       res = discreteNameToValue(par, x)
     if (type == "function")
       res = eval(parse(text = x))
-    if (type == "untyped")
-      #FIXME: We need to figure out how we should handle this
-      res = x
   }
 
   return(res)
 }
 
 convertParamForLearner = function(lrn.par, value) {
-
   if (!is.null(value)) {
     if (is.na(value)) {
       value = NULL
@@ -287,12 +356,16 @@ convertParamForLearner = function(lrn.par, value) {
   return(value)
 }
 
-determinePredType = function(pred.type) {
+determinePredType = function(pred.type, tsk.type) {
   if (is.null(pred.type)) {
     "response"
   } else {
     if (pred.type == "Yes") {
-      "prob"
+      if (tsk.type == "classif") {
+        "prob"
+      } else {
+        "se"
+      }
     } else {
       "response"
     }
@@ -332,8 +405,6 @@ makeConfusionMatrix = function(plot.type, preds) {
   return(conf$result)
 }
 
-
-
 makePredictionPlotSettingsUI = function(plot.type, fnames, ms.def, ms, width = 200) {
   if (plot.type == "prediction") {
     settings.inp = selectInput("predictionplot.feat.sel", "Select variables:",
@@ -349,7 +420,6 @@ makePredictionPlotSettingsUI = function(plot.type, fnames, ms.def, ms, width = 2
   }
   return(settings.ui)
 }
-
 
 makeVisualisationSelectionUI = function(tsk) {
   if (tsk$type == "classif") {
@@ -371,6 +441,4 @@ makeVisualisationSelectionUI = function(tsk) {
     )
   }
   return(vis.inp)
-}  
-    
-
+}
