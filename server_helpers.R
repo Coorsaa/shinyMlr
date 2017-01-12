@@ -21,7 +21,7 @@ makeParamInfoDescription = function(header, body, width) {
 
 validateTask = function(tsk.button, tsk.df, df, req = FALSE) {
   validate(need(tsk.button != 0L, "you didn't create a task yet"))
-  state.ok = all.equal(tsk.df, df)
+  state.ok = identical(tsk.df, df)
   if (req) {
     req(state.ok)
   } else {
@@ -29,6 +29,7 @@ validateTask = function(tsk.button, tsk.df, df, req = FALSE) {
   }
 }
 
+# FIXME: Should be done with validate/need
 checkPlotLearnerPrediction = function(tsk.type, feats) {
   res = NULL
   nfeats = length(feats)
