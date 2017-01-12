@@ -19,6 +19,10 @@ shinyUI(
         tags$a(href = "https://github.com/mlr-org/mlr", target = "_blank", 
           tags$img(height = "19px", alt = "mlr Logo", src = "mlrLogo_blue_141x64.png")
         )
+      ),
+      dropdownMenu(type = "notifications", icon = icon("github"),
+        notificationItem(text = "mlr", href = "https://github.com/mlr-org/mlr",
+          icon = tags$i(height = "19px", alt = "mlr Logo", src = "mlrLogo_blue_141x64.png"))
       )
     ),
     
