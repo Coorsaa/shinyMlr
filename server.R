@@ -11,6 +11,8 @@ library(ggplot2)
 library(DT)
 
 source("server_helpers.R")
+source("server_helpers_learners.R")
+source("server_helpers_train_and_predict.R")
 
 # By default, the file size limit is 5MB. It can be changed by
 # setting this option. Here we'll raise limit to 9MB.
