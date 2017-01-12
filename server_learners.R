@@ -104,7 +104,7 @@ learners.threshold.ui = reactive({
 
 learners.pred.types.ui = reactive({
   reqAndAssign(learners.pred.types.inputs(), "pred.types")
-  threshs = learners.threshold.ui()
+  threshs = isolate(learners.threshold.ui())
   makeLearnerPredTypesUI(pred.types, threshs)
 })
 

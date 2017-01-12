@@ -263,7 +263,7 @@ makeLearnerPredTypesInputs = function(lrns.names, pred.types.inp, tsk.type) {
 }
 
 makeLearnerThresholdInputs = function(lrns.names, pred.types.inp, threshs.inp,
-  target.levels, inp.width = 100) {
+  target.levels, inp.width = 150) {
   Map(function(lrn.name, thresh.inp, pred.type.inp) {
     if (pred.type.inp == "prob") {
       if(is.null(thresh.inp))
@@ -285,7 +285,7 @@ makeLearnerPredTypesUI = function(pred.types, thresholds) {
       NULL
     } else {
       thresh = lapply(thresh, function(thrsh) {
-        column(thrsh, width = 2)
+        column(thrsh, width = 3)
       })
       box(width = 12, title = "Predict type:", status = "warning", solidHeader = TRUE,
         column(pred.type, width = 6, align = "center"),
