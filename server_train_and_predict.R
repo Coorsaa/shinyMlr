@@ -29,7 +29,7 @@ output$model.overview = renderPrint({
   validateTask(input$create.task, task.data(), data$data)
   input$train.run
   mod = isolate(model())
-  print(train.learner())
+  print(mod)
 })
 
 
