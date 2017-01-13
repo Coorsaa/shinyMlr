@@ -27,13 +27,61 @@ makeImportPredSideBar = function(type, newdata.type) {
   }
 }
 
+determinePerformanceStatus = function(worst, best, perf) {
+  worst = replaceInfiniteValues(worst)
+  best = replaceInfiniteValues(best)
+  if (is.na(perf)) {
+    status = "primary"
+    color = "color:black"
+  } else {
+    if (best == 0)
+      best = 1e-16
+    if (perf == 0)
+      perf = 1e-16
+    perf.rel = perf / best
+    if (perf.rel <= 0.33) {
+      status = "danger"
+      color = "color:#dd4b39"
+    } else {
+      if (perf.rel <= 0.66) {
+        status = "warning"
+        color = "color:#f39c12"
+      } else {
+        status = "success"
+        color = "color:#00a65a"
+      }
+    }    
+  }
+  return(list(status = status, color = color))
+}
 
+makePerformanceUI = function(measures, performances) {
+  ms.ids = names(performances)
+  ms.names = extractSubList(measures, "name")
+  ms.worst = extractSubList(measures, "worst")
+  ms.best = extractSubList(measures, "best")
+  # ms.min = extractSubList(measures, "minimize")
+  statuses = Map(function(worst, best, perf) {
+     determinePerformanceStatus(worst, best, perf)
+  }, ms.worst, ms.best, performances)
+  
+  boxes = Map(function(ms.id, ms.name, perf, worst, best, status) {
+    box(title = ms.id, status = status$status, solidHeader = TRUE, width = 3, height = 200,
+      fluidRow(
+        column(width = 12, h5(ms.name), align = "center")
+      ),
+      fluidRow(
+        column(width = 12, div(h4(strong(perf)), style = status$color), align = "center")
+      ),
+      fluidRow(
+        column(width = 12, align = "center",
+          makeInfoDescription("worst", worst, width = 6),
+          makeInfoDescription("best", best, width = 6)
+        )
 
-makePerformanceUI = function(performance) {
-  ms.names = names(performance)
-  boxes = Map(function(perf, ms.name) {
-    valueBox(ms.name, perf, color = "light-blue", width = 2)
-  }, performance, ms.names)
+      )
+    )
+  }, ms.ids, ms.names, performances, ms.worst, ms.best, statuses)
   boxes
 }
 

@@ -157,6 +157,7 @@ perf = eventReactive(input$performance.run, {
 })
 
 output$performance.overview = renderUI({
+  ms = measures.perf()
   perf = perf()
-  makePerformanceUI(perf)
+  makePerformanceUI(ms, perf)
 })
