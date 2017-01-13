@@ -28,4 +28,6 @@ shinyServer(function(input, output, session) {
   source("server_benchmark.R", local = TRUE)
   source("server_visualisation.R", local = TRUE)
 
+  session$onSessionEnded(stopApp)
+
 })
