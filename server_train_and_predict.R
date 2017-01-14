@@ -29,6 +29,7 @@ output$model.overview = renderPrint({
   validateTask(input$create.task, task.data(), data$data)
   input$train.run
   mod = isolate(model())
+  validateLearnerModel(mod, input$train.learner.sel)
   print(mod)
 })
 
@@ -109,6 +110,7 @@ observeEvent(input$predict.run, {
 output$predoverview = renderDataTable({
   validate(need("Prediction" %in% class(pred()),
     "Predicting the model failed. Train a different model."))
+  validateLearnerModel(model(), input$train.learner.sel)
   p = pred()
   p$data
 }, options = list(lengthMenu = c(5, 30), pageLength = 5)

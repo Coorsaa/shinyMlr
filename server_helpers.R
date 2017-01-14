@@ -60,6 +60,10 @@ checkPlotROCCurves = function(lrn) {
   )
 }
 
+validateLearnerModel = function(mod, lrn) {
+  mod.lrn = mod$learner$id
+  validate(need(mod.lrn == lrn, "Learner changed. Train new model."))
+}
 
   
 
