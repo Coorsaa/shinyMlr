@@ -96,7 +96,10 @@ pred = eventReactive(input$predict.run, {
   validate(need(all(feat.names %in% colnames(newdata)),
     sprintf("Column names %s must be present in data",
       paste(feat.names, collapse = " ")))) 
-  predict(model, newdata = newdata)
+  preds = tryCatch(predict(model, newdata = newdata), error = function(err) {
+    "error"
+  })
+  preds
 })
 
 observeEvent(input$predict.run, {
@@ -104,6 +107,8 @@ observeEvent(input$predict.run, {
 })
 
 output$predoverview = renderDataTable({
+  validate(need("Prediction" %in% class(pred()),
+    "Predicting the model failed. Train a different model."))
   p = pred()
   p$data
 }, options = list(lengthMenu = c(5, 30), pageLength = 5)
