@@ -167,9 +167,10 @@ perf = eventReactive(input$performance.run, {
 })
 
 output$performance.overview = renderUI({
+  input$performance.run
+  req(perf())
   validateTask(input$create.task, task.data(), data$data, req = TRUE)
   validateLearnerModel(model(), input$train.learner.sel)
-  input$performance.run
   ms = isolate(measures.perf())
   perf = isolate(perf())
   makePerformanceUI(ms, perf)
