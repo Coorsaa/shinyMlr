@@ -15,13 +15,6 @@ output$bmrplots = renderPlot({
 
 ##### prediction plot ####
 
-# output$predictionplot.learner.sel = renderUI({
-#   reqAndAssign(learners(), "lrns")
-#   lids = names(lrns)
-#   selectInput("predictionplot.learner.sel", "Choose a learner:", choices = lids,
-#     width = 200)
-# })
-
 output$visualisation.selection = renderUI({
   reqAndAssign(task(), "tsk")
   column(width = 4,
@@ -34,17 +27,6 @@ output$predictionplot.x.sel = renderUI({
   selectInput("predictionplot.x.sel", "Select variables:", choices = fnames,
     multiple = TRUE)
 })
-
-
-
-# output$predictionplot = renderPlot({
-#   feats = input$predictionplot.x.sel
-#   lrn = input$predictionplot.learner.sel
-#   ms = getFirst(measures())
-#   if (length(feats) %in% 1:2) {
-#     plotLearnerPrediction(learner = lrn, task = task(), features = feats, measures = ms, cv = 0)
-#   }
-# })
 
 output$predictionplot.settings = renderUI({
   reqAndAssign(pred(), "preds")
@@ -71,10 +53,13 @@ measures.plot = reactive({
 })
 
 output$prediction.plot = renderPlot({
+  lrn.sel = input$train.learner.sel
+  validateLearnerModel(model(), lrn.sel)
+  validateTask(input$create.task, task.data(), data$data)
   reqAndAssign(task(), "tsk")
-  tsk.type = task.type()
+  tsk = task()
   reqAndAssign(input$prediction.plot.sel, "plot.type")
-  lrn = learners()[[input$train.learner.sel]]
+  lrn = learners()[[lrn.sel]]
   feats = input$predictionplot.feat.sel
   preds = pred()
   ms = measures.plot()
@@ -87,7 +72,6 @@ output$confusion.matrix = renderPrint({
   reqAndAssign(input$prediction.plot.sel, "plot.type")
   if (plot.type == "confusion matrix") {
     t = makeConfusionMatrix(plot.type, preds)
-    #dt = datatable(t, rownames = TRUE)
     print(t)
   } else {
     invisible(NULL)
@@ -120,5 +104,3 @@ output$partialdep.plot = renderPlot({
   lrns = learners()
   sPlotPartialDep(input, tt, lrns)
 })
-
-
