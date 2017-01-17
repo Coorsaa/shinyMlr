@@ -40,6 +40,10 @@ validateTask = function(tsk.button, tsk.df, df, req = FALSE) {
   }
 }
 
+validateLearner = function(lrns.sel) {
+  validate(need(length(lrns.sel) != 0L, "you didn't create a learner yet"))
+}
+
 # FIXME: Should be done with validate/need
 checkPlotLearnerPrediction = function(tsk.type, feats) {
   res = NULL
@@ -155,3 +159,88 @@ makeVisualisationSelectionUI = function(tsk) {
   }
   return(vis.inp)
 }
+
+
+
+makeTuningParameterUI = function(par.set, param.ids, param.types) {
+  param.lows = Map(function(param) {par.set$pars[[param]]$lower}, param.ids)
+  param.ups = Map(function(param) {par.set$pars[[param]]$upper}, param.ids)
+  params.vals = Map(function(param) {par.set$pars[[param]]$values}, param.ids)
+  
+  
+  param.ui = Map(function(param, param.type, param.low, param.up, param.vals) {
+    
+    if (param.type %in% c("numeric", "integer")) {
+      
+      if (param.type == "numeric") {
+        tune.par.lower = numericInput(inputId = paste0("tune.par.lower.", param), label = paste("Lower value for", param),
+          value = param.low, min = param.low, max = param.up)
+        tune.par.upper = numericInput(inputId = paste0("tune.par.upper.", param), label = paste("Upper value for", param),
+          value = param.up, min = param.low, max = param.up)
+      } else if (param.type == "integer") {
+        tune.par.lower = numericInput(inputId = paste0("tune.par.lower.", param), label = paste("Lower value for", param),
+          value = param.low, min = param.low, max = param.up, step = 1L)
+        tune.par.upper = numericInput(inputId = paste0("tune.par.upper.", param), label = paste("Upper value for", param),
+          value = param.up, min = param.low, max = param.up, step = 1L)
+      }
+      
+      pars1 = fluidRow(width = 12,
+        column(6, tune.par.lower),
+        column(6, tune.par.upper)
+      )
+      
+      return(pars1)
+      
+    } else if (param.type == "discrete") {
+      param.vals = lapply(param.vals, as.character)
+      discrete.box = checkboxGroupInput(inputId = paste0("tune.par.checkbox", param), label = param,
+        choices = param.vals, selected = param.vals)
+      
+      pars2 = fluidRow(width = 12,
+        column(4, discrete.box)
+      )
+
+      return(pars2)
+      
+    }
+
+  }, param.ids, param.types, param.lows, param.ups, params.vals)
+  
+  column(width = 12,
+    param.ui
+  )
+}
+
+
+
+
+# makeTuningParameterSet = function(par.set, param.ids, param.types){
+#   
+#   param.defs = Map(function(param) {par.set$pars[[param]]$default}, param.ids)
+#   
+#   
+#   ps = Map(function(param, param.type, param.def) {
+#   
+#     if (param.type == "numeric") {
+#       return(input[[paste0("tune.par.lower.", param)]])
+#       # param.low = as.numeric(input[[paste0("tune.par.lower.", param)]])
+#       # param.up = as.numeric(input[[paste0("tune.par.upper.", param)]])
+#       # makeNumericParam(id = param, lower = param.low, upper = param.up, default = param.def)
+#     } else if (param.type == "integer") {
+#       return(input[[paste0("tune.par.lower.", param)]])
+#       # param.low = as.numeric(input[[paste0("tune.par.lower.", param)]])
+#       # param.up = as.numeric(input[[paste0("tune.par.upper.", param)]])
+#       # makeIntegerParam(id = param, lower = param.low, upper = param.up, default = param.def)
+#     } else if (param.type == "discrete") {
+#       return(input[[paste0("tune.par.checkbox", param)]])
+#       # param.box = input[[paste0("tune.par.checkbox", param)]]
+#       # makeDiscreteParam(id = param, values = param.box)
+#     }
+#   # return(c(param.low, param.up, param.box))
+#   }, param.ids, param.types, param.defs)
+#   # ps
+#   return(ps)
+# }
+
+
+

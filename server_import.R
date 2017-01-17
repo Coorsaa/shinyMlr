@@ -66,13 +66,13 @@ data.name = reactive({
 })
 
 
-output$import.preview = renderDataTable({
+output$import.preview = DT::renderDataTable({
   reqAndAssign(data$data, "d")
   colnames(d) = make.names(colnames(d))
   d
 }, options = list(lengthMenu = c(5, 20, 50), pageLength = 5, scrollX = TRUE))
 
-output$import.browse.openml = renderDataTable({
+output$import.browse.openml = DT::renderDataTable({
   show("loading.message2")
   df = listOMLDataSets()[,c(1:5,10:12)]
   hide("loading.message2")

@@ -16,7 +16,7 @@ factorFeatures = reactive({
 
 
 
-output$summary.datatable = renderDataTable({
+output$summary.datatable = DT::renderDataTable({
   # req(data$data)
   d = data$data
   colnames(d) = make.names(colnames(d))
@@ -407,7 +407,7 @@ observeEvent(input$convar_start, {
 
 ### preproc_data
 
-output$preproc_data = renderDataTable({
+output$preproc_data = DT::renderDataTable({
   d = data$data
   colnames(d) = make.names(colnames(d))
   d
