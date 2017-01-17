@@ -12,7 +12,7 @@ output$train.learner.sel = renderUI({
 
 train.learner = reactive({
   req(input$train.learner.sel)
-  lrns = isolate({learners()})
+  lrns = learners()
   lrn = lrns[[isolate({input$train.learner.sel})]]
   lrn
 })
@@ -93,7 +93,7 @@ pred = eventReactive(input$predict.run, {
   newdata = data.pred()
   colnames(newdata) = make.names(colnames(newdata))
   feat.names = task.feature.names()
-  validate(need(all(feat.names %in% colnames(newdata) ),
+  validate(need(all(feat.names %in% colnames(newdata)),
     sprintf("Column names %s must be present in data",
       paste(feat.names, collapse = " ")))) 
   predict(model, newdata = newdata)
