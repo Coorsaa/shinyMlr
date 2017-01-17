@@ -1,17 +1,16 @@
 tabpanel.modelling = fluidRow(
   tabBox(width = 12,
     tabPanel(title = "Train",
+      # fluidRow(
       fluidRow(
-        column(width = 12, align = "center",
-          uiOutput("train.learner.sel")
-        )
-      ),
-      br(),
-      br(),
-      fluidRow(
-        column(width = 12,
-          verbatimTextOutput("model.overview")
-        )
+        column(width = 4, NULL),
+        column(width = 4, align = "center",
+          fluidRow(uiOutput("train.learner.sel")),
+          br(),
+          br(),
+          fluidRow(uiOutput("model.overview"))
+        ),
+        column(width = 4, NULL)
       )
     ),
     tabPanel(title = "Predict",

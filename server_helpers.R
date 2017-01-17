@@ -9,7 +9,7 @@ writeBold = function(chr) {
 }
 
 makeInfoDescription = function(header, body, width) {
-  column(width = width, writeBold(header), h5(body)) 
+  column(width = width, align = "center", writeBold(header), h5(body)) 
 }
 
 replaceInfiniteValues = function(val) {

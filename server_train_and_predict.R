@@ -24,13 +24,13 @@ model = eventReactive(input$train.run, {
   train(lrn, tsk)
 })
 
-output$model.overview = renderPrint({
+output$model.overview = renderUI({
   validate(need(input$train.run != 0L, "No model trained yet"))
   validateTask(input$create.task, task.data(), data$data)
   input$train.run
   mod = isolate(model())
   validateLearnerModel(mod, input$train.learner.sel)
-  print(mod)
+  makeModelUI(mod, task())
 })
 
 
@@ -163,7 +163,7 @@ perf = eventReactive(input$performance.run, {
   round(perf, digits = 4L)
 })
 
-output$performance.overview = renderUI({
+output$performance.overview = eventReactive(input$performance.run, {
   ms = measures.perf()
   perf = perf()
   makePerformanceUI(ms, perf)
