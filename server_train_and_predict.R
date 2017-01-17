@@ -79,6 +79,8 @@ data.pred = reactive({
 })
 
 output$import.pred.preview = renderDataTable({
+  validateTask(input$create.task, task.data(), data$data, req = TRUE)
+  validateLearnerModel(model(), input$train.learner.sel)
   reqAndAssign(data.pred(), "d")
   d = data.pred()
   colnames(d) = make.names(colnames(d))
@@ -89,6 +91,7 @@ output$import.pred.preview = renderDataTable({
 ##### predict on new data #####
 
 pred = eventReactive(input$predict.run, {
+  validateTask(input$create.task, task.data(), data$data, req = TRUE)
   validate(need(!is.null(model()), "Train a model first to make predictions"))
   model = model()
   newdata = data.pred()
@@ -110,6 +113,7 @@ observeEvent(input$predict.run, {
 output$predoverview = renderDataTable({
   validate(need("Prediction" %in% class(pred()),
     "Predicting the model failed. Train a different model."))
+  validateTask(input$create.task, task.data(), data$data, req = TRUE)
   validateLearnerModel(model(), input$train.learner.sel)
   p = pred()
   p$data
@@ -127,7 +131,6 @@ output$predict.download = downloadHandler(
     write.csv(pred$data, file)
   }
 )
-
 
 #### performance on the test data ####
 
@@ -163,8 +166,11 @@ perf = eventReactive(input$performance.run, {
   round(perf, digits = 4L)
 })
 
-output$performance.overview = eventReactive(input$performance.run, {
-  ms = measures.perf()
-  perf = perf()
+output$performance.overview = renderUI({
+  validateTask(input$create.task, task.data(), data$data, req = TRUE)
+  validateLearnerModel(model(), input$train.learner.sel)
+  input$performance.run
+  ms = isolate(measures.perf())
+  perf = isolate(perf())
   makePerformanceUI(ms, perf)
 })

@@ -7,7 +7,7 @@ makeModelUI = function(mod, tsk) {
     lrn.par.vals = datatable(lrn.par.vals, colnames = NULL,
       options = list(paging = FALSE, searching = FALSE,
         bInfo = FALSE, ordering = FALSE))
-    lrn.par.vals = renderDataTable(lrn.par.vals)
+    # lrn.par.vals = renderDataTable(lrn.par.vals)
   } else {
     lrn.par.vals = NULL
   }
@@ -21,7 +21,8 @@ makeModelUI = function(mod, tsk) {
   )
   par.vals.box = box(title = "Parameter values", status = "primary",
     solidHeader = TRUE, width = 12,
-      lrn.par.vals
+    # lrn.par.vals
+    renderDataTable(lrn.par.vals)
   )
   ui = list(
     fluidRow(mod.box),
@@ -70,7 +71,7 @@ determinePerformanceStatus = function(worst, best, perf) {
       best = 1e-16
     if (perf == 0)
       perf = 1e-16
-    perf.rel = perf / best
+    perf.rel = abs(perf / best)
     if (perf.rel <= 0.33) {
       status = "danger"
       color = "color:#dd4b39"
@@ -100,7 +101,9 @@ makePerformanceUI = function(measures, performances) {
   boxes = Map(function(ms.id, ms.name, perf, worst, best, status) {
     box(title = ms.id, status = status$status, solidHeader = TRUE, width = 3, height = 200,
       fluidRow(
-        column(width = 12, h5(ms.name), align = "center")
+        div(style = "height:50px;", 
+          column(width = 12, h5(ms.name), align = "center")
+        )
       ),
       fluidRow(
         column(width = 12, div(h4(strong(perf)), style = status$color), align = "center")
@@ -114,7 +117,7 @@ makePerformanceUI = function(measures, performances) {
       )
     )
   }, ms.ids, ms.names, performances, ms.worst, ms.best, statuses)
-  boxes
+  return(boxes)
 }
 
 makePredictionPlot = function(tsk.type, plot.type, lrn, feats, preds, ms, resplot.type) {
