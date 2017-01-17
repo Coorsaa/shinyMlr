@@ -4,20 +4,31 @@ pasteDot = function(...) {
   paste(..., sep = ".")
 }
 
-reqAndAssign = function(obj, name) {
-  req(obj)
-  assign(name, obj, pos = 1L)
-}
-
 writeBold = function(chr) {
   tags$b(chr)
 }
 
-makeParamInfoDescription = function(header, body, width) {
-  column(width = width, writeBold(header), h5(body)) 
+makeInfoDescription = function(header, body, width) {
+  column(width = width, align = "center", writeBold(header), h5(body)) 
+}
+
+replaceInfiniteValues = function(val) {
+  if (is.infinite(val)) {
+    if (val > 0) {
+      val = 1e10
+    } else {
+      val = -1e10
+    }
+  }
+  val
 }
 
 #### needy functions
+
+reqAndAssign = function(obj, name) {
+  req(obj)
+  assign(name, obj, pos = 1L)
+}
 
 validateTask = function(tsk.button, tsk.df, df, req = FALSE) {
   validate(need(tsk.button != 0L, "you didn't create a task yet"))
@@ -49,6 +60,10 @@ checkPlotROCCurves = function(lrn) {
   )
 }
 
+validateLearnerModel = function(mod, lrn) {
+  mod.lrn = mod$learner$id
+  validate(need(mod.lrn == lrn, "Learner changed. Train new model."))
+}
 
   
 

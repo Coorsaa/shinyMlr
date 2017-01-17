@@ -19,9 +19,9 @@ makeLearnerParamInfoUI = function(par) {
     par.tun = "no"
   }
 
-  info.ui = list(makeParamInfoDescription("type", par.type, width = 2),
-    makeParamInfoDescription("default", par.def, width = 4),
-    makeParamInfoDescription("tunable", par.tun, width = 2)
+  info.ui = list(makeInfoDescription("type", par.type, width = 2),
+    makeInfoDescription("default", par.def, width = 4),
+    makeInfoDescription("tunable", par.tun, width = 2)
   )
   if (par.type %in% c("numeric", "integer", "numericvector", "integervector")) {
     par.lower = par$lower
@@ -32,8 +32,8 @@ makeLearnerParamInfoUI = function(par) {
       par.upper = "-"
     
     info.ui = list(info.ui,
-      makeParamInfoDescription("lower", par.lower, width = 2),
-      makeParamInfoDescription("upper", par.upper, width = 2)
+      makeInfoDescription("lower", par.lower, width = 2),
+      makeInfoDescription("upper", par.upper, width = 2)
     )
   }
 
