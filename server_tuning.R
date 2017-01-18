@@ -1,6 +1,8 @@
 output$tuning.sel = renderUI({
   validateTask(input$create.task, task.data(), data$data, req = TRUE)
   validateLearner(input$learners.sel)
+  reqAndAssign(measures.avail(), "ms")
+  reqAndAssign(measures.default(), "ms.def")
   lrns = learners()
   lrns.ids = names(lrns)
   list(
@@ -10,19 +12,21 @@ output$tuning.sel = renderUI({
     column(6, align = "center",
       selectInput("tuning.method", "Choose tuning method", 
         choices = c("Grid", "Random", "irace"), selected = "Grid")
-    )
+    ),
+    column(width = 4,
+      uiOutput("tuning.iters")
+    ),
+    column(width = 4,
+      numericInput("tuning.cv", "No. of CV folds", min = 1L, max = Inf, value = 3L, step = 1L)
+    ),
+    column(width = 4,
+      selectInput("tuning.measure", "Choose performance measure", choices = ms,
+        selected = ms.def, multiple = TRUE)
+    ),
+    uiOutput("tuning.parallel.ui")
   )
 })
 
-output$tuning.measure.ui = renderUI({
-  reqAndAssign(measures.avail(), "ms")
-  reqAndAssign(measures.default(), "ms.def")
-
-  column(width = 4,
-    selectInput("tuning.measure", "Choose performance measure", choices = ms,
-      selected = ms.def, multiple = TRUE)
-  )
-})
 
 tuning.measures.perf = reactive({
   tsk = isolate(task())
@@ -38,6 +42,25 @@ output$tuning.iters = renderUI({
     numericInput("tuning.res", "No. of steps (resolution)", min = 1L, max = Inf, value = 10L, step = 1L)
   else if (method == "irace")
     numericInput("tuning.max.exp", "No. of maximal Experiments", min = 1L, max = Inf, value = 200L, step = 1L)
+})
+
+output$tuning.parallel.ui = renderUI({
+  fluidRow(
+    column(width = 6, align = "center",
+      radioButtons("tuning.parallel", "Parallel tuning?", choices = c("Yes", "No"), selected = "No")
+    ),
+    column(width = 6, align = "center",
+      numericInput("tuning.parallel.nc", "No. of cores", min = 1L, max = Inf, value = 2L, step = 1L)
+    )
+  )
+})
+
+observeEvent(input$tuning.parallel, {
+  if (input$tuning.parallel == "No") {
+    shinyjs::hide("tuning.parallel.nc", animType = "fade")
+  } else {
+    shinyjs::show("tuning.parallel.nc", anim = TRUE)
+  }
 })
 
 
@@ -79,26 +102,9 @@ output$tuning.learner.params = renderUI({
   makeTuningParameterUI(par.set, param.ids, param.types)
 })
 
-output$tuning.parallel.ui = renderUI({
-  fluidRow(
-    column(width = 6, align = "center",
-      radioButtons("tuning.parallel", "Parallel tuning?", choices = c("Yes", "No"), selected = "No")
-    ),
-    column(width = 6, align = "center",
-      numericInput("tuning.parallel.nc", "No. of cores", min = 1L, max = Inf, value = 2L, step = 1L)
-    )
-  )
-})
-
-observeEvent(input$tuning.parallel, {
-  if (input$tuning.parallel == "No") {
-    shinyjs::hide("tuning.parallel.nc", animType = "slide")
-  } else {
-    shinyjs::show("tuning.parallel.nc", anim = TRUE)
-  }
-})
 
 tuning = eventReactive(input$tune.run, {
+  reqAndAssign(isolate(learners()), "lrns")
   reqAndAssign(tuning.par.set(), "par.set")
   reqAndAssign(input$tuning.learner.sel, "lrn")
   reqAndAssign(task(), "tsk")
@@ -161,6 +167,11 @@ tuning = eventReactive(input$tune.run, {
       })
     parallelStop()
   }
+  
+  lrn.sel = lrns[[lrn]]
+  tuned.lrn = setHyperPars(lrn.sel, par.vals = res$x)
+  lrns[[lrn]] = tuned.lrn
+  learner$tuned.learner = lrns
   return(res)
 })
 
@@ -171,29 +182,17 @@ output$print.tuning.ps = renderPrint({
 })
 
 
-tuned.learners = reactive({
-  reqAndAssign(learners(), "lrns")
-  reqAndAssign(tuning(), "res")
-  reqAndAssign(input$tuning.learner.sel, "lrn.id")
-  lrn = lrns[[lrn.id]]
-  tuned.lrn = setHyperPars(lrn, par.vals = res$x)
-  lrns[[lrn.id]] = tuned.lrn
-  return(lrns)
+observe({
+  if (is.null(learner$tuned.learner)) {
+    shinyjs::hide("tune.set.hp")
+  } else {
+    shinyjs::show("tune.set.hp")
+  }
 })
 
-# reactive({
-#   reqAndAssign(learners(), "lrns")
-#   reqAndAssign(tuning(), "res")
-#   reqAndAssign(input$tuning.learner.sel, "lrn.id")
-#   lrn = lrns[[lrn.id]]
-#   tuned.lrn = setHyperPars(lrn, par.vals = res$x)
-#   lrns[[lrn.id]] = tuned.lrn
-#   learner$learner = lrns           
-# })
-
-output$print.tuned.lrn = renderPrint({
-  reqAndAssign(tuned.learners(), "lrns")
+transfer.learners = observeEvent(input$tune.set.hp, {
+  reqAndAssign(learner$tuned.learner, "lrns")
+  learner$learner = lrns
   return(lrns)
 })
-
 
