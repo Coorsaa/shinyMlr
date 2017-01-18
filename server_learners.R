@@ -119,28 +119,6 @@ output$learners.ui = renderUI({
 })
 
 
-# learners = reactive({
-#   if (!is.null(tuned.learners())) {
-#     tuned.learners()
-#   } else {
-#   reqAndAssign(learners.params(), "lrns.params")
-#   lrns.sel = input$learners.sel
-#   pred.types = learners.pred.types()
-#   threshs = learners.threshold()
-#   lrns = Map(function(lrn, pars, pred.type, thresh) {
-#     # FIXME: this is ugly, should be handled in learners.threshold()
-#     # didnt find easy way to do it 
-#     if (any(is.na(thresh)) | length(thresh) == 0L)
-#       thresh = NULL
-#     
-#     makeLearner(lrn, predict.type = pred.type,
-#       par.vals = pars, predict.threshold = thresh)
-#   }, lrns.sel, lrns.params, pred.types, threshs)
-#   setNames(lrns, lrns.sel)
-#   }
-# })
-
-
 learner = reactiveValues(learner = NULL, tuned.learner = NULL)
 
 observe({
