@@ -17,51 +17,50 @@ factorFeatures = reactive({
 
 
 output$summary.datatable = DT::renderDataTable({
-  # req(data$data)
-  d = data$data
+  reqAndAssign(data$data, "d")
   colnames(d) = make.names(colnames(d))
   summarizeColumns(d)
-}, options = list(lengthMenu = c(5, 20, 50), pageLength = 5)
-)
+}, caption = "Click on variable for visualisation!", selection = "single")
 
 
-output$summary.vis.var = renderUI({
-  # req(data$data)
-  d = data$data
-  choices = as.list(colnames(data$data))
-  selectInput("summary.vis.var", "Choose a variable:", choices = choices, selected = getLast(choices), width = "95%")
+summary.vis.var = reactive({
+  reqAndAssign(data$data, "d")
+  s = summarizeColumns(d)
+  s$name[input$summary.datatable_rows_selected]
 })
 
 output$summary.vis.hist.nbins = renderUI({
   sliderInput("summary.vis.hist.nbins", "Number of bins", min = 1L, max = 100L, value = 30L, step = 1L, width = "95%")
 })
 
-observeEvent(input$summary.vis.var, {
-  # req(factorFeatures())
-  req(input$summary.vis.var)
-  if (input$summary.vis.var %in% factorFeatures()) {
-    shinyjs::hide("summary.vis.hist.nbins", animType = "fade")
+observeEvent(summary.vis.var(), {
+  feature = summary.vis.var()
+  if (length(feature) > 0L) {
+    shinyjs::show("summary.vis.box", anim = TRUE)
+    if (feature %in% factorFeatures()) {
+      shinyjs::hide("summary.vis.hist.nbins", animType = "fade")
+    } else {
+      shinyjs::show("summary.vis.hist.nbins", anim = TRUE)
+    }
   } else {
-    shinyjs::show("summary.vis.hist.nbins", anim = TRUE)
+    shinyjs::hide("summary.vis.box", anim = TRUE)
   }
 })
 
 
 output$summary.vis = renderPlot({
-  req(input$summary.vis.var)
-  # req(data$data)
-  # req(numericFeatures())
+  reqAndAssign(summary.vis.var(), "feature")
   d = na.omit(data$data)
-  if (input$summary.vis.var %in% numericFeatures()) {
-    ggplot(data = d, aes(x = as.numeric(d[,input$summary.vis.var]))) + 
+  if (feature %in% numericFeatures()) {
+    ggplot(data = d, aes(x = as.numeric(d[,feature]))) + 
       geom_histogram(aes(y = ..density..), fill = "white", color = "black", stat = "bin", bins = input$summary.vis.hist.nbins) + 
-      geom_density(fill = "blue", alpha = 0.1) + xlab(input$summary.vis.var) +
-      geom_vline(aes(xintercept = quantile(as.numeric(d[,input$summary.vis.var]), 0.05)), color = "blue", size = 0.5, linetype = "dashed") +
-      geom_vline(aes(xintercept = quantile(as.numeric(d[,input$summary.vis.var]), 0.95)), color = "blue", size = 0.5, linetype = "dashed") +
-      geom_vline(aes(xintercept = quantile(as.numeric(d[,input$summary.vis.var]), 0.5)), color = "blue", size = 1, linetype = "dashed")
+      geom_density(fill = "blue", alpha = 0.1) + xlab(feature) +
+      geom_vline(aes(xintercept = quantile(as.numeric(d[,feature]), 0.05)), color = "blue", size = 0.5, linetype = "dashed") +
+      geom_vline(aes(xintercept = quantile(as.numeric(d[,feature]), 0.95)), color = "blue", size = 0.5, linetype = "dashed") +
+      geom_vline(aes(xintercept = quantile(as.numeric(d[,feature]), 0.5)), color = "blue", size = 1, linetype = "dashed")
   } else {
-    ggplot(data = d, aes(x = d[,input$summary.vis.var])) + 
-      geom_bar(aes(fill = d[,input$summary.vis.var]), stat = "count") + xlab(input$summary.vis.var) +
+    ggplot(data = d, aes(x = d[,feature])) + 
+      geom_bar(aes(fill = d[,feature]), stat = "count") + xlab(feature) +
       guides(fill = FALSE)
   }
 })  
