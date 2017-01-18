@@ -5,7 +5,6 @@ library(DT)
 
 
 source("ui_tabpanel_import.R")
-source("ui_tabpanel_browse_openml.R")
 source("ui_tabpanel_summary.R")
 source("ui_tabpanel_preprocessing.R")
 source("ui_tabpanel_task.R")
@@ -26,9 +25,7 @@ shinyUI(
     
     dashboardSidebar(
       sidebarMenu(
-        menuItem("Import", tabName = "import", icon = icon("folder-open"),
-          menuSubItem("Import File", tabName = "import-file", icon = icon("file")),
-          menuSubItem("Browse OpenML", tabName = "browse-openml", icon = icon("search"))),
+        menuItem("Import", tabName = "import", icon = icon("folder-open")),
         menuItem("Data", tabName = "data", icon = icon("database"),
           menuSubItem("Summary", tabName = "summary", icon = icon("bar-chart")),
           menuSubItem("Preprocessing", tabName = "preprocessing", icon = icon("magic"))),
@@ -46,8 +43,7 @@ shinyUI(
         tags$link(rel = "stylesheet", type = "text/css", href = "custom.css")
       ),
       tabItems(
-        tabItem(tabName = "import-file", tabpanel.import),
-        tabItem(tabName = "browse-openml", tabpanel.browse.openml),
+        tabItem(tabName = "import", tabpanel.import),
         tabItem(tabName = "summary", tabpanel.summary),
         tabItem(tabName = "preprocessing", tabpanel.preprocessing),
         tabItem(tabName = "task", tabpanel.task),
