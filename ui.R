@@ -14,7 +14,7 @@ source("ui_tabpanel_benchmark.R")
 
 shinyUI(
   dashboardPage(
-    dashboardHeader(title = "shinyMlr",
+    dashboardHeader(title = span(img(src="logo.png", height = 40)),
       tags$li(class = "dropdown",
         tags$a(href = "https://github.com/mlr-org/mlr", target = "_blank", 
           tags$img(height = "19px", alt = "mlr Logo", src = "mlrLogo_blue_141x64.png")
