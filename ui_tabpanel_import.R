@@ -11,7 +11,8 @@ tabpanel.import = list(fluidRow(
     box(width = 12,
       DT::dataTableOutput("import.preview")
     )
-  )
+  ),
+  uiOutput("tabpanel.browse.openml")
 )
 
 

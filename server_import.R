@@ -70,11 +70,48 @@ output$import.preview = DT::renderDataTable({
   reqAndAssign(data$data, "d")
   colnames(d) = make.names(colnames(d))
   d
-}, options = list(lengthMenu = c(5, 20, 50), pageLength = 5, scrollX = TRUE))
+}, caption = "You imported the following data set")
 
 output$import.browse.openml = DT::renderDataTable({
   show("loading.message2")
-  df = listOMLDataSets()[,c(1:5,10:12)]
+  df = isolate(OMLData())[,c(1:5,10:12)]
   hide("loading.message2")
   df
+}, caption = "Click on OpenML Dataset you want to select.", selection = "single")
+
+
+#### OpenML
+
+output$tabpanel.browse.openml = renderUI({
+  fluidRow(
+    box(width = 12, title = "Browse OpenML",
+      hidden(
+        div(id = "loading.message2", align = "center",
+          h4("Loading datasets from OpenML")
+        )
+      ),
+      column(12, DT::dataTableOutput("import.browse.openml"))
+    )
+  )
 })
+
+observeEvent(input$import.type, {
+  if (input$import.type == "OpenML")
+    shinyjs::show("tabpanel.browse.openml")
+  else
+    shinyjs::hide("tabpanel.browse.openml")
+})
+
+observeEvent(input$import.browse.openml_rows_selected, {
+  reqAndAssign(isolate(OMLData()), "opml")
+  data.id = opml[input$import.browse.openml_rows_selected, 1]
+  d = getOMLDataSet(data.id = data.id)
+  data$data = d$data
+  updateNumericInput(session, "import.OpenML", value = data.id)
+})
+
+
+OMLData = reactive({
+  listOMLDataSets()
+})
+
