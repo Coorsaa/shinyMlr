@@ -120,7 +120,8 @@ makePerformanceUI = function(measures, performances) {
   return(boxes)
 }
 
-makePredictionPlot = function(tsk.type, plot.type, lrn, feats, preds, ms, resplot.type) {
+makePredictionPlot = function(tsk, tsk.type, plot.type, lrn, feats, preds, ms,
+  resplot.type, vi.method) {
   if (plot.type == "prediction") {
     validate(checkPlotLearnerPrediction(tsk.type, feats))
     q = plotLearnerPrediction(learner = lrn, features = feats, task = tsk, cv = 0)
@@ -132,10 +133,13 @@ makePredictionPlot = function(tsk.type, plot.type, lrn, feats, preds, ms, resplo
     q = plotResiduals(preds, type = resplot.type)
   } else if (plot.type == "confusion matrix") {
     q = NULL
-  } else {
+  } else if (plot.type == "ROC") {
     checkPlotROCCurves(lrn)
       df = generateThreshVsPerfData(preds, measures = ms)
       q = plotROCCurves(df)
+  } else if (plot.type == "variable importance") {
+    vi.data = generateFilterValuesData(tsk, method = vi.method)
+    q = plotFilterValues(vi.data)
   }
   return(q)
 }
@@ -145,18 +149,26 @@ makeConfusionMatrix = function(plot.type, preds) {
   return(conf$result)
 }
 
-makePredictionPlotSettingsUI = function(plot.type, fnames, ms.def, ms, width = 200) {
+makePredictionPlotSettingsUI = function(plot.type, fnames, ms.def, ms,
+  tsk.type, fm, width = 200) {
   if (plot.type == "prediction") {
     settings.inp = selectInput("predictionplot.feat.sel", "Select variables:",
       choices = fnames, multiple = TRUE, width = width)
     settings.ui = column(width = 4, settings.inp)
   } else if (plot.type == "residuals") {
-      settings.inp = selectInput("residualplot.type", "Select type of plot:",
-        choices = c("scatterplot", "histogram"), selected = "scatterplot",
-        width = width)
-      settings.ui = column(4, settings.inp)
-  } else {
+    settings.inp = selectInput("residualplot.type", "Select type of plot:",
+      choices = c("scatterplot", "histogram"), selected = "scatterplot",
+      width = width)
+    settings.ui = column(4, settings.inp)
+  } else if (plot.type %in% c("confusion matrix", "ROC")) {
     settings.ui = column(4, NULL)
+  } else if (plot.type == "variable importance") {
+    type = pasteDot("task", tsk.type)
+    list = as.character(fm[fm[type] == "TRUE", ]$id)
+    settings.inp = selectInput("vi.method", "Choose a filter method:",
+      choices = list, selected = "randomForestSRC.rfsrc", multiple = TRUE)
+    settings.ui = column(4, settings.inp)
   }
   return(settings.ui)
 }
+
