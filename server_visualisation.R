@@ -34,7 +34,9 @@ output$predictionplot.settings = renderUI({
   ms = measures.train.avail()
   ms.def = measures.default()
   reqAndAssign(input$prediction.plot.sel, "plot.type")
-  makePredictionPlotSettingsUI(plot.type, fnames, ms.def, ms)
+  tsk.type = getTaskType(task())
+  reqAndAssign(isolate(filter.methods()), "fm")
+  makePredictionPlotSettingsUI(plot.type, fnames, ms.def, ms, tsk.type, fm)
 })
 
 measures.plot = reactive({
@@ -64,8 +66,12 @@ output$prediction.plot = renderPlot({
   preds = pred()
   ms = measures.plot()
   resplot.type = input$residualplot.type
-  makePredictionPlot(tsk.type, plot.type, lrn, feats, preds, ms, resplot.type)
+  if (plot.type == "variable importance")
+    reqAndAssign(input$vi.method, "vi.method")
+  makePredictionPlot(tsk, tsk.type, plot.type, lrn, feats, preds, ms,
+    resplot.type, vi.method)
 })
+
 
 output$confusion.matrix = renderPrint({
   reqAndAssign(isolate(pred()), "preds")
@@ -87,6 +93,12 @@ observeEvent(input$prediction.plot.sel, {
   }
 })
 
+
+
+filter.methods = reactive({
+  listFilterMethods(tasks = TRUE)
+})
+
 ##### partial dependency #####
 
 output$partialdep.learner = renderUI({
@@ -104,3 +116,5 @@ output$partialdep.plot = renderPlot({
   lrns = learners()
   sPlotPartialDep(input, tt, lrns)
 })
+
+
