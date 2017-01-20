@@ -422,6 +422,32 @@ observeEvent(input$preproc_undo, {
 
 
 
+### subset
+
+output$preproc_subset = renderUI({
+  req(input$preproc_method)
+  d = data$data
+  fluidRow(
+    conditionalPanel("input.preproc_method == 'Subset'",
+      column(12,
+        sliderInput("preproc.subset", "Choose subset rows", min = 1L, max = nrow(d),
+          value = c(1, 2*ceiling(nrow(d)/3)), step = 1L)
+      ),
+      column(12, align = "center",
+        actionButton("subset.start", "Make subset")
+      )
+    )
+  )
+})
+
+
+observeEvent(input$subset.start, {
+  data$data_old = data$data
+  ss = input$preproc.subset
+  data$data = data$data[seq(ss[1], ss[2]), ]
+})
+
+
 
 
 
