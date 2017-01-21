@@ -152,6 +152,7 @@ makeConfusionMatrix = function(plot.type, preds) {
 makePredictionPlotSettingsUI = function(plot.type, fnames, ms.def, ms,
   tsk.type, fm, width = 200) {
   if (plot.type == "prediction") {
+    req(length(fnames) != 0L)
     settings.inp = selectInput("predictionplot.feat.sel", "Select variables:",
       choices = fnames, multiple = TRUE, width = width)
     settings.ui = column(width = 4, settings.inp)

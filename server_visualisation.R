@@ -30,7 +30,7 @@ output$predictionplot.x.sel = renderUI({
 
 output$predictionplot.settings = renderUI({
   reqAndAssign(pred(), "preds")
-  reqAndAssign(task.numeric.feature.names(), "fnames")
+  fnames = task.numeric.feature.names()
   ms = measures.train.avail()
   ms.def = measures.default()
   reqAndAssign(input$prediction.plot.sel, "plot.type")

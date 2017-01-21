@@ -1,6 +1,7 @@
 # FIXME: Should be done with validate/need
 checkPlotLearnerPrediction = function(tsk.type, feats) {
   res = NULL
+  validateNumFeatures(feats)
   nfeats = length(feats)
   if (tsk.type == "regr") {
     if (nfeats %nin% 1:2)

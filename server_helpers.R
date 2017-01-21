@@ -50,6 +50,10 @@ validateLearnerModel = function(mod, lrn) {
   validate(need(mod.lrn == lrn, "Learner changed. Train new model."))
 }
 
+validateNumFeatures = function(nfeats) {
+  validate(need(length(nfeats) != 0L, "There are no numeric features to select."))
+}
+
   
 
 # FIXME: mlr: create makeAutoTask or whatever depending on target? 
