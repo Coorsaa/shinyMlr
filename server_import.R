@@ -106,7 +106,6 @@ observeEvent(input$import.browse.openml_rows_selected, {
   reqAndAssign(isolate(OMLData()), "opml")
   data.id = opml[input$import.browse.openml_rows_selected, 1]
   d = getOMLDataSet(data.id = data.id)
-  data$data = d$data
   updateNumericInput(session, "import.OpenML", value = data.id)
 })
 
