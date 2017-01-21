@@ -46,6 +46,7 @@ output$predictionplot.settings = renderUI({
 measures.plot = reactive({
   tsk = isolate(task())
   reqAndAssign(measures.default(), "ms.def")
+  reqAndAssign(input$prediction.plot.sel, "plot.type")
   if (plot.type == "prediction") {
     ms = ms.def
   } else {
