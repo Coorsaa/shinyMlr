@@ -31,17 +31,22 @@ output$predictionplot.x.sel = renderUI({
 output$predictionplot.settings = renderUI({
   reqAndAssign(pred(), "preds")
   fnames = task.numeric.feature.names()
+  feats = task.feature.names()
   ms = measures.train.avail()
   ms.def = measures.default()
   reqAndAssign(input$prediction.plot.sel, "plot.type")
   tsk.type = getTaskType(task())
   reqAndAssign(isolate(filter.methods()), "fm")
-  makePredictionPlotSettingsUI(plot.type, fnames, ms.def, ms, tsk.type, fm)
+  lrn.sel = input$train.learner.sel
+  lrn = isolate(learners())[[lrn.sel]]
+  predict.type = lrn$predict.type
+  makePredictionPlotSettingsUI(plot.type, fnames, feats, ms.def, ms, tsk.type, fm, predict.type)
 })
 
 measures.plot = reactive({
   tsk = isolate(task())
   reqAndAssign(measures.default(), "ms.def")
+  reqAndAssign(input$prediction.plot.sel, "plot.type")
   if (plot.type == "prediction") {
     ms = ms.def
   } else {
@@ -58,18 +63,25 @@ output$prediction.plot = renderPlot({
   lrn.sel = input$train.learner.sel
   validateLearnerModel(model(), lrn.sel)
   validateTask(input$create.task, task.data(), data$data)
-  reqAndAssign(task(), "tsk")
-  tsk = task()
+  reqAndAssign(isolate(task()), "tsk")
+  tsk.type = tsk$type
+  reqAndAssign(isolate(model()), "mod")
   reqAndAssign(input$prediction.plot.sel, "plot.type")
   lrn = learners()[[lrn.sel]]
+  fnames = task.numeric.feature.names()
   feats = input$predictionplot.feat.sel
   preds = pred()
   ms = measures.plot()
   resplot.type = input$residualplot.type
   if (plot.type == "variable importance")
     reqAndAssign(input$vi.method, "vi.method")
-  makePredictionPlot(tsk, tsk.type, plot.type, lrn, feats, preds, ms,
-    resplot.type, vi.method)
+  
+  if (plot.type == "partial dependency" && lrn$predict.type == "se")
+    ind = "FALSE"
+  else
+    ind = as.logical(input$pd.plot.ind)
+  makePredictionPlot(mod, tsk, tsk.type, plot.type, lrn, fnames, feats, preds, ms,
+    resplot.type, vi.method, ind)
 })
 
 
@@ -94,27 +106,7 @@ observeEvent(input$prediction.plot.sel, {
 })
 
 
-
 filter.methods = reactive({
   listFilterMethods(tasks = TRUE)
 })
-
-##### partial dependency #####
-
-output$partialdep.learner = renderUI({
-  lrns = learners(); if (is.null(lrns)) return(NULL)
-  lids = names(lrns)
-  selectInput("partialdep.learner", "Choose a model:", choices = lids)
-})
-
-output$partialdep.feature = renderUI({
-  selectInput("partialdep.feature", "Choose a feature:", getTaskFeatureNames(task()))
-})
-
-output$partialdep.plot = renderPlot({
-  tt = task(); if (is.null(tt)) return(NULL)
-  lrns = learners()
-  sPlotPartialDep(input, tt, lrns)
-})
-
 

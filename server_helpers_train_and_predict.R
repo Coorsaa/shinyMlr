@@ -120,10 +120,10 @@ makePerformanceUI = function(measures, performances) {
   return(boxes)
 }
 
-makePredictionPlot = function(tsk, tsk.type, plot.type, lrn, feats, preds, ms,
-  resplot.type, vi.method) {
+makePredictionPlot = function(mod, tsk, tsk.type, plot.type, lrn, fnames, feats,
+  preds, ms, resplot.type, vi.method, ind) {
   if (plot.type == "prediction") {
-    validate(checkPlotLearnerPrediction(tsk.type, feats))
+    validate(checkPlotLearnerPrediction(tsk.type, fnames, feats))
     q = plotLearnerPrediction(learner = lrn, features = feats, task = tsk, cv = 0)
   } else if (plot.type == "residuals") {
     req(resplot.type)
@@ -131,6 +131,12 @@ makePredictionPlot = function(tsk, tsk.type, plot.type, lrn, feats, preds, ms,
       scatterplot = "scatterplot",
       "histogram" = "hist")
     q = plotResiduals(preds, type = resplot.type)
+  } else if (plot.type == "partial dependency") {
+    validate(checkPlotPartialDependency(tsk.type, lrn, fnames))
+    req(length(ind) != 0L)
+    req(length(feats) != 0L)
+    pd = generatePartialDependenceData(mod, tsk, feats, individual = ind)
+    q = plotPartialDependence(pd)
   } else if (plot.type == "confusion matrix") {
     q = NULL
   } else if (plot.type == "ROC") {
@@ -149,8 +155,8 @@ makeConfusionMatrix = function(plot.type, preds) {
   return(conf$result)
 }
 
-makePredictionPlotSettingsUI = function(plot.type, fnames, ms.def, ms,
-  tsk.type, fm, width = 200) {
+makePredictionPlotSettingsUI = function(plot.type, fnames, feats, ms.def, ms,
+  tsk.type, fm, predict.type, width = 200) {
   if (plot.type == "prediction") {
     req(length(fnames) != 0L)
     settings.inp = selectInput("predictionplot.feat.sel", "Select variables:",
@@ -161,6 +167,19 @@ makePredictionPlotSettingsUI = function(plot.type, fnames, ms.def, ms,
       choices = c("scatterplot", "histogram"), selected = "scatterplot",
       width = width)
     settings.ui = column(4, settings.inp)
+  } else if (plot.type == "partial dependency") {
+    req(length(fnames) != 0L)
+    settings.inp = selectInput("predictionplot.feat.sel", "Select variables:",
+        choices = fnames, selected = getFirst(fnames), multiple = TRUE, width = width)
+    if (predict.type != "se") {
+      settings.ind = radioButtons("pd.plot.ind", "Individual expectation?", choices = c("TRUE", "FALSE"),
+        selected = "FALSE")
+    } else
+      settings.ind = NULL
+    settings.ui = list(
+      column(width = 4, settings.inp),
+      column(width = 4, settings.ind)
+    )
   } else if (plot.type %in% c("confusion matrix", "ROC")) {
     settings.ui = column(4, NULL)
   } else if (plot.type == "variable importance") {
