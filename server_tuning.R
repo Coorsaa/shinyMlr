@@ -123,11 +123,11 @@ tuning = eventReactive(input$tune.run, {
       if (param.type == "numeric") {
         param.low = input[[paste0("tune.par.lower.", param)]]
         param.up = input[[paste0("tune.par.upper.", param)]]
-        makeNumericParam(id = param, lower = param.low, upper = param.up, default = param.def)
+        makeNumericParam(id = param, lower = param.low, upper = param.up)#, default = param.def) #FIXME is default necessary somehow?
       } else if (param.type == "integer") {
         param.low = input[[paste0("tune.par.lower.", param)]]
         param.up = input[[paste0("tune.par.upper.", param)]]
-        makeIntegerParam(id = param, lower = param.low, upper = param.up, default = param.def)
+        makeIntegerParam(id = param, lower = param.low, upper = param.up)#, default = param.def)
       } else if (param.type == "discrete") {
         param.box = input[[paste0("tune.par.checkbox", param)]]
         makeDiscreteParam(id = param, values = param.box)
