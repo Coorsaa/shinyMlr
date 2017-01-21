@@ -29,6 +29,7 @@ output$predictionplot.x.sel = renderUI({
 })
 
 output$predictionplot.settings = renderUI({
+  validateTask
   reqAndAssign(pred(), "preds")
   fnames = task.numeric.feature.names()
   ms = measures.train.avail()
@@ -37,7 +38,7 @@ output$predictionplot.settings = renderUI({
   tsk.type = getTaskType(task())
   reqAndAssign(isolate(filter.methods()), "fm")
   lrn.sel = input$train.learner.sel
-  lrn = isolate(learners())[[lrn.sel]]
+  lrn = learners()[[lrn.sel]]
   predict.type = lrn$predict.type
   makePredictionPlotSettingsUI(plot.type, fnames, ms.def, ms, tsk.type, fm, predict.type)
 })

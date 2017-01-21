@@ -139,5 +139,6 @@ observe({
 })
 
 learners = reactive({
-  learner$learner
+  reqAndAssign(learner$learner, "lrns")
+  lrns
 })

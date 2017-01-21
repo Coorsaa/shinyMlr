@@ -170,7 +170,7 @@ makePredictionPlotSettingsUI = function(plot.type, fnames, ms.def, ms,
   } else if (plot.type == "partial dependency") {
     req(length(fnames) != 0L)
     settings.inp = selectInput("predictionplot.feat.sel", "Select variables:",
-        choices = fnames, width = width)
+        choices = fnames, multiple = TRUE, width = width)
     if (predict.type != "se") {
       settings.ind = radioButtons("pd.plot.ind", "Individual expectation?", choices = c("TRUE", "FALSE"),
         selected = "FALSE")
