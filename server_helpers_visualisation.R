@@ -19,13 +19,12 @@ checkPlotROCCurves = function(lrn) {
   )
 }
 
-checkPlotPartialDependency = function(tsk.type, lrn) {
+checkPlotPartialDependency = function(tsk.type, lrn, fnames) {
+  validateNumFeatures(fnames)
   if (tsk.type == "classif") {
     validate(
       need(lrn$predict.type == "prob", "You must predict probabilities to plot partial dependency plots.")  
     )
-  } else if (tsk.type == "regr") {
-  
   }
 }
 

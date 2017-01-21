@@ -132,9 +132,9 @@ makePredictionPlot = function(mod, tsk, tsk.type, plot.type, lrn, fnames, feats,
       "histogram" = "hist")
     q = plotResiduals(preds, type = resplot.type)
   } else if (plot.type == "partial dependency") {
-    validateNumFeatures(fnames)
-    checkPlotPartialDependency(tsk.type, lrn)
+    validate(checkPlotPartialDependency(tsk.type, lrn, fnames))
     req(length(ind) != 0L)
+    req(length(feats) != 0L)
     pd = generatePartialDependenceData(mod, tsk, feats, individual = ind)
     q = plotPartialDependence(pd)
   } else if (plot.type == "confusion matrix") {
@@ -155,7 +155,7 @@ makeConfusionMatrix = function(plot.type, preds) {
   return(conf$result)
 }
 
-makePredictionPlotSettingsUI = function(plot.type, fnames, ms.def, ms,
+makePredictionPlotSettingsUI = function(plot.type, fnames, feats, ms.def, ms,
   tsk.type, fm, predict.type, width = 200) {
   if (plot.type == "prediction") {
     req(length(fnames) != 0L)
@@ -170,7 +170,7 @@ makePredictionPlotSettingsUI = function(plot.type, fnames, ms.def, ms,
   } else if (plot.type == "partial dependency") {
     req(length(fnames) != 0L)
     settings.inp = selectInput("predictionplot.feat.sel", "Select variables:",
-        choices = fnames, multiple = TRUE, width = width)
+        choices = fnames, selected = getFirst(fnames), multiple = TRUE, width = width)
     if (predict.type != "se") {
       settings.ind = radioButtons("pd.plot.ind", "Individual expectation?", choices = c("TRUE", "FALSE"),
         selected = "FALSE")

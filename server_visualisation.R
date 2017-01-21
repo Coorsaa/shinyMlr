@@ -29,18 +29,18 @@ output$predictionplot.x.sel = renderUI({
 })
 
 output$predictionplot.settings = renderUI({
-  validateTask
   reqAndAssign(pred(), "preds")
   fnames = task.numeric.feature.names()
+  feats = task.feature.names()
   ms = measures.train.avail()
   ms.def = measures.default()
   reqAndAssign(input$prediction.plot.sel, "plot.type")
   tsk.type = getTaskType(task())
   reqAndAssign(isolate(filter.methods()), "fm")
   lrn.sel = input$train.learner.sel
-  lrn = learners()[[lrn.sel]]
+  lrn = isolate(learners())[[lrn.sel]]
   predict.type = lrn$predict.type
-  makePredictionPlotSettingsUI(plot.type, fnames, ms.def, ms, tsk.type, fm, predict.type)
+  makePredictionPlotSettingsUI(plot.type, fnames, feats, ms.def, ms, tsk.type, fm, predict.type)
 })
 
 measures.plot = reactive({
@@ -63,24 +63,22 @@ output$prediction.plot = renderPlot({
   validateLearnerModel(model(), lrn.sel)
   validateTask(input$create.task, task.data(), data$data)
   reqAndAssign(isolate(task()), "tsk")
+  tsk.type = tsk$type
   reqAndAssign(isolate(model()), "mod")
   reqAndAssign(input$prediction.plot.sel, "plot.type")
   lrn = learners()[[lrn.sel]]
-  reqAndAssign(task.numeric.feature.names(), "fnames")
+  fnames = task.numeric.feature.names()
+  feats = input$predictionplot.feat.sel
   preds = pred()
   ms = measures.plot()
   resplot.type = input$residualplot.type
   if (plot.type == "variable importance")
     reqAndAssign(input$vi.method, "vi.method")
-  if (plot.type == "partial dependency") {
-    if (lrn$predict.type == "se")
-      ind = FALSE
-    else
-      ind = as.logical(input$pd.plot.ind)
-    reqAndAssign(input$predictionplot.feat.sel, "feats")
-  } else {
-    feats = input$predictionplot.feat.sel
-  }
+  
+  if (plot.type == "partial dependency" && lrn$predict.type == "se")
+    ind = "FALSE"
+  else
+    ind = as.logical(input$pd.plot.ind)
   makePredictionPlot(mod, tsk, tsk.type, plot.type, lrn, fnames, feats, preds, ms,
     resplot.type, vi.method, ind)
 })
