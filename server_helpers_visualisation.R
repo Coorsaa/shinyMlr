@@ -1,7 +1,7 @@
 # FIXME: Should be done with validate/need
-checkPlotLearnerPrediction = function(tsk.type, feats) {
+checkPlotLearnerPrediction = function(tsk.type, fnames, feats) {
   res = NULL
-  validateNumFeatures(feats)
+  validateNumFeatures(fnames)
   nfeats = length(feats)
   if (tsk.type == "regr") {
     if (nfeats %nin% 1:2)
@@ -19,34 +19,44 @@ checkPlotROCCurves = function(lrn) {
   )
 }
 
-
-# FIXME: maybe we want this as a helper too in mlr directly plot pd plot for one feature??
-sPlotPartialDep = function(input, task, learners) {
-  lrn = input$partialdep.learner
-  lrn = learners[[lrn]]
-  mod = train(lrn, task)
-  fn = input$partialdep.feature
-  pd = generatePartialDependenceData(mod, task, features = fn)
-  plotPartialDependence(pd)
+checkPlotPartialDependency = function(tsk.type, lrn) {
+  if (tsk.type == "classif") {
+    validate(
+      need(lrn$predict.type == "prob", "You must predict probabilities to plot partial dependency plots.")  
+    )
+  } else if (tsk.type == "regr") {
+  
+  }
 }
+
+
+# # FIXME: maybe we want this as a helper too in mlr directly plot pd plot for one feature??
+# sPlotPartialDep = function(input, task, learners) {
+#   lrn = input$partialdep.learner
+#   lrn = learners[[lrn]]
+#   mod = train(lrn, task)
+#   fn = input$partialdep.feature
+#   pd = generatePartialDependenceData(mod, task, features = fn)
+#   plotPartialDependence(pd)
+# }
 
 
 makeVisualisationSelectionUI = function(tsk) {
   if (tsk$type == "classif") {
     if (length(getTaskClassLevels(tsk)) == 2) {
       vis.inp = selectInput("prediction.plot.sel", "Choose plot",
-        choices = c("prediction", "residuals", "confusion matrix", "ROC", "variable importance"),
+        choices = c("prediction", "residuals", "partial dependency", "confusion matrix", "ROC", "variable importance"),
         selected = "prediction plot", width = 200
       )
     } else {
       vis.inp = selectInput("prediction.plot.sel", "Choose plot",
-        choices = c("prediction", "residuals", "confusion matrix", "variable importance"),
+        choices = c("prediction", "residuals", "partial dependency", "confusion matrix", "variable importance"),
         selected = "prediction plot", width = 200
       )
     }
   } else {
     vis.inp = selectInput("prediction.plot.sel", "Choose plot",
-      choices = c("prediction", "residuals", "variable importance"),
+      choices = c("prediction", "residuals", "partial dependency", "variable importance"),
       selected = "prediction plot", width = 200
     )
   }

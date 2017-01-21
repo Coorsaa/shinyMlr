@@ -60,7 +60,7 @@ learners.params.ui = reactive({
 
 learners.pred.types = reactive({
   lrns = input$learners.sel
-  tsk.type = task.type()
+  tsk.type = isolate(task.type())
   lrns.pred.types = vcapply(lrns, function(lrn) {
     pred.type = pasteDot("lrn.prob.sel", lrn)
     pred.type = input[[pred.type]]
