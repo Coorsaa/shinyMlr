@@ -172,8 +172,8 @@ makePredictionPlotSettingsUI = function(plot.type, fnames, feats, ms.def, ms,
     settings.inp = selectInput("predictionplot.feat.sel", "Select variables:",
         choices = fnames, selected = getFirst(fnames), multiple = TRUE, width = width)
     if (predict.type != "se") {
-      settings.ind = radioButtons("pd.plot.ind", "Individual expectation?", choices = c("TRUE", "FALSE"),
-        selected = "FALSE")
+      settings.ind = radioButtons("pd.plot.ind", "Individual expectation?", 
+        choices = c("TRUE", "FALSE"), inline = TRUE, selected = "FALSE")
     } else
       settings.ind = NULL
     settings.ui = list(
