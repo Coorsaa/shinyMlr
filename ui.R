@@ -20,6 +20,11 @@ shinyUI(
         tags$a(href = "https://github.com/mlr-org/mlr", target = "_blank",  
           tags$img(height = "19px", alt = "mlr Logo", src = "mlrLogo_blue_141x64.png")
         )
+      ),
+      tags$li(class = "dropdown",
+        tags$a(href = "https://github.com/mlr-org/mlr_shiny", target = "_blank",  
+          tags$img(icon("github"))
+        )
       )
     ),
     
