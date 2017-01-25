@@ -1,7 +1,7 @@
 output$tuning.sel = renderUI({
   validateTask(input$create.task, task.data(), data$data, req = TRUE)
   validateLearner(input$learners.sel)
-  reqAndAssign(measures.avail(), "ms")
+  reqAndAssign(measures.tuning.avail(), "ms")
   reqAndAssign(measures.default(), "ms.def")
   lrns = learners()
   lrns.ids = names(lrns)
@@ -27,6 +27,10 @@ output$tuning.sel = renderUI({
   )
 })
 
+measures.tuning.avail = reactive({
+  reqAndAssign(task(), "tsk")
+  listMatchingMeasures(tsk, learners())
+})
 
 tuning.measures.perf = reactive({
   tsk = isolate(task())
