@@ -45,3 +45,7 @@ border-top-color:#ffffff;
 .dataTable {
   pagingType: simple;
 }
+
+.rollovericons a{
+    margin: 10px;
+}

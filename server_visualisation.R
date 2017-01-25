@@ -15,13 +15,6 @@ output$bmrplots = renderPlot({
 
 ##### prediction plot ####
 
-# output$predictionplot.learner.sel = renderUI({
-#   reqAndAssign(learners(), "lrns")
-#   lids = names(lrns)
-#   selectInput("predictionplot.learner.sel", "Choose a learner:", choices = lids,
-#     width = 200)
-# })
-
 output$visualisation.selection = renderUI({
   reqAndAssign(task(), "tsk")
   column(width = 4,
@@ -35,29 +28,25 @@ output$predictionplot.x.sel = renderUI({
     multiple = TRUE)
 })
 
-
-
-# output$predictionplot = renderPlot({
-#   feats = input$predictionplot.x.sel
-#   lrn = input$predictionplot.learner.sel
-#   ms = getFirst(measures())
-#   if (length(feats) %in% 1:2) {
-#     plotLearnerPrediction(learner = lrn, task = task(), features = feats, measures = ms, cv = 0)
-#   }
-# })
-
 output$predictionplot.settings = renderUI({
   reqAndAssign(pred(), "preds")
-  reqAndAssign(task.numeric.feature.names(), "fnames")
+  fnames = task.numeric.feature.names()
+  feats = task.feature.names()
   ms = measures.train.avail()
   ms.def = measures.default()
   reqAndAssign(input$prediction.plot.sel, "plot.type")
-  makePredictionPlotSettingsUI(plot.type, fnames, ms.def, ms)
+  tsk.type = getTaskType(task())
+  reqAndAssign(isolate(filter.methods()), "fm")
+  lrn.sel = input$train.learner.sel
+  lrn = isolate(learners())[[lrn.sel]]
+  predict.type = lrn$predict.type
+  makePredictionPlotSettingsUI(plot.type, fnames, feats, ms.def, ms, tsk.type, fm, predict.type)
 })
 
 measures.plot = reactive({
   tsk = isolate(task())
   reqAndAssign(measures.default(), "ms.def")
+  reqAndAssign(input$prediction.plot.sel, "plot.type")
   if (plot.type == "prediction") {
     ms = ms.def
   } else {
@@ -71,23 +60,36 @@ measures.plot = reactive({
 })
 
 output$prediction.plot = renderPlot({
-  reqAndAssign(task(), "tsk")
-  tsk.type = task.type()
+  lrn.sel = input$train.learner.sel
+  validateLearnerModel(model(), lrn.sel)
+  validateTask(input$create.task, task.data(), data$data)
+  reqAndAssign(isolate(task()), "tsk")
+  tsk.type = tsk$type
+  reqAndAssign(isolate(model()), "mod")
   reqAndAssign(input$prediction.plot.sel, "plot.type")
-  lrn = learners()[[input$train.learner.sel]]
+  lrn = learners()[[lrn.sel]]
+  fnames = task.numeric.feature.names()
   feats = input$predictionplot.feat.sel
   preds = pred()
   ms = measures.plot()
   resplot.type = input$residualplot.type
-  makePredictionPlot(tsk.type, plot.type, lrn, feats, preds, ms, resplot.type)
+  if (plot.type == "variable importance")
+    reqAndAssign(input$vi.method, "vi.method")
+  
+  if (plot.type == "partial dependency" && lrn$predict.type == "se")
+    ind = "FALSE"
+  else
+    ind = as.logical(input$pd.plot.ind)
+  makePredictionPlot(mod, tsk, tsk.type, plot.type, lrn, fnames, feats, preds, ms,
+    resplot.type, vi.method, ind)
 })
+
 
 output$confusion.matrix = renderPrint({
   reqAndAssign(isolate(pred()), "preds")
   reqAndAssign(input$prediction.plot.sel, "plot.type")
   if (plot.type == "confusion matrix") {
     t = makeConfusionMatrix(plot.type, preds)
-    #dt = datatable(t, rownames = TRUE)
     print(t)
   } else {
     invisible(NULL)
@@ -103,22 +105,8 @@ observeEvent(input$prediction.plot.sel, {
   }
 })
 
-##### partial dependency #####
 
-output$partialdep.learner = renderUI({
-  lrns = learners(); if (is.null(lrns)) return(NULL)
-  lids = names(lrns)
-  selectInput("partialdep.learner", "Choose a model:", choices = lids)
+filter.methods = reactive({
+  listFilterMethods(tasks = TRUE)
 })
-
-output$partialdep.feature = renderUI({
-  selectInput("partialdep.feature", "Choose a feature:", getTaskFeatureNames(task()))
-})
-
-output$partialdep.plot = renderPlot({
-  tt = task(); if (is.null(tt)) return(NULL)
-  lrns = learners()
-  sPlotPartialDep(input, tt, lrns)
-})
-
 

@@ -6,7 +6,8 @@ tabpanel.preprocessing = fluidRow(
       column(12, align = "left", 
         selectInput("preproc_method", "Choose data preprocessing method:",
           choices = c("Impute", "Create dummy features", "Drop variable(s)", "Cap large values", # "Merge small factor levels", "Join class levels",
-            "Normalize variables", "Remove constant variables", "Convert variable"))
+            "Normalize variables", "Remove constant variables", "Convert variable",
+            "Subset"))
       ),
       column(12,
         uiOutput("preproc_impute"),
@@ -15,7 +16,8 @@ tabpanel.preprocessing = fluidRow(
         uiOutput("preproc_caplarge"),
         uiOutput("preproc_normfeat"),
         uiOutput("preproc_remconst"),
-        uiOutput("preproc_convar")
+        uiOutput("preproc_convar"),
+        uiOutput("preproc_subset")
       )
     ),
     column(12,
