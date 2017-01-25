@@ -30,7 +30,8 @@ tabpanel.benchmark = fluidRow(
       fluidRow(
         box(width = 12, align = "center",
           selectInput("bmrplots.type", label = "Plot Type", selected = "Beanplots", 
-            choices = c("Beanplots", "Boxplots"), width = 200)
+            choices = c("Beanplots", "Boxplots"), width = 200),
+          uiOutput("bmrplot.measures.sel")
         )
       ),
       fluidRow(
