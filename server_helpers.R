@@ -66,4 +66,33 @@ sMakeTask = function(id, target, data) {
     makeClassifTask(id = id, data = data, target = target)
 }
 
+listMatchingMeasures = function(task, lrns) {
+  ls = listMeasures(task)
+  pred.types = lapply(lrns, getLearnerPredictType)
+  if (any(pred.types != "prob")) {
+    prob.subset = listMeasures(task) %in% listMeasures(task, properties = "req.prob")
+    ls = listMeasures(task)[!prob.subset]
+  }
+  return(ls)
+}
+
+makeResampleDescUI = function(rdesc.type) {
+  inps = list()
+  if (rdesc.type %in% c("CV", "Bootstrap", "Subsample")) {
+    inps$iters = numericInput("benchmark.iters", label = "Iterations", value = 10L,
+      min = 1L, max = 100L, step = 1L)
+  }
+  if (rdesc.type == "RepCV") {
+    inps$reps = numericInput("benchmark.reps", label = "Repeats", value = 10L,
+      min = 1L, max = 100L, step = 1L)
+    inps$folds = numericInput("benchmark.folds", label = "Folds", value = 10L,
+      min = 1L, max = 100L, step = 1L)
+  }
+  if (rdesc.type %in% c("Subsample", "Holdout")) {
+    inps$split = numericInput("benchmark.split", label = "Split", value = 0.66,
+      min = 0, max = 1, step = 0.01)
+  }
+  inps
+}
+
 

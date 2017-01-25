@@ -1,16 +1,17 @@
 ##### benchmark #####
 
 output$benchmark.learners.sel = renderUI({
-  reqAndAssign(learners(), "lrns")
+  validateLearner(input$lrns.sel)
+  # reqAndAssign(learners(), "lrns")
+  lrns = learners()
   validateTask(input$create.task, task.data(), data$data, req = TRUE)
   lrn.ids = names(lrns)
-  selectInput("benchmark.learners.sel", "Learners", choices = lrn.ids,
+  selectInput("benchmark.learners.sel", NULL, choices = lrn.ids,
     multiple = TRUE, selected = lrn.ids)
 })
 
-output$stratText = renderText({
-  req(strat())
-  paste(strat())
+bmr.learners = reactive({
+  learners()[input$benchmark.learners.sel]
 })
 
 observeEvent(task.type(), {
@@ -21,29 +22,33 @@ observeEvent(task.type(), {
   }
 })
 
-rdesctype = reactive(input$benchmark.rdesctype)
-output$rdesctypeText = renderText(paste(rdesctype()))
+rdesc.type = reactive(input$benchmark.rdesc.type)
 
-observeEvent(rdesctype(), {
-  if (rdesctype() %in% c("LOO", "RepCV", "Holdout")) {
-    shinyjs::hide("benchmark.iters")
-  } else {
-    shinyjs::show("benchmark.iters")
-  }
+output$benchmark.rdesc.config = renderUI({
+  makeResampleDescUI(rdesc.type())
 })
 
 rdesc = reactive({
-  if (input$benchmark.rdesctype %in% c("CV", "Subsample", "Bootstrap")) {
-    makeResampleDesc(input$benchmark.rdesctype, iters = input$benchmark.iters)
-  } else {
-    makeResampleDesc(input$benchmark.rdesctype)
+  rdesc.type = rdesc.type()
+  args = list()
+  if (rdesc.type %in% c("CV", "Bootstrap", "Subsample")) {
+    args$iters = input$benchmark.iters
   }
+  if (rdesc.type == "RepCV") {
+    args$reps = input$benchmark.reps
+    args$folds = input$benchmark.folds
+  }
+  if (rdesc.type %in% c("Subsample", "Holdout")) {
+    args$split = input$benchmark.split
+  }
+  args$method = rdesc.type
+  do.call("makeResampleDesc", args)
 })
 
 
-measures.avail = reactive({
+measures.bmr.avail = reactive({
   reqAndAssign(task(), "tsk")
-  listMeasures(tsk, create = FALSE)
+  listMatchingMeasures(tsk, bmr.learners())
 })
 
 measures.default = reactive({
@@ -54,19 +59,20 @@ measures.default = reactive({
 })
 
 output$benchmark.measures.sel = renderUI({
-  reqAndAssign(measures.avail(), "ms")
-  selectInput("benchmark.measures.sel", "Measures", choices = ms, multiple = TRUE, selected = measures.default())
+  reqAndAssign(measures.bmr.avail(), "ms")
+  selectInput("benchmark.measures.sel", "Measures", choices = ms,
+    multiple = TRUE, selected = measures.default())
 })
 
-measures = reactive({
+measures.bmr = reactive({
   req(input$benchmark.measures.sel)
   listMeasures(task(), create = TRUE)[input$benchmark.measures.sel]
 })
 
 bmr = eventReactive(input$benchmark.run, {
   req(learners())
-  ms = measures()
-  lrns = learners()[input$benchmark.learners.sel]
+  ms = measures.bmr()
+  lrns = bmr.learners()
   rd = rdesc()
   tsk = task()
   
