@@ -4,13 +4,19 @@
 
 ##### benchmark plots #####
 
+output$bmrplot.measures.sel = renderUI({
+  ms = input$benchmark.measures.sel
+  selectInput("plot.measures.sel", "Measures", choices = ms,
+    selected = measures.default(), width = 200)
+})
+
 output$bmrplots = renderPlot({
-  b = bmr(); if (is.null(b)) return(NULL)
-  plotfun = switch(input$bmrplots.type,
-    Beanplots = function(b) plotBMRBoxplots(b, style = "violin"),
-    Boxplots = plotBMRBoxplots
+  plot.type = switch(input$bmrplots.type,
+    Beanplots = "violin",
+    Boxplots = "box"
   )
-  plotfun(b)
+  ms = measures.bmr()[[input$plot.measures.sel]]
+  plotBMRBoxplots(bmr(), style = plot.type, measure = ms)
 })
 
 ##### prediction plot ####
