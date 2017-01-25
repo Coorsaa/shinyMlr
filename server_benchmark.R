@@ -2,7 +2,6 @@
 
 output$benchmark.learners.sel = renderUI({
   validateLearner(input$lrns.sel)
-  # reqAndAssign(learners(), "lrns")
   lrns = learners()
   validateTask(input$create.task, task.data(), data$data, req = TRUE)
   lrn.ids = names(lrns)

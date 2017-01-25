@@ -136,7 +136,6 @@ output$predict.download = downloadHandler(
 
 measures.train.avail = reactive({
   lrn = train.learner()
-  # pred.type = lrn$predict.type
   tsk = isolate(task())
   listMatchingMeasures(tsk, list(lrn))
 })

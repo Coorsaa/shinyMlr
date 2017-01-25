@@ -13,7 +13,6 @@ tabpanel.benchmark = fluidRow(
             selectInput("benchmark.rdesc.type", label = "Resampling", selected = "CV", 
               choices = c("CV", "LOO", "RepCV", "Bootstrap", "Subsample", "Holdout")),
             uiOutput("benchmark.rdesc.config"),
-            # numericInput("benchmark.iters", label = "Iterations", value = 10L, min = 1L, max = 100L, step = 1L),
             checkboxInput("benchmark.stratification", label = "Stratification", FALSE),
             tags$hr(),
             actionButton("benchmark.run", label = "Benchmark")
