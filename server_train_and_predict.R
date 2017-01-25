@@ -136,15 +136,8 @@ output$predict.download = downloadHandler(
 
 measures.train.avail = reactive({
   lrn = train.learner()
-  pred.type = lrn$predict.type
   tsk = isolate(task())
-  if (pred.type == "prob") {
-    ls = listMeasures(tsk)
-  } else {
-    prob.subset =  listMeasures(tsk) %in% listMeasures(tsk, properties = "req.prob")
-    ls = listMeasures(tsk)[!prob.subset]
-  }
-  return(ls)
+  listMatchingMeasures(tsk, list(lrn))
 })
 
 output$perf.measures.sel = renderUI({

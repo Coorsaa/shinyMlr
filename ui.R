@@ -3,7 +3,7 @@ library(shinydashboard)
 library(shinyjs)
 library(DT)
 
-
+source("ui_helpers.R")
 source("ui_tabpanel_import.R")
 source("ui_tabpanel_summary.R")
 source("ui_tabpanel_preprocessing.R")
