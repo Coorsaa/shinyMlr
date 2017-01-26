@@ -5,7 +5,7 @@ makeTuningParameterUI = function(par.set, param.ids, param.types) {
   
   
   param.ui = Map(function(param, param.type, param.low, param.up, param.vals) {
-    par = par.set$pars[[param]]
+  
     if (param.type %in% c("numeric", "integer")) {
       
       if (param.type == "numeric") {
@@ -26,6 +26,7 @@ makeTuningParameterUI = function(par.set, param.ids, param.types) {
           label = "Trafo", choices = c("linear", "log2", "log10"), selected = "linear", inline = TRUE)
       }
       
+      par = par.set$pars[[param]]  
       par.info.ui = makeLearnerParamInfoUI(par)
       pars1 = box(width = 12, height = 175, title = param, solidHeader = TRUE, status = "primary",
         fluidRow(width = 12,
