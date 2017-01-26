@@ -5,24 +5,36 @@ makeTuningParameterUI = function(par.set, param.ids, param.types) {
   
   
   param.ui = Map(function(param, param.type, param.low, param.up, param.vals) {
-    
+  
     if (param.type %in% c("numeric", "integer")) {
       
       if (param.type == "numeric") {
-        tune.par.lower = numericInput(inputId = paste0("tune.par.lower.", param), label = paste("Lower value for", param),
+        tune.par.lower = numericInput(inputId = paste0("tune.par.lower.", param),
+          label = paste("Lower value for", param),
           value = param.low, min = param.low, max = param.up)
-        tune.par.upper = numericInput(inputId = paste0("tune.par.upper.", param), label = paste("Upper value for", param),
+        tune.par.upper = numericInput(inputId = paste0("tune.par.upper.", param),
+          label = paste("Upper value for", param),
           value = param.up, min = param.low, max = param.up)
+        tune.par.trafo = radioButtons(inputId = paste0("tune.par.trafo.", param),
+          label = "Trafo", choices = c("linear", "log2", "log10"), selected = "linear", inline = TRUE)
       } else if (param.type == "integer") {
         tune.par.lower = numericInput(inputId = paste0("tune.par.lower.", param), label = paste("Lower value for", param),
           value = param.low, min = param.low, max = param.up, step = 1L)
         tune.par.upper = numericInput(inputId = paste0("tune.par.upper.", param), label = paste("Upper value for", param),
           value = param.up, min = param.low, max = param.up, step = 1L)
+        tune.par.trafo = radioButtons(inputId = paste0("tune.par.trafo.", param),
+          label = "Trafo", choices = c("linear", "log2", "log10"), selected = "linear", inline = TRUE)
       }
       
-      pars1 = fluidRow(width = 12,
-        column(6, tune.par.lower),
-        column(6, tune.par.upper)
+      par = par.set$pars[[param]]  
+      par.info.ui = makeLearnerParamInfoUI(par)
+      pars1 = box(width = 12, height = 175, title = param, solidHeader = TRUE, status = "primary",
+        fluidRow(width = 12,
+          column(12, div(height = "130px"), par.info.ui),
+          column(4, div(height = "130px"), tune.par.lower),
+          column(4, div(height = "130px"), tune.par.upper),
+          column(4, div(height = "130px"), tune.par.trafo)
+        )
       )
       
       return(pars1)
