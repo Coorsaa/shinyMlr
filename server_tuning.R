@@ -91,14 +91,6 @@ output$tuning.table = DT::renderDataTable({
 }, caption = "Click on params you want to tune and go to 'Param settings' tab afterwards")
 
 
-output$tuning.params.table = DT::renderDataTable({
-  reqAndAssign(tuning.par.set(), "par.set")
-  req(input$tuning.table_rows_selected)
-  ParamHelpers:::getParSetPrintData(par.set)[input$tuning.table_rows_selected,]
-}, caption = "Below your chosen params you want to tune:")
-
-
-
 output$tuning.learner.params = renderUI({
   reqAndAssign(tuning.par.set(), "par.set")
   param.ids = getParamIds(par.set)[input$tuning.table_rows_selected]
@@ -127,18 +119,31 @@ tuning = eventReactive(input$tune.run, {
       if (param.type == "numeric") {
         param.low = input[[paste0("tune.par.lower.", param)]]
         param.up = input[[paste0("tune.par.upper.", param)]]
-        makeNumericParam(id = param, lower = param.low, upper = param.up)#, default = param.def) #FIXME is default necessary somehow?
+        param.trafo = input[[paste0("tune.par.trafo.", param)]]
+        if (param.trafo == "linear")
+          makeNumericParam(id = param, lower = param.low, upper = param.up)
+        else if (param.trafo == "log2")
+          makeNumericParam(id = param, lower = param.low, upper = param.up, trafo = function (x) 2^x)
+        else if (param.trafo == "log10")
+          makeNumericParam(id = param, lower = param.low, upper = param.up, trafo = function (x) 10^x)
       } else if (param.type == "integer") {
         param.low = input[[paste0("tune.par.lower.", param)]]
         param.up = input[[paste0("tune.par.upper.", param)]]
-        makeIntegerParam(id = param, lower = param.low, upper = param.up)#, default = param.def)
+        param.trafo = input[[paste0("tune.par.trafo.", param)]]
+        if (param.trafo == "linear")
+          makeIntegerParam(id = param, lower = param.low, upper = param.up)
+        else if (param.trafo == "log2")
+          makeIntegerParam(id = param, lower = param.low, upper = param.up, trafo = function (x) 2^x)
+        else if (param.trafo == "log10")
+          makeIntegerParam(id = param, lower = param.low, upper = param.up, trafo = function (x) 10^x)
       } else if (param.type == "discrete") {
         param.box = input[[paste0("tune.par.checkbox", param)]]
         makeDiscreteParam(id = param, values = param.box)
       }
     }, param.ids, param.types, param.defs)
   )
-
+  
+  configureMlr(on.learner.error = "warn")
   rdesc = makeResampleDesc("CV", iters = input$tuning.cv)
 
   if (method == "Grid") {
@@ -171,6 +176,8 @@ tuning = eventReactive(input$tune.run, {
       })
     parallelStop()
   }
+  
+  configureMlr()
   
   lrn.sel = lrns[[lrn]]
   tuned.lrn = setHyperPars(lrn.sel, par.vals = res$x)

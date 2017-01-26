@@ -11,9 +11,6 @@ tabpanel.tuning = fluidRow(
     tabPanel(title = "Param settings",
       fluidRow(
         column(12,
-          dataTableOutput("tuning.params.table")
-        ),
-        column(12,
           uiOutput("tuning.learner.params")
         )
       ),
