@@ -117,9 +117,16 @@ tuning = eventReactive(input$tune.run, {
     Map(function(param, param.type, param.def) {
     
       if (param.type == "numeric") {
+        
+        validate(
+          need(input[[paste0("tune.par.lower.", param)]], paste0("No lower value set for ", param, "!")),
+          need(input[[paste0("tune.par.upper.", param)]], paste0("No upper value set for ", param, "!"))
+        )
+        
         param.low = input[[paste0("tune.par.lower.", param)]]
         param.up = input[[paste0("tune.par.upper.", param)]]
         param.trafo = input[[paste0("tune.par.trafo.", param)]]
+        
         if (param.trafo == "linear")
           makeNumericParam(id = param, lower = param.low, upper = param.up)
         else if (param.trafo == "log2")
@@ -127,9 +134,16 @@ tuning = eventReactive(input$tune.run, {
         else if (param.trafo == "log10")
           makeNumericParam(id = param, lower = param.low, upper = param.up, trafo = function (x) 10^x)
       } else if (param.type == "integer") {
+        
+        validate(
+          need(input[[paste0("tune.par.lower.", param)]], paste0("No lower value set for ", param, "!")),
+          need(input[[paste0("tune.par.upper.", param)]], paste0("No upper value set for ", param, "!"))
+        )
+        
         param.low = input[[paste0("tune.par.lower.", param)]]
         param.up = input[[paste0("tune.par.upper.", param)]]
         param.trafo = input[[paste0("tune.par.trafo.", param)]]
+        
         if (param.trafo == "linear")
           makeIntegerParam(id = param, lower = param.low, upper = param.up)
         else if (param.trafo == "log2")
@@ -137,6 +151,11 @@ tuning = eventReactive(input$tune.run, {
         else if (param.trafo == "log10")
           makeIntegerParam(id = param, lower = param.low, upper = param.up, trafo = function (x) 10^x)
       } else if (param.type == "discrete") {
+        
+        validate(
+          need(input[[paste0("tune.par.checkbox", param)]], paste0("No values selected for ", param, "!"))
+        )
+        
         param.box = input[[paste0("tune.par.checkbox", param)]]
         makeDiscreteParam(id = param, values = param.box)
       }
