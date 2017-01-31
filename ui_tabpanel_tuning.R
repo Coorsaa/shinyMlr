@@ -23,7 +23,8 @@ tabpanel.tuning = fluidRow(
         )
       ),
       fluidRow(width = 12,
-        column(12, align = "center", 
+        column(12, align = "center",
+          hidden(infoBoxOutput("transfer.info.box", width = 12)),
           verbatimTextOutput("print.tuning.ps"),
           verbatimTextOutput("tuning.text")
         )
