@@ -220,9 +220,27 @@ observe({
   }
 })
 
-transfer.learners = observeEvent(input$tune.set.hp, {
+observeEvent(input$tune.set.hp, {
   reqAndAssign(learner$tuned.learner, "lrns")
   learner$learner = lrns
   return(lrns)
 })
+
+
+output$transfer.info.box = renderInfoBox({
+  infoBox("Success", "Hyper parameters successfully transfered to learner!",
+    icon = icon("info-circle"), width = 12)
+})
+
+
+observeEvent(input$tune.set.hp, {
+  req(tuning())
+  shinyjs::show("transfer.info.box")
+})
+
+observeEvent(input$tune.run, {
+  shinyjs::hide("transfer.info.box")
+})
+
+
 
