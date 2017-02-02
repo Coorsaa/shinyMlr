@@ -5,7 +5,8 @@ makeTuningParameterUI = function(par.set, param.ids, param.types) {
   
   
   param.ui = Map(function(param, param.type, param.low, param.up, param.vals) {
-  
+    par = par.set$pars[[param]] 
+    
     if (param.type %in% c("numeric", "integer")) {
       
       if (param.type == "numeric") {
@@ -26,7 +27,6 @@ makeTuningParameterUI = function(par.set, param.ids, param.types) {
           label = "Trafo", choices = c("linear", "log2", "log10"), selected = "linear", inline = TRUE)
       }
       
-      par = par.set$pars[[param]]  
       par.info.ui = makeLearnerParamInfoUI(par)
       pars1 = box(width = 12, height = 175, title = param, solidHeader = TRUE, status = "primary",
         fluidRow(width = 12,
@@ -41,13 +41,17 @@ makeTuningParameterUI = function(par.set, param.ids, param.types) {
       
     } else if (param.type == "discrete") {
       param.vals = lapply(param.vals, as.character)
-      discrete.box = checkboxGroupInput(inputId = paste0("tune.par.checkbox", param), label = param,
-        choices = param.vals, selected = param.vals)
+      discrete.box = checkboxGroupInput(inputId = paste0("tune.par.checkbox", param),
+        label = "Values", choices = param.vals, selected = param.vals, inline = TRUE)
       
-      pars2 = fluidRow(width = 12,
-        column(4, discrete.box)
+      par.info.ui = makeLearnerParamInfoUI(par)
+      pars2 = box(width = 12, height = 120, title = param, solidHeader = TRUE, status = "primary",
+        fluidRow(width = 12,
+          column(7, align = "center", div(height = "130px"), discrete.box),
+          column(5, align = "center", div(height = "130px"), par.info.ui)
+        )
       )
-      
+        
       return(pars2)
       
     }
