@@ -11,11 +11,19 @@ output$task.target = renderUI({
   selectInput("task.target", "Choose a target:", choices = choices, selected = getLast(choices))
 })
 
-task = eventReactive(input$create.task, {
+
+task.object = reactiveValues(task = NULL, task_old = NULL)
+
+observeEvent(input$create.task, {
   req(data$data)
   d = data$data
   colnames(d) = make.names(colnames(d)) 
-  sMakeTask(input$task.id, input$task.target, d)
+  task.object$task = sMakeTask(input$task.id, input$task.target, d)
+})
+
+task = reactive({
+  reqAndAssign(task.object$task, "tsk")
+  tsk
 })
 
 task.type = reactive({

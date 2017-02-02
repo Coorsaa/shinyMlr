@@ -143,9 +143,6 @@ makePredictionPlot = function(mod, tsk, tsk.type, plot.type, lrn, fnames, feats,
     checkPlotROCCurves(lrn)
       df = generateThreshVsPerfData(preds, measures = ms)
       q = plotROCCurves(df)
-  } else if (plot.type == "variable importance") {
-    vi.data = generateFilterValuesData(tsk, method = vi.method)
-    q = plotFilterValues(vi.data)
   }
   return(q)
 }
@@ -182,12 +179,6 @@ makePredictionPlotSettingsUI = function(plot.type, fnames, feats, ms.def, ms,
     )
   } else if (plot.type %in% c("confusion matrix", "ROC")) {
     settings.ui = column(4, NULL)
-  } else if (plot.type == "variable importance") {
-    type = pasteDot("task", tsk.type)
-    list = as.character(fm[fm[type] == "TRUE", ]$id)
-    settings.inp = selectInput("vi.method", "Choose a filter method:",
-      choices = list, selected = "randomForestSRC.rfsrc", multiple = TRUE)
-    settings.ui = column(4, settings.inp)
   }
   return(settings.ui)
 }

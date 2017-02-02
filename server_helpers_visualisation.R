@@ -44,18 +44,18 @@ makeVisualisationSelectionUI = function(tsk) {
   if (tsk$type == "classif") {
     if (length(getTaskClassLevels(tsk)) == 2) {
       vis.inp = selectInput("prediction.plot.sel", "Choose plot",
-        choices = c("prediction", "residuals", "partial dependency", "confusion matrix", "ROC", "variable importance"),
+        choices = c("prediction", "residuals", "partial dependency", "confusion matrix", "ROC"),
         selected = "prediction plot", width = 200
       )
     } else {
       vis.inp = selectInput("prediction.plot.sel", "Choose plot",
-        choices = c("prediction", "residuals", "partial dependency", "confusion matrix", "variable importance"),
+        choices = c("prediction", "residuals", "partial dependency", "confusion matrix"),
         selected = "prediction plot", width = 200
       )
     }
   } else {
     vis.inp = selectInput("prediction.plot.sel", "Choose plot",
-      choices = c("prediction", "residuals", "partial dependency", "variable importance"),
+      choices = c("prediction", "residuals", "partial dependency"),
       selected = "prediction plot", width = 200
     )
   }

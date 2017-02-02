@@ -112,7 +112,3 @@ observeEvent(input$prediction.plot.sel, {
 })
 
 
-filter.methods = reactive({
-  listFilterMethods(tasks = TRUE)
-})
-
