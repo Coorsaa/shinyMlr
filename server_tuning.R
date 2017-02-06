@@ -157,6 +157,8 @@ tuning = eventReactive(input$tune.run, {
         )
         
         param.box = input[[paste0("tune.par.checkbox", param)]]
+        if (suppressWarnings(!any(is.na(as.numeric(param.box)))))
+          param.box = as.integer(param.box)
         makeDiscreteParam(id = param, values = param.box)
       }
     }, param.ids, param.types, param.defs)
