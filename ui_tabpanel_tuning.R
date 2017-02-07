@@ -18,6 +18,8 @@ tabpanel.tuning = fluidRow(
           uiOutput("tuning.learner.params")
         )
       ),
+      br(),
+      br(),
       fluidRow(      
         column(6, align = "center",
           actionButton("tune.run", "Tune learner")
@@ -26,6 +28,8 @@ tabpanel.tuning = fluidRow(
           actionButton("tune.set.hp", "Transfer opt. hyperpars to learner")
         )
       ),
+      br(),
+      br(),
       fluidRow(width = 12,
         column(12, align = "center",
           hidden(infoBoxOutput("transfer.info.box", width = 12)),

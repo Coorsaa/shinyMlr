@@ -26,6 +26,8 @@ tabpanel.preprocessing = fluidRow(
         uiOutput("preproc_merge_factor_levels")
       )
     ),
+    br(),
+    br(),
     column(12,
       fluidRow(
         dataTableOutput("preproc_data")
