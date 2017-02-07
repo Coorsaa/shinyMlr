@@ -430,11 +430,24 @@ observeEvent(input$preproc_undo, {
 output$preproc_subset = renderUI({
   req(input$preproc_method)
   d = data$data
+  method = subset.method()
   fluidRow(
     conditionalPanel("input.preproc_method == 'Subset'",
+      column(6,
+        radioButtons("preproc_subset_method", "Type of subset",
+          choices = c("Random", "Fix"), selected = method, inline = TRUE)
+      ),
+      column(6,
+        conditionalPanel("input.preproc_subset_method == 'Random'",
+          numericInput("preproc.subset.nsamples", "No. of random samples", min = 1L,
+            max = nrow(d), value = 2*ceiling(nrow(d)/3), step = 1L)
+        )
+      ),
       column(12,
-        sliderInput("preproc.subset", "Choose subset rows", min = 1L, max = nrow(d),
-          value = c(1, 2*ceiling(nrow(d)/3)), step = 1L)
+        conditionalPanel("input.preproc_subset_method == 'Fix'",
+          sliderInput("preproc.subset", "Choose subset rows", min = 1L, max = nrow(d),
+            value = c(1, 2*ceiling(nrow(d)/3)), step = 1L)
+        )
       ),
       column(12, align = "center",
         actionButton("subset.start", "Make subset")
@@ -443,11 +456,25 @@ output$preproc_subset = renderUI({
   )
 })
 
+subset.method = reactive({
+  method = input$preproc_subset_method
+  if (is.null(method))
+    return("Random")
+  else
+    method
+})
 
 observeEvent(input$subset.start, {
   data$data_old = data$data
-  ss = input$preproc.subset
-  data$data = data$data[seq(ss[1], ss[2]), ]
+  d = data$data
+  reqAndAssign(input$preproc_subset_method, "method")
+  if (method == "Fix") {
+    ss = input$preproc.subset
+    data$data = d[seq(ss[1], ss[2]), ]
+  } else {
+    reqAndAssign(input$preproc.subset.nsamples, "n")
+    data$data = d[sample(nrow(d), n), ]
+  }
 })
 
 
