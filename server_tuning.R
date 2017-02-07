@@ -6,23 +6,13 @@ output$tuning.sel = renderUI({
   lrns = learners()
   lrns.ids = names(lrns)
   list(
-    column(6, align = "center",
-      selectInput("tuning.learner.sel", "Choose learner to tune", choices = lrns.ids)
-    ),
-    column(6, align = "center",
-      selectInput("tuning.method", "Choose tuning method", 
-        choices = c("Grid", "Random", "irace"), selected = "Grid")
-    ),
-    column(width = 4,
-      uiOutput("tuning.iters")
-    ),
-    column(width = 4,
-      numericInput("tuning.cv", "No. of CV folds", min = 1L, max = Inf, value = 3L, step = 1L)
-    ),
-    column(width = 4,
-      selectInput("tuning.measure", "Choose performance measure", choices = ms,
-        selected = ms.def, multiple = TRUE)
-    ),
+    selectInput("tuning.learner.sel", "Choose learner to tune", choices = lrns.ids),
+    selectInput("tuning.method", "Choose tuning method", 
+      choices = c("Grid", "Random", "irace"), selected = "Grid"),
+    uiOutput("tuning.iters"),
+    numericInput("tuning.cv", "No. of CV folds", min = 1L, max = Inf, value = 3L, step = 1L),
+    selectInput("tuning.measure", "Choose performance measure", choices = ms,
+      selected = ms.def, multiple = TRUE),
     uiOutput("tuning.parallel.ui")
   )
 })
@@ -49,13 +39,9 @@ output$tuning.iters = renderUI({
 })
 
 output$tuning.parallel.ui = renderUI({
-  fluidRow(
-    column(width = 6, align = "center",
-      radioButtons("tuning.parallel", "Parallel tuning?", choices = c("Yes", "No"), selected = "No")
-    ),
-    column(width = 6, align = "center",
-      numericInput("tuning.parallel.nc", "No. of cores", min = 1L, max = Inf, value = 2L, step = 1L)
-    )
+  list(
+    radioButtons("tuning.parallel", "Parallel tuning?", choices = c("Yes", "No"), selected = "No"),
+    numericInput("tuning.parallel.nc", "No. of cores", min = 1L, max = Inf, value = 2L, step = 1L)
   )
 })
 
