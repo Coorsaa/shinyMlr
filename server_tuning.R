@@ -74,7 +74,8 @@ output$tuning.table = DT::renderDataTable({
   reqAndAssign(tuning.par.set(), "par.set")
   dt = ParamHelpers:::getParSetPrintData(par.set)
   dt
-}, caption = "Click on params you want to tune and go to 'Param settings' tab afterwards")
+}, options = list(scrollX = TRUE),
+  caption = "Click on params you want to tune and go to 'Param settings' tab afterwards")
 
 
 output$tuning.learner.params = renderUI({

@@ -20,7 +20,8 @@ output$summary.datatable = DT::renderDataTable({
   reqAndAssign(data$data, "d")
   colnames(d) = make.names(colnames(d))
   summarizeColumns(d)
-}, caption = "Click on variable for visualisation!", selection = "single")
+}, options = list(scrollX = TRUE),
+  caption = "Click on variable for visualisation!", selection = "single")
 
 
 summary.vis.var = reactive({
