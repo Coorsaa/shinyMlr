@@ -2,8 +2,12 @@ tabpanel.tuning = fluidRow(
   tabBox(width = 12,
     tabPanel(title = "Tuning selection",
       fluidRow(
-        uiOutput("tuning.sel"),
-        column(width = 12, align = "center", 
+        column(width = 4, align = "center",
+          makeSidebar(bar.height = 540,
+            uiOutput("tuning.sel")
+          )
+        ),
+        column(width = 8, align = "center", 
           dataTableOutput("tuning.table")
         )
       )
