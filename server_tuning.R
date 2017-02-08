@@ -174,7 +174,7 @@ tuning = eventReactive(input$tune.run, {
         shinyjs::html(id = "tuning.text", html = m$message, add = FALSE)
     })
   } else {
-    parallelStartSocket(input$tuning.parallel.nc)
+    parallelStartSocket(cpus = input$tuning.parallel.nc, level = "mlr.tuneParams")
     withCallingHandlers({
     res = tuneParams(lrn, task = tsk, resampling = rdesc, par.set = ps,
         control = ctrl, measures = ms)
