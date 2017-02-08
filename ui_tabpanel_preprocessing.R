@@ -13,7 +13,7 @@ tabpanel.preprocessing = fluidRow(
       ),
       column(12,
         uiOutput("preproc_impute"),
-        uiOutput("preproc_createdummy"),
+        hidden(uiOutput("preproc_createdummy")),
         uiOutput("preproc_dropfeature"),
         uiOutput("preproc_caplarge"),
         uiOutput("preproc_normfeat"),
@@ -23,7 +23,7 @@ tabpanel.preprocessing = fluidRow(
         hidden(verbatimTextOutput("vi.task.check")),
         uiOutput("preproc_feature_selection"),
         hidden(plotOutput("plot.feature.selection")),
-        uiOutput("preproc_merge_factor_levels")
+        hidden(uiOutput("preproc_merge_factor_levels"))
       )
     ),
     br(),

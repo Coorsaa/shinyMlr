@@ -141,6 +141,7 @@ output$preproc_createdummy = renderUI({
   reqAndAssign(data$data, "d")
   req(input$preproc_method)
   choices = factorFeatures()
+  validate(need(length(choices) > 0L, "No factor features available!"))
   fluidRow(
     conditionalPanel("input.preproc_method == 'Create dummy features'",
       column(6,
@@ -163,6 +164,14 @@ output$preproc_createdummy = renderUI({
   )
 })
 
+observeEvent(preproc.method(), {
+  method = preproc.method()
+  if (method == "Create dummy features") {
+    shinyjs::show("preproc_createdummy")
+  } else {
+    shinyjs::hide("preproc_createdummy")
+  }
+})
 
 createdummy_target = reactive({
   tar = input$createdummy_exclude
@@ -493,6 +502,7 @@ output$preproc_feature_selection = renderUI({
   reqAndAssign(isolate(filter.methods()), "fm")
   list = as.character(fm[fm[type] == "TRUE", ]$id)
   d = data$data
+  filter = vi.filter()
   fluidRow(
     conditionalPanel("input.preproc_method == 'Feature selection'",
       column(4,
@@ -513,13 +523,21 @@ output$preproc_feature_selection = renderUI({
       ),
       column(12,
         selectInput("vi.method", "Choose a filter method:",
-          choices = list, selected = "randomForestSRC.rfsrc")
+          choices = list, selected = filter)
       ),
       column(12, align = "center",
         actionButton("feature.selection.start", "Select feature subset")
       )
     )
   )
+})
+
+vi.filter = reactive({
+  method = input$vi.method
+  if (is.null(method))
+    return("randomForestSRC.rfsrc")
+  else
+    method
 })
 
 
@@ -621,6 +639,23 @@ output$preproc_merge_factor_levels = renderUI({
     )
   )
 })
+
+observeEvent(preproc.method(), {
+  method = preproc.method()
+  if (method == "Merge small factor levels") {
+    req(task())
+    shinyjs::show("preproc_merge_factor_levels")
+  } else {
+    shinyjs::hide("preproc_merge_factor_levels")
+  }
+})
+
+observeEvent(input$create.task, {
+  method = preproc.method()
+  if (method == "Merge small factor levels")
+    shinyjs::show("preproc_merge_factor_levels")
+})
+
 
 
 observeEvent(input$merge_factors_start, {
