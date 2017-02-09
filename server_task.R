@@ -18,7 +18,10 @@ observeEvent(input$create.task, {
   req(data$data)
   d = data$data
   colnames(d) = make.names(colnames(d)) 
-  task.object$task = sMakeTask(input$task.id, input$task.target, d)
+  task = sMakeTask(input$task.id, input$task.target, d)
+  task.object$task = task
+  data$data = getTaskData(task)
+  task
 })
 
 task = reactive({
