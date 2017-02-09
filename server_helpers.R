@@ -23,7 +23,7 @@ replaceInfiniteValues = function(val) {
   val
 }
 
-#### needy functions
+#### needy functions ####
 
 reqAndAssign = function(obj, name) {
   req(obj)
@@ -54,7 +54,6 @@ validateNumFeatures = function(nfeats) {
   validate(need(length(nfeats) != 0L, "There are no numeric features to select."))
 }
 
-  
 
 # FIXME: mlr: create makeAutoTask or whatever depending on target? 
 sMakeTask = function(id, target, data) {
@@ -94,5 +93,9 @@ makeResampleDescUI = function(rdesc.type) {
   }
   inps
 }
+
+
+
+
 
 

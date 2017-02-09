@@ -1,0 +1,201 @@
+---
+title: "`r input$report.title`"
+subtitle: "`r input$report.subtitle`"
+authors: "`r input$report.authors`"
+date: "`r Sys.Date()`"
+---
+
+```{r setup, echo=FALSE}
+library(knitr)
+library(BBmisc)
+opts_chunk$set(size = "footnotesize", echo = FALSE)
+options(digits = 3L)
+reqReactive = function(reac) {
+  tryCatch(reac, error = function(err) NULL)
+}
+````
+
+```{r testchunk,echo=FALSE}
+# :D
+```
+
+
+```{r data.prep}
+df = data$data
+sum.vis = reqReactive(summary.vis.collection)
+eval.sum.vis = all(params$include$data, !is.null(sum.vis$var.plots))
+params$titles$data = ifelse(params$include$data, params$titles$data, "")
+```
+
+#`r params$titles$data`
+
+`r params$passage$data`
+
+```{r data,include=params$include$data}
+kable(summarizeColumns(df))
+```
+
+```{r data.vis.prep,eval=eval.sum.vis}
+for (i in seq_along(sum.vis$var.names)) {
+  q = sum.vis$var.plots[[sum.vis$var.names[i]]]
+  q = q + ggtitle(sum.vis$var.names[i])
+  print(q)
+}
+```
+
+\newpage
+
+
+```{r task.prep}
+task = reqReactive(task.out())
+params$include$task = all(params$include$task, !is.null(task))
+params$titles$task = ifelse(params$include$task, params$titles$task, "")
+out.task = ""
+```
+
+#`r params$titles$task`
+
+`r params$passage$task`
+
+```{r task,eval=params$include$task}
+#FIXME: make task dep
+tar.name = knit_expand(text="**Target name:** {{getTaskTargetNames(task)}} \n")
+tar.levs = paste("**Target levels:** ", collapse(getTaskClassLevels(task), sep = ", "),
+  "\n")
+tar.levs = knit_expand(text=tar.levs)
+n.obs = knit_expand(text="**Number of observations:** {{getTaskSize(task)}} \n")
+n.feats = knit_expand(text="**Number of features:** {{getTaskNFeats(task)}} \n")
+out.task = c(tar.name, tar.levs, n.obs, n.feats)
+```
+
+`r paste(knit(text = out.task), collapse = '\n')`
+
+\newpage
+
+
+```{r learners.prep,include=params$include$learners}
+learners = reqReactive(learners())
+learners.par.sets = reqReactive(learners.par.sets())
+eval.learners = all(!is.null(learners), params$include$learners)
+params$include$learners = all(params$include$learners, eval.learners)
+params$titles$learners = ifelse(params$include$learners,
+  params$titles$learners, "")
+out.lrns = ""
+```
+
+#`r params$titles$learners`
+
+`r params$passage$learners`
+
+```{r learners,eval=eval.learners,results="asis"}
+# FIXME: Put in datatables for HTML files when we implement interactive code chunks
+out.lrns = NULL
+lrn.names = names(learners)
+for (i in seq_along(learners.par.sets)) {
+  par.set = ParamHelpers:::getParSetPrintData(learners.par.sets[[i]])
+  lrn.name = knit_expand(text="### {{lrn.names[i]}} \n")
+  if (input$report.format == "PDF") {
+    tab = knit_expand(text="{{kable(par.set)}} \n")
+    # cat("\n")
+  } else {
+    # DT::datatable(par.set)
+    tab = kable(par.set)
+    # cat("\n")
+  }
+  out.lrns = c(out.lrns, lrn.name, tab)
+}
+```
+
+`r paste(knit(text = out.lrns), collapse = '\n')`
+
+\newpage
+
+
+```{r modelling.prep}
+model = reqReactive(model())
+measures.perf = reqReactive(measures.perf())
+eval.model = all(!is.null(model), !is.null(measures.perf))
+params$include$modelling = all(params$include$modelling, eval.model)
+pred.plots = reqReactive(prediction.plot.collection)
+# pred.plots = pred.plots$pred.plots
+eval.pred.plots = all(params$include$modelling, !is.null(pred.plots))
+params$titles$modelling = ifelse(params$include$modelling,
+  params$titles$modelling, "")
+```
+
+#`r params$titles$modelling`
+
+`r params$passage$modelling`
+
+
+```{r modelling,eval=eval.model}
+# print(model)
+# preds = predict(model, task)
+# preds$data
+# performance(preds, measures.perf)
+```
+
+```{r pred.plots,eval=TRUE}
+for (i in seq_along(pred.plots$plot.titles)) {
+  q = pred.plots$pred.plots[[pred.plots$plot.titles[i]]]
+  # q = q + ggtitle(sum.vis$var.names[i])
+  print(q)
+}
+# lapply(pred.plots, renderPlot)
+```
+
+\newpage
+
+
+```{r tuning.prep}
+tune.res = reqReactive(tuning())
+# measures.perf = reqReactive(measures.perf())
+eval.tuning = all(!is.null(tune.res), !is.null(params$include$tuning))
+params$include$tuning = all(params$include$tuning, eval.tuning)
+params$titles$tuning = ifelse(params$include$tuning,
+  params$titles$tuning, "")
+```
+
+#`r params$titles$tuning`
+
+`r params$passage$tuning`
+
+```{r tuning,include=params$include$tuning}
+names(tune.res)
+# tune.res$opt.path
+# names(tune.res$opt.path)
+# tune.res$learner
+tune.res$x
+tune.res$y
+```
+
+\newpage
+
+
+```{r benchmark.prep}
+bmr = reqReactive(bmr())
+# measures.perf = reqReactive(measures.perf())
+eval.benchmark = all(!is.null(bmr), !is.null(params$include$benchmark))
+params$include$benchmark = all(params$include$benchmark, eval.benchmark)
+bmr.plots = reqReactive(bmr.plots.collection)
+eval.bmr.plots = all(params$include$benchmark, !is.null(bmr.plots))
+params$titles$benchmark = ifelse(params$include$benchmark,
+  params$titles$benchmark, "")
+```
+
+#`r params$titles$benchmark`
+
+`r params$passage$benchmark`
+
+```{r benchmark,include=params$include$benchmark}
+#coming soon
+```
+
+```{r bmr.plots,eval=eval.bmr.plots}
+for (i in seq_along(bmr.plots$plot.titles)) {
+  q = bmr.plots$bmr.plots[[bmr.plots$plot.titles[i]]]
+  print(q)
+}
+```
+
+

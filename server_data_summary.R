@@ -48,8 +48,7 @@ observeEvent(summary.vis.var(), {
   }
 })
 
-
-output$summary.vis = renderPlot({
+summary.vis.out = reactive({
   reqAndAssign(summary.vis.var(), "feature")
   d = na.omit(data$data)
   if (feature %in% numericFeatures()) {
@@ -64,8 +63,20 @@ output$summary.vis = renderPlot({
       geom_bar(aes(fill = d[,feature]), stat = "count") + xlab(feature) +
       guides(fill = FALSE)
   }
-})  
+})
 
+output$summary.vis = renderPlot({
+  summary.vis.out()
+})
+
+summary.vis.collection = reactiveValues(var.names = NULL, var.plots = NULL)
+
+observeEvent(summary.vis.out(), {
+  q = summary.vis.out()
+  feat = isolate(summary.vis.var())
+  summary.vis.collection$var.names = c(summary.vis.collection$var.names,feat)
+  summary.vis.collection$var.plots[[feat]] = q
+})
 
 
 ##### preprocessing #####

@@ -12,6 +12,7 @@ source("ui_tabpanel_learners.R")
 source("ui_tabpanel_tuning.R")
 source("ui_tabpanel_train_and_predict.R")
 source("ui_tabpanel_benchmark.R")
+source("ui_tabpanel_report.R")
 
 shinyUI(
   dashboardPage(
@@ -38,7 +39,8 @@ shinyUI(
         menuItem("Learners", tabName = "learners", icon = icon("cog")),
         menuItem("Tuning", tabName = "tuning", icon = icon("wrench")),
         menuItem("Train and Predict", tabName = "modelling", icon = icon("graduation-cap")),
-        menuItem("Benchmark", tabName = "benchmark", icon = icon("hourglass-start"))
+        menuItem("Benchmark", tabName = "benchmark", icon = icon("hourglass-start")),
+        menuItem("Report", tabName = "report", icon = icon("book"))
       )
     ),
     
@@ -55,7 +57,8 @@ shinyUI(
         tabItem(tabName = "learners", tabpanel.learners),
         tabItem(tabName = "tuning", tabpanel.tuning),
         tabItem(tabName = "modelling", tabpanel.modelling),
-        tabItem(tabName = "benchmark", tabpanel.benchmark)
+        tabItem(tabName = "benchmark", tabpanel.benchmark),
+        tabItem(tabName = "report", tabpanel.report)
       )
     )
   )

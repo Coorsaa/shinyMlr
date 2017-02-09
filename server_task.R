@@ -61,10 +61,16 @@ task.factor.feature.names = reactive({
   setdiff(names, getTaskTargetNames(tsk))
 })
 
-output$task.overview = renderPrint({
+task.out = reactive({
   validateTask(input$create.task, task.data(), data$data)
   tsk = task()
-  print(tsk)
+  tsk
+})
+
+output$task.overview = renderPrint({
+  # validateTask(input$create.task, task.data(), data$data)
+  # tsk = task()
+  print(task.out())
 })
 
 task.is.consistent = reactive({
