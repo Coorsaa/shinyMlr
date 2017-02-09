@@ -70,14 +70,16 @@ output$import.preview = DT::renderDataTable({
   reqAndAssign(data$data, "d")
   colnames(d) = make.names(colnames(d))
   d
-}, caption = "You imported the following data set")
+}, options = list(scrollX = TRUE),
+  caption = "You imported the following data set")
 
 output$import.browse.openml = DT::renderDataTable({
   show("loading.message2")
   df = isolate(OMLData())[,c(1:5,10:12)]
   hide("loading.message2")
   df
-}, caption = "Click on OpenML Dataset you want to select.", selection = "single")
+}, options = list(scrollX = TRUE),
+  caption = "Click on OpenML Dataset you want to select.", selection = "single")
 
 
 #### OpenML

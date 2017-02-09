@@ -6,23 +6,13 @@ output$tuning.sel = renderUI({
   lrns = learners()
   lrns.ids = names(lrns)
   list(
-    column(6, align = "center",
-      selectInput("tuning.learner.sel", "Choose learner to tune", choices = lrns.ids)
-    ),
-    column(6, align = "center",
-      selectInput("tuning.method", "Choose tuning method", 
-        choices = c("Grid", "Random", "irace"), selected = "Grid")
-    ),
-    column(width = 4,
-      uiOutput("tuning.iters")
-    ),
-    column(width = 4,
-      numericInput("tuning.cv", "No. of CV folds", min = 1L, max = Inf, value = 3L, step = 1L)
-    ),
-    column(width = 4,
-      selectInput("tuning.measure", "Choose performance measure", choices = ms,
-        selected = ms.def, multiple = TRUE)
-    ),
+    selectInput("tuning.learner.sel", "Choose learner to tune", choices = lrns.ids),
+    selectInput("tuning.method", "Choose tuning method", 
+      choices = c("Grid", "Random", "irace"), selected = "Grid"),
+    uiOutput("tuning.iters"),
+    numericInput("tuning.cv", "No. of CV folds", min = 1L, max = Inf, value = 3L, step = 1L),
+    selectInput("tuning.measure", "Choose performance measure", choices = ms,
+      selected = ms.def, multiple = TRUE),
     uiOutput("tuning.parallel.ui")
   )
 })
@@ -49,13 +39,9 @@ output$tuning.iters = renderUI({
 })
 
 output$tuning.parallel.ui = renderUI({
-  fluidRow(
-    column(width = 6, align = "center",
-      radioButtons("tuning.parallel", "Parallel tuning?", choices = c("Yes", "No"), selected = "No")
-    ),
-    column(width = 6, align = "center",
-      numericInput("tuning.parallel.nc", "No. of cores", min = 1L, max = Inf, value = 2L, step = 1L)
-    )
+  list(
+    radioButtons("tuning.parallel", "Parallel tuning?", choices = c("Yes", "No"), selected = "No"),
+    numericInput("tuning.parallel.nc", "No. of cores", min = 1L, max = Inf, value = 2L, step = 1L)
   )
 })
 
@@ -88,15 +74,8 @@ output$tuning.table = DT::renderDataTable({
   reqAndAssign(tuning.par.set(), "par.set")
   dt = ParamHelpers:::getParSetPrintData(par.set)
   dt
-}, caption = "Click on params you want to tune and go to 'Param settings' tab afterwards")
-
-
-output$tuning.params.table = DT::renderDataTable({
-  reqAndAssign(tuning.par.set(), "par.set")
-  req(input$tuning.table_rows_selected)
-  ParamHelpers:::getParSetPrintData(par.set)[input$tuning.table_rows_selected,]
-}, caption = "Below your chosen params you want to tune:")
-
+}, options = list(scrollX = TRUE),
+  caption = "Click on params you want to tune and go to 'Param settings' tab afterwards")
 
 
 output$tuning.learner.params = renderUI({
@@ -125,20 +104,54 @@ tuning = eventReactive(input$tune.run, {
     Map(function(param, param.type, param.def) {
     
       if (param.type == "numeric") {
+        
+        validate(
+          need(input[[paste0("tune.par.lower.", param)]], paste0("No lower value set for ", param, "!")),
+          need(input[[paste0("tune.par.upper.", param)]], paste0("No upper value set for ", param, "!"))
+        )
+        
         param.low = input[[paste0("tune.par.lower.", param)]]
         param.up = input[[paste0("tune.par.upper.", param)]]
-        makeNumericParam(id = param, lower = param.low, upper = param.up)#, default = param.def) #FIXME is default necessary somehow?
+        param.trafo = input[[paste0("tune.par.trafo.", param)]]
+        
+        if (param.trafo == "linear")
+          makeNumericParam(id = param, lower = param.low, upper = param.up)
+        else if (param.trafo == "log2")
+          makeNumericParam(id = param, lower = param.low, upper = param.up, trafo = function (x) 2^x)
+        else if (param.trafo == "log10")
+          makeNumericParam(id = param, lower = param.low, upper = param.up, trafo = function (x) 10^x)
       } else if (param.type == "integer") {
+        
+        validate(
+          need(input[[paste0("tune.par.lower.", param)]], paste0("No lower value set for ", param, "!")),
+          need(input[[paste0("tune.par.upper.", param)]], paste0("No upper value set for ", param, "!"))
+        )
+        
         param.low = input[[paste0("tune.par.lower.", param)]]
         param.up = input[[paste0("tune.par.upper.", param)]]
-        makeIntegerParam(id = param, lower = param.low, upper = param.up)#, default = param.def)
+        param.trafo = input[[paste0("tune.par.trafo.", param)]]
+        
+        if (param.trafo == "linear")
+          makeIntegerParam(id = param, lower = param.low, upper = param.up)
+        else if (param.trafo == "log2")
+          makeIntegerParam(id = param, lower = param.low, upper = param.up, trafo = function (x) 2^x)
+        else if (param.trafo == "log10")
+          makeIntegerParam(id = param, lower = param.low, upper = param.up, trafo = function (x) 10^x)
       } else if (param.type == "discrete") {
+        
+        validate(
+          need(input[[paste0("tune.par.checkbox", param)]], paste0("No values selected for ", param, "!"))
+        )
+        
         param.box = input[[paste0("tune.par.checkbox", param)]]
+        if (suppressWarnings(!any(is.na(as.numeric(param.box)))))
+          param.box = as.integer(param.box)
         makeDiscreteParam(id = param, values = param.box)
       }
     }, param.ids, param.types, param.defs)
   )
-
+  
+  configureMlr(on.learner.error = "warn")
   rdesc = makeResampleDesc("CV", iters = input$tuning.cv)
 
   if (method == "Grid") {
@@ -161,7 +174,7 @@ tuning = eventReactive(input$tune.run, {
         shinyjs::html(id = "tuning.text", html = m$message, add = FALSE)
     })
   } else {
-    parallelStartSocket(input$tuning.parallel.nc)
+    parallelStartSocket(cpus = input$tuning.parallel.nc, level = "mlr.tuneParams")
     withCallingHandlers({
     res = tuneParams(lrn, task = tsk, resampling = rdesc, par.set = ps,
         control = ctrl, measures = ms)
@@ -171,6 +184,8 @@ tuning = eventReactive(input$tune.run, {
       })
     parallelStop()
   }
+  
+  configureMlr()
   
   lrn.sel = lrns[[lrn]]
   tuned.lrn = setHyperPars(lrn.sel, par.vals = res$x)
@@ -194,9 +209,27 @@ observe({
   }
 })
 
-transfer.learners = observeEvent(input$tune.set.hp, {
+observeEvent(input$tune.set.hp, {
   reqAndAssign(learner$tuned.learner, "lrns")
   learner$learner = lrns
   return(lrns)
 })
+
+
+output$transfer.info.box = renderInfoBox({
+  infoBox("Success", "Hyper parameters successfully transfered to learner!",
+    icon = icon("info-circle"), width = 12)
+})
+
+
+observeEvent(input$tune.set.hp, {
+  req(tuning())
+  shinyjs::show("transfer.info.box")
+})
+
+observeEvent(input$tune.run, {
+  shinyjs::hide("transfer.info.box")
+})
+
+
 

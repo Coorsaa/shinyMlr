@@ -20,7 +20,8 @@ output$summary.datatable = DT::renderDataTable({
   reqAndAssign(data$data, "d")
   colnames(d) = make.names(colnames(d))
   summarizeColumns(d)
-}, caption = "Click on variable for visualisation!", selection = "single")
+}, options = list(scrollX = TRUE),
+  caption = "Click on variable for visualisation!", selection = "single")
 
 
 summary.vis.var = reactive({
@@ -47,8 +48,7 @@ observeEvent(summary.vis.var(), {
   }
 })
 
-
-output$summary.vis = renderPlot({
+summary.vis.out = reactive({
   reqAndAssign(summary.vis.var(), "feature")
   d = na.omit(data$data)
   if (feature %in% numericFeatures()) {
@@ -63,8 +63,20 @@ output$summary.vis = renderPlot({
       geom_bar(aes(fill = d[,feature]), stat = "count") + xlab(feature) +
       guides(fill = FALSE)
   }
-})  
+})
 
+output$summary.vis = renderPlot({
+  summary.vis.out()
+})
+
+summary.vis.collection = reactiveValues(var.names = NULL, var.plots = NULL)
+
+observeEvent(summary.vis.out(), {
+  q = summary.vis.out()
+  feat = isolate(summary.vis.var())
+  summary.vis.collection$var.names = c(summary.vis.collection$var.names,feat)
+  summary.vis.collection$var.plots[[feat]] = q
+})
 
 
 ##### preprocessing #####
@@ -140,6 +152,7 @@ output$preproc_createdummy = renderUI({
   reqAndAssign(data$data, "d")
   req(input$preproc_method)
   choices = factorFeatures()
+  validate(need(length(choices) > 0L, "No factor features available!"))
   fluidRow(
     conditionalPanel("input.preproc_method == 'Create dummy features'",
       column(6,
@@ -162,6 +175,14 @@ output$preproc_createdummy = renderUI({
   )
 })
 
+observeEvent(preproc.method(), {
+  method = preproc.method()
+  if (method == "Create dummy features") {
+    shinyjs::show("preproc_createdummy")
+  } else {
+    shinyjs::hide("preproc_createdummy")
+  }
+})
 
 createdummy_target = reactive({
   tar = input$createdummy_exclude
@@ -417,6 +438,8 @@ output$preproc_data = DT::renderDataTable({
 
 observeEvent(input$preproc_undo, {
   req(data$data_old)
+  if (!is.null(task.object$task_old))
+    task.object$task = task.object$task_old
   data$data = data$data_old
 })
 
@@ -427,11 +450,24 @@ observeEvent(input$preproc_undo, {
 output$preproc_subset = renderUI({
   req(input$preproc_method)
   d = data$data
+  method = subset.method()
   fluidRow(
     conditionalPanel("input.preproc_method == 'Subset'",
+      column(6,
+        radioButtons("preproc_subset_method", "Type of subset",
+          choices = c("Random", "Fix"), selected = method, inline = TRUE)
+      ),
+      column(6,
+        conditionalPanel("input.preproc_subset_method == 'Random'",
+          numericInput("preproc.subset.nsamples", "No. of random samples", min = 1L,
+            max = nrow(d), value = 2*ceiling(nrow(d)/3), step = 1L)
+        )
+      ),
       column(12,
-        sliderInput("preproc.subset", "Choose subset rows", min = 1L, max = nrow(d),
-          value = c(1, 2*ceiling(nrow(d)/3)), step = 1L)
+        conditionalPanel("input.preproc_subset_method == 'Fix'",
+          sliderInput("preproc.subset", "Choose subset rows", min = 1L, max = nrow(d),
+            value = c(1, 2*ceiling(nrow(d)/3)), step = 1L)
+        )
       ),
       column(12, align = "center",
         actionButton("subset.start", "Make subset")
@@ -440,14 +476,207 @@ output$preproc_subset = renderUI({
   )
 })
 
+subset.method = reactive({
+  method = input$preproc_subset_method
+  if (is.null(method))
+    return("Random")
+  else
+    method
+})
 
 observeEvent(input$subset.start, {
   data$data_old = data$data
-  ss = input$preproc.subset
-  data$data = data$data[seq(ss[1], ss[2]), ]
+  d = data$data
+  reqAndAssign(input$preproc_subset_method, "method")
+  if (method == "Fix") {
+    ss = input$preproc.subset
+    data$data = d[seq(ss[1], ss[2]), ]
+  } else {
+    reqAndAssign(input$preproc.subset.nsamples, "n")
+    data$data = d[sample(nrow(d), n), ]
+  }
+})
+
+
+### Feature Selection (Filter methods)
+
+filter.methods = reactive({
+  listFilterMethods(tasks = TRUE)
+})
+
+
+output$preproc_feature_selection = renderUI({
+  req(input$preproc_method)
+  reqAndAssign(task(), "tsk")
+  tsk.type = tsk$type
+  type = pasteDot("task", tsk.type)
+  reqAndAssign(isolate(filter.methods()), "fm")
+  list = as.character(fm[fm[type] == "TRUE", ]$id)
+  d = data$data
+  filter = vi.filter()
+  fluidRow(
+    conditionalPanel("input.preproc_method == 'Feature selection'",
+      column(4,
+        radioButtons("vi_abs_or_perc", "Absolute or percentage?", 
+          choices = c("Absolute", "Percentage"), selected = "Absolute", inline = TRUE)
+      ),
+      conditionalPanel("input.vi_abs_or_perc == 'Absolute'",
+        column(8,
+          sliderInput("vi.abs", "Keep no. of most important features", min = 0L,
+            max = getTaskNFeats(tsk), value = getTaskNFeats(tsk), step = 1L)
+        )
+      ),
+      conditionalPanel("input.vi_abs_or_perc == 'Percentage'",
+        column(8,
+          sliderInput("vi.perc", "Keep % of most important features", min = 0L,
+            max = 100L, value = 100L, step = 1L)
+        )
+      ),
+      column(12,
+        selectInput("vi.method", "Choose a filter method:",
+          choices = list, selected = filter)
+      ),
+      column(12, align = "center",
+        actionButton("feature.selection.start", "Select feature subset")
+      )
+    )
+  )
+})
+
+vi.filter = reactive({
+  method = input$vi.method
+  if (is.null(method))
+    return("randomForestSRC.rfsrc")
+  else
+    method
+})
+
+
+vi.abs.or.perc = reactive(input$vi_abs_or_perc)
+
+output$plot.feature.selection = renderPlot({
+  reqAndAssign(task(), "tsk")
+  tsk.type = tsk$type
+  reqAndAssign(input$vi.method, "vi.method")
+  vi.data = generateFilterValuesData(tsk, method = vi.method)
+  plotFilterValues(vi.data)
+})
+
+
+preproc.method = reactive(input$preproc_method)
+
+
+output$vi.task.check = renderPrint({
+  validateTask(input$create.task, task.data(), data$data)
+})
+
+observeEvent(preproc.method(), {
+  method = preproc.method()
+  if (method %in% c("Feature selection", "Merge small factor levels")) {
+    req(is.null(task.object$task))
+    shinyjs::show("vi.task.check")
+  } else {
+    shinyjs::hide("vi.task.check")
+  }  
+})
+  
+observeEvent(task(),{
+  shinyjs::hide("vi.task.check")
+})
+
+
+observeEvent(preproc.method(), {
+  method = preproc.method()
+  if (method == "Feature selection") {
+    req(task())
+    shinyjs::show("plot.feature.selection")
+  } else {
+    shinyjs::hide("plot.feature.selection")
+  }
+})
+
+observeEvent(input$create.task, {
+  method = preproc.method()
+  if (method == "Feature selection")
+    shinyjs::show("plot.feature.selection")
+})
+
+
+observeEvent(input$feature.selection.start, {
+  reqAndAssign(task(), "tsk")
+  task.object$task_old = tsk
+  data$data_old = data$data
+  tsk.type = tsk$type
+  reqAndAssign(input$vi.method, "method")
+  reqAndAssign(vi.abs.or.perc(), "choice")
+  
+  if (choice == "Absolute") {
+    abs = input$vi.abs
+    filtered.task = filterFeatures(tsk, method = method, abs = abs)
+  } else if (choice == "Percentage") {
+    perc = input$vi.perc/100
+    filtered.task = filterFeatures(tsk, method = method, perc = perc)
+  }
+  
+  task.object$task_old = task.object$task
+  task.object$task = filtered.task
+  data$data = getTaskData(filtered.task)
+})
+
+
+### Merge small factor levels
+
+
+output$preproc_merge_factor_levels = renderUI({
+  req(input$preproc_method)
+  fnames = task.factor.feature.names()
+  validate(need(length(fnames) > 0L, "No factor features available!"))
+  fluidRow(
+    conditionalPanel("input.preproc_method == 'Merge small factor levels'",
+      column(6,
+        selectInput("merge_factors_cols", "Choose column", choices = fnames,
+          selected = getFirst(fnames), multiple = TRUE)
+      ),
+      column(6,
+        sliderInput("merge_factors_min_perc", "% of combined proportion should be exceeded",
+          min = 0L, max = 100L, value = 1L, step = 1L)
+      ),
+      column(12,
+        textInput("merge_factors_new_lvl", "New name of merged level", value = ".merged")
+      ),
+      column(12, align = "center",
+        actionButton("merge_factors_start", "Convert variable(s)")
+      )
+    )
+  )
+})
+
+observeEvent(preproc.method(), {
+  method = preproc.method()
+  if (method == "Merge small factor levels") {
+    req(task())
+    shinyjs::show("preproc_merge_factor_levels")
+  } else {
+    shinyjs::hide("preproc_merge_factor_levels")
+  }
+})
+
+observeEvent(input$create.task, {
+  method = preproc.method()
+  if (method == "Merge small factor levels")
+    shinyjs::show("preproc_merge_factor_levels")
 })
 
 
 
-
-
+observeEvent(input$merge_factors_start, {
+  reqAndAssign(task(), "tsk")
+  reqAndAssign(input$merge_factors_cols, "cols")
+  reqAndAssign(input$merge_factors_min_perc, "min.perc")
+  reqAndAssign(input$merge_factors_new_lvl, "new.lvl")
+  data$data_old = data$data
+  task.object$task_old = task.object$task
+  merged.task = mergeSmallFactorLevels(tsk, cols = cols, min.perc = min.perc/100, new.level = new.lvl)
+  data$data = getTaskData(merged.task)
+  task.object$task = merged.task
+})

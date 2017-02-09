@@ -27,6 +27,21 @@ output$benchmark.rdesc.config = renderUI({
   makeResampleDescUI(rdesc.type())
 })
 
+output$benchmark.parallel.ui = renderUI({
+  list(
+    radioButtons("benchmark.parallel", "Parallel benchmarking?", choices = c("Yes", "No"), selected = "No"),
+    numericInput("benchmark.parallel.nc", "No. of cores", min = 1L, max = Inf, value = 2L, step = 1L)
+  )
+})
+
+observeEvent(input$benchmark.parallel, {
+  if (input$benchmark.parallel == "No") {
+    shinyjs::hide("benchmark.parallel.nc", animType = "fade")
+  } else {
+    shinyjs::show("benchmark.parallel.nc", anim = TRUE)
+  }
+})
+
 rdesc = reactive({
   rdesc.type = rdesc.type()
   args = list()
@@ -74,13 +89,28 @@ bmr = eventReactive(input$benchmark.run, {
   lrns = bmr.learners()
   rd = rdesc()
   tsk = task()
+  reqAndAssign(input$benchmark.parallel, "parallel")
   
-  withCallingHandlers({
-    benchmark(lrns, tsk, rd, measures = ms, show.info = TRUE)
-  },
-    message = function(m) {
-      shinyjs::html(id = "benchmark.text", html = m$message, add = FALSE)
-    })
+  if (parallel == "Yes") {
+    parallelStartSocket(cpus = input$benchmark.parallel.nc, level = "mlr.resample")
+    withCallingHandlers({
+      bmr = benchmark(lrns, tsk, rd, measures = ms, show.info = TRUE)
+    },
+      message = function(m) {
+        shinyjs::html(id = "benchmark.text", html = m$message, add = FALSE)
+      }
+    )
+    parallelStop()
+  } else {
+    withCallingHandlers({
+      bmr = benchmark(lrns, tsk, rd, measures = ms, show.info = TRUE)
+    },
+      message = function(m) {
+        shinyjs::html(id = "benchmark.text", html = m$message, add = FALSE)
+      }
+    )
+  }
+  bmr
 })
 
 output$benchmark.overview = renderDataTable({

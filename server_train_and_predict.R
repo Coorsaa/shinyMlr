@@ -117,7 +117,7 @@ output$predoverview = renderDataTable({
   validateLearnerModel(model(), input$train.learner.sel)
   p = pred()
   p$data
-}, options = list(lengthMenu = c(5, 30), pageLength = 5)
+}, options = list(scrollX = TRUE, lengthMenu = c(5, 30), pageLength = 5)
 )
 
 output$predict.download = downloadHandler(

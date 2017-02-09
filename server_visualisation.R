@@ -10,13 +10,39 @@ output$bmrplot.measures.sel = renderUI({
     selected = measures.default(), width = 200)
 })
 
-output$bmrplots = renderPlot({
+
+bmr.plots.out = reactive({
+  req(bmr())
+  req(measures.bmr())
+  req(input$plot.measures.sel)
   plot.type = switch(input$bmrplots.type,
     Beanplots = "violin",
     Boxplots = "box"
   )
-  ms = measures.bmr()[[input$plot.measures.sel]]
+  ms = isolate(measures.bmr())[[input$plot.measures.sel]]
   plotBMRBoxplots(bmr(), style = plot.type, measure = ms)
+})
+
+output$bmrplots = renderPlot({
+  q = bmr.plots.out()
+  q
+})
+
+bmr.plots.collection = reactiveValues(plot.titles = NULL, bmr.plots = NULL)
+
+observeEvent(bmr.plots.out(), {
+  q = bmr.plots.out()
+  plot.title = isolate(input$bmrplots.type)
+  bmr.plots.collection$plot.titles = unique(c(bmr.plots.collection$plot.titles,
+    plot.title))
+  bmr.plots.collection$bmr.plots[[plot.title]] = q
+})
+
+observeEvent(prediction.plot.out(), {
+  q = prediction.plot.out()
+  plot.title = isolate(input$prediction.plot.sel)
+  prediction.plot.collection$plot.titles = c(prediction.plot.collection$plot.titles, plot.title)
+  prediction.plot.collection$pred.plots[[plot.title]] = q
 })
 
 ##### prediction plot ####
@@ -65,7 +91,7 @@ measures.plot = reactive({
   listMeasures(tsk, create = TRUE)[ms]
 })
 
-output$prediction.plot = renderPlot({
+prediction.plot.out = reactive({
   lrn.sel = input$train.learner.sel
   validateLearnerModel(model(), lrn.sel)
   validateTask(input$create.task, task.data(), data$data)
@@ -90,6 +116,19 @@ output$prediction.plot = renderPlot({
     resplot.type, vi.method, ind)
 })
 
+output$prediction.plot = renderPlot({
+  prediction.plot.out()
+})
+
+prediction.plot.collection = reactiveValues(plot.titles = NULL,
+  pred.plots = NULL)
+
+observeEvent(prediction.plot.out(), {
+  q = prediction.plot.out()
+  plot.title = isolate(input$prediction.plot.sel)
+  prediction.plot.collection$plot.titles = c(prediction.plot.collection$plot.titles, plot.title)
+  prediction.plot.collection$pred.plots[[plot.title]] = q
+})
 
 output$confusion.matrix = renderPrint({
   reqAndAssign(isolate(pred()), "preds")
@@ -111,8 +150,4 @@ observeEvent(input$prediction.plot.sel, {
   }
 })
 
-
-filter.methods = reactive({
-  listFilterMethods(tasks = TRUE)
-})
 

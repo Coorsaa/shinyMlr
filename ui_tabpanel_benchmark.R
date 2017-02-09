@@ -7,13 +7,15 @@ tabpanel.benchmark = fluidRow(
       ),
       fluidRow(
         column(width = 3, align = "center",
-          makeSidebar(bar.height = 500,
+          makeSidebar(bar.height = 570,
             uiOutput("benchmark.measures.sel"),
             tags$hr(),
             selectInput("benchmark.rdesc.type", label = "Resampling", selected = "CV", 
               choices = c("CV", "LOO", "RepCV", "Bootstrap", "Subsample", "Holdout")),
             uiOutput("benchmark.rdesc.config"),
             checkboxInput("benchmark.stratification", label = "Stratification", FALSE),
+            tags$hr(),
+            uiOutput("benchmark.parallel.ui"),
             tags$hr(),
             actionButton("benchmark.run", label = "Benchmark")
           )
