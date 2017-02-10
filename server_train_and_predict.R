@@ -2,6 +2,7 @@
 
 output$train.learner.sel = renderUI({
   validateTask(input$create.task, task.data(), data$data, req = TRUE)
+  validateLearner(input$learners.sel)
   reqAndAssign(learners(), "lrns")
   lrns.ids = names(lrns)
   sel.inp = selectInput("train.learner.sel", "Learners",
@@ -21,7 +22,8 @@ model = eventReactive(input$train.run, {
   req(train.learner())
   lrn = train.learner()
   tsk = isolate({task()})
-  train(lrn, tsk)
+  mod = tryCatch(train(lrn, tsk), error = errAsString)
+  mod
 })
 
 output$model.overview = renderUI({
@@ -92,17 +94,15 @@ output$import.pred.preview = renderDataTable({
 
 pred = eventReactive(input$predict.run, {
   validateTask(input$create.task, task.data(), data$data, req = TRUE)
-  validate(need(!is.null(model()), "Train a model first to make predictions"))
   model = model()
+  validate(need(!is.null(model), "Train a model first to make predictions"))
   newdata = data.pred()
   colnames(newdata) = make.names(colnames(newdata))
   feat.names = task.feature.names()
   validate(need(all(feat.names %in% colnames(newdata)),
     sprintf("Column names %s must be present in data",
       paste(feat.names, collapse = " ")))) 
-  preds = tryCatch(predict(model, newdata = newdata), error = function(err) {
-    "error"
-  })
+  preds = tryCatch(predict(model, newdata = newdata), error = errAsString)
   preds
 })
 
@@ -111,11 +111,13 @@ observeEvent(input$predict.run, {
 })
 
 output$predoverview = renderDataTable({
-  validate(need("Prediction" %in% class(pred()),
-    "Predicting the model failed. Train a different model."))
+  # validate(need("Prediction" %in% class(pred()),
+  #   "Predicting the model failed. Train a different model."))
   validateTask(input$create.task, task.data(), data$data, req = TRUE)
   validateLearnerModel(model(), input$train.learner.sel)
   p = pred()
+  validate(need("Prediction" %in% class(p),
+    stri_paste("Predicting failed with the following error:", p, sep = "\n")))
   p$data
 }, options = list(scrollX = TRUE, lengthMenu = c(5, 30), pageLength = 5)
 )

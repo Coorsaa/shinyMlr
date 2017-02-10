@@ -1,6 +1,7 @@
 library(tools)
 library(httr)
 library(mlr)
+library(stringi)
 library(readr)
 library(RWeka)
 library(BBmisc)

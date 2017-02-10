@@ -23,6 +23,11 @@ replaceInfiniteValues = function(val) {
   val
 }
 
+#### error handlers ####
+errAsString = function(err) {
+  err$message
+}
+
 #### needy functions ####
 
 reqAndAssign = function(obj, name) {
@@ -45,9 +50,14 @@ validateLearner = function(lrns.sel) {
 }
 
 
-validateLearnerModel = function(mod, lrn) {
-  mod.lrn = mod$learner$id
-  validate(need(mod.lrn == lrn, "Learner changed. Train new model."))
+validateLearnerModel = function(mod, lrn = NULL) {
+  validate(need(class(mod) == "WrappedModel",
+    stri_paste("Training the model failed with the following error:",
+      mod, sep = "\n")))
+  if (!is.null(lrn)) {
+    mod.lrn = mod$learner$id
+    validate(need(mod.lrn == lrn, "Learner changed. Train new model."))
+  }
 }
 
 validateNumFeatures = function(nfeats) {
