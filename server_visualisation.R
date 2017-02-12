@@ -72,7 +72,8 @@ output$predictionplot.settings = renderUI({
   lrn.sel = input$train.learner.sel
   lrn = isolate(learners())[[lrn.sel]]
   predict.type = lrn$predict.type
-  makePredictionPlotSettingsUI(plot.type, fnames, feats, ms.def, ms, tsk.type, fm, predict.type)
+  help.texts = input$show.help
+  makePredictionPlotSettingsUI(plot.type, fnames, feats, ms.def, ms, tsk.type, fm, predict.type, help.texts)
 })
 
 measures.plot = reactive({

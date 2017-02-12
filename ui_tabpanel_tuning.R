@@ -1,6 +1,7 @@
 tabpanel.tuning = fluidRow(
   tabBox(width = 12,
     tabPanel(title = "Tuning selection",
+      htmlOutput("tuning.explanation.text"),
       fluidRow(
         column(width = 4, align = "center",
           makeSidebar(bar.height = 540,
@@ -8,11 +9,13 @@ tabpanel.tuning = fluidRow(
           )
         ),
         column(width = 8, align = "center", 
+          htmlOutput("tuning.validation"),
           dataTableOutput("tuning.table")
         )
       )
     ),
     tabPanel(title = "Param settings",
+      htmlOutput("tuning.settings.text"),
       fluidRow(
         column(12,
           uiOutput("tuning.learner.params")

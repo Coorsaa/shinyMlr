@@ -1,6 +1,8 @@
+##### tuning ####
+
 output$tuning.sel = renderUI({
-  validateTask(input$create.task, task.data(), data$data, req = TRUE)
-  validateLearner(input$learners.sel)
+  req(task())
+  req(learners())
   reqAndAssign(measures.tuning.avail(), "ms")
   reqAndAssign(measures.default(), "ms.def")
   lrns = learners()
@@ -15,6 +17,11 @@ output$tuning.sel = renderUI({
       selected = ms.def, multiple = TRUE),
     uiOutput("tuning.parallel.ui")
   )
+})
+
+output$tuning.validation = renderUI({
+  validateTask(input$create.task, task.data(), data$data, req = TRUE)
+  validateLearner(input$learners.sel) 
 })
 
 measures.tuning.avail = reactive({

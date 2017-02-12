@@ -1,5 +1,7 @@
 tabpanel.preprocessing = fluidRow(
   box(width = 12, title = "Data Preprocessing",
+    htmlOutput("preproc.text"),
+    br(),
     fluidRow(
       column(12, align = "right",
         actionButton("preproc_undo", "Undo last change")),
@@ -22,8 +24,9 @@ tabpanel.preprocessing = fluidRow(
         uiOutput("preproc_subset"),
         hidden(verbatimTextOutput("vi.task.check")),
         uiOutput("preproc_feature_selection"),
-        hidden(plotOutput("plot.feature.selection")),
-        hidden(uiOutput("preproc_merge_factor_levels"))
+        hidden(uiOutput("preproc_merge_factor_levels")),
+        br(),
+        hidden(plotOutput("plot.feature.selection"))
       )
     ),
     br(),
