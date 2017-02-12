@@ -3,6 +3,7 @@ tabpanel.modelling = fluidRow(
     tabPanel(title = "Train",
       # fluidRow(
       fluidRow(
+        htmlOutput("train.text"),
         column(width = 4, NULL),
         column(width = 4, align = "center",
           fluidRow(uiOutput("train.learner.sel")),
@@ -14,6 +15,7 @@ tabpanel.modelling = fluidRow(
       )
     ),
     tabPanel(title = "Predict",
+      htmlOutput("prediction.text"),
       fluidRow(
         column(width = 3, align = "center",
           box(background = "light-blue", width = NULL, height = 520,
@@ -45,6 +47,7 @@ tabpanel.modelling = fluidRow(
       )
     ),
     tabPanel(title = "Performance",
+      htmlOutput("performance.text"),
       fluidRow(
         column(width = 12, align = "center",
           uiOutput("perf.measures.sel"),
@@ -56,8 +59,9 @@ tabpanel.modelling = fluidRow(
       )
     ),
     tabPanel("Visualisations",
+      htmlOutput("visualisation.text"),
       fluidRow(
-        div(align = "center",
+        column(width = 12,
           uiOutput("visualisation.selection"),
           uiOutput("predictionplot.settings")
         )

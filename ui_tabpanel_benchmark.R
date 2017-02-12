@@ -1,9 +1,9 @@
 tabpanel.benchmark = fluidRow(
   tabBox(width = 12,
     tabPanel("Benchmark",
-      # fluidRow(
-        box(title = "Learners", width = 12, align = "center",
-          uiOutput("benchmark.learners.sel")
+      htmlOutput("benchmark.explanatory.text"),
+      box(title = "Learners", width = 12, align = "center",
+        uiOutput("benchmark.learners.sel")
       ),
       fluidRow(
         column(width = 3, align = "center",
@@ -29,10 +29,13 @@ tabpanel.benchmark = fluidRow(
       #)
     ),
     tabPanel("Visualisations",
+      htmlOutput("benchmark.plots.text"),
       fluidRow(
-        box(width = 12, align = "center",
+        column(6, align = "center",
           selectInput("bmrplots.type", label = "Plot Type", selected = "Beanplots", 
-            choices = c("Beanplots", "Boxplots"), width = 200),
+            choices = c("Beanplots", "Boxplots"), width = 200)
+        ),
+        column(6, align = "center",
           uiOutput("bmrplot.measures.sel")
         )
       ),

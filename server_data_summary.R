@@ -86,8 +86,12 @@ observeEvent(summary.vis.out(), {
 output$preproc_impute = renderUI({
   req(input$preproc_method)
   reqAndAssign(data$data, "d")
-  fluidRow(
+  help.texts = input$show.help
+  list(
     conditionalPanel("input.preproc_method == 'Impute'",
+      if (help.texts == "Yes")
+        htmlOutput("impute.text"),
+      # br(),
       column(6,
         selectInput("impute_exclude", "Exclude column(s) (optional)", choices =  as.list(colnames(d)), multiple = TRUE)
       ),
@@ -152,9 +156,13 @@ output$preproc_createdummy = renderUI({
   reqAndAssign(data$data, "d")
   req(input$preproc_method)
   choices = factorFeatures()
+  help.texts = input$show.help
   validate(need(length(choices) > 0L, "No factor features available!"))
-  fluidRow(
+  list(
     conditionalPanel("input.preproc_method == 'Create dummy features'",
+      if (help.texts == "Yes")
+        htmlOutput("createdummy.text"),
+      # br(),
       column(6,
         conditionalPanel("input.createdummy_cols == null",
           selectInput("createdummy_exclude", "Exclude column(s) (optional)", choices = choices, multiple = TRUE)
@@ -201,8 +209,12 @@ observeEvent(input$createdummy_start, {
 output$preproc_dropfeature = renderUI({
   d = data$data
   req(input$preproc_method)
-  fluidRow(
+  help.texts = input$show.help
+  list(
     conditionalPanel("input.preproc_method == 'Drop variable(s)'",
+      if (help.texts == "Yes")
+        htmlOutput("dropfeature.text"),
+      # br(),
       column(6,
         selectInput("dropfeature_cols", "Choose column(s)", choices =  as.list(colnames(d)), multiple = TRUE)
       ),
@@ -227,13 +239,16 @@ observeEvent(input$dropfeature_start, {
 
 ### removeConstantFeatures
 
-
 output$preproc_remconst = renderUI({
   d = data$data
   choices = as.list(colnames(d))
   req(input$preproc_method)
-  fluidRow(
+  help.texts = input$show.help
+  list(
     conditionalPanel("input.preproc_method == 'Remove constant variables'",
+      if (help.texts == "Yes")
+        htmlOutput("remconst.text"),
+      # br(),
       column(6,
         sliderInput("remconst_perc", "Choose % of feat. values different from mode", value = 0L, min = 0L, max = 1L, step = 0.01)
       ),
@@ -260,13 +275,16 @@ observeEvent(input$remconst_start, {
 
 ### normalizeFeatures
 
-
 output$preproc_normfeat = renderUI({
   d = data$data
   choices = numericFeatures()
   req(input$preproc_method)
-  fluidRow(
+  help.texts = input$show.help
+  list(
     conditionalPanel("input.preproc_method == 'Normalize variables'",
+      if (help.texts == "Yes")
+        htmlOutput("normfeat.text"),
+      # br(),
       column(6,
         conditionalPanel("input.normfeat_cols == null",
           selectInput("normfeat_exclude", "Exclude column(s) (optional)", choices = choices, multiple = TRUE)
@@ -313,7 +331,6 @@ observeEvent(input$normfeat_start, {
 
 ### capLargeValues
 
-
 output$preproc_caplarge = renderUI({
   req(input$preproc_method)
   d = data$data
@@ -322,6 +339,7 @@ output$preproc_caplarge = renderUI({
   exc = input$caplarge_exclude
   cols = input$caplarge_cols
   what = input$caplarge_what
+  help.texts = input$show.help
   
   if (!is.null(tr) && !is.na(tr)) {
     imp = tr
@@ -337,8 +355,11 @@ output$preproc_caplarge = renderUI({
     what = "abs"
   
   
-  fluidRow(
+  list(
     conditionalPanel("input.preproc_method == 'Cap large values'",
+      if (help.texts == "Yes")
+        htmlOutput("caplarge.text"),
+      # br(),
       column(6,
         conditionalPanel("input.caplarge_cols == null",
           selectInput("caplarge_exclude", "Exclude column(s) (optional)", choices = choices, selected = exc, multiple = TRUE)
@@ -386,12 +407,15 @@ observeEvent(input$caplarge_start, {
 
 ### convert columns
 
-
 output$preproc_convar = renderUI({
   req(input$preproc_method)
   d = data$data
-  fluidRow(
+  help.texts = input$show.help
+  list(
     conditionalPanel("input.preproc_method == 'Convert variable'",
+      if (help.texts == "Yes")
+        htmlOutput("convar.text"),
+      # br(),
       column(6,
         selectInput("convar_cols", "Choose column", choices = as.list(colnames(d)), multiple = FALSE)
       ),
@@ -407,7 +431,7 @@ output$preproc_convar = renderUI({
 
 convar_target = reactive({
   tar = input$convar_cols
-  ifelse (is.null(tar) | tar == "", character(0L), tar)
+  ifelse(is.null(tar) | tar == "", character(0L), tar)
 })
 
 observeEvent(input$convar_start, {
@@ -451,8 +475,12 @@ output$preproc_subset = renderUI({
   req(input$preproc_method)
   d = data$data
   method = subset.method()
-  fluidRow(
+  help.texts = input$show.help
+  list(
     conditionalPanel("input.preproc_method == 'Subset'",
+      if (help.texts == "Yes")
+        htmlOutput("subset.text"),
+      # br(),
       column(6,
         radioButtons("preproc_subset_method", "Type of subset",
           choices = c("Random", "Fix"), selected = method, inline = TRUE)
@@ -514,30 +542,37 @@ output$preproc_feature_selection = renderUI({
   list = as.character(fm[fm[type] == "TRUE", ]$id)
   d = data$data
   filter = vi.filter()
-  fluidRow(
-    conditionalPanel("input.preproc_method == 'Feature selection'",
-      column(4,
-        radioButtons("vi_abs_or_perc", "Absolute or percentage?", 
-          choices = c("Absolute", "Percentage"), selected = "Absolute", inline = TRUE)
-      ),
-      conditionalPanel("input.vi_abs_or_perc == 'Absolute'",
-        column(8,
-          sliderInput("vi.abs", "Keep no. of most important features", min = 0L,
-            max = getTaskNFeats(tsk), value = getTaskNFeats(tsk), step = 1L)
+  help.texts = input$show.help
+  list(
+    fluidRow(
+      conditionalPanel("input.preproc_method == 'Feature selection'",
+        if (help.texts == "Yes")
+          htmlOutput("feature.sel.text"),
+        # br(),
+        column(4,
+          radioButtons("vi_abs_or_perc", "Absolute or percentage?", 
+            choices = c("Absolute", "Percentage"), selected = "Absolute", inline = TRUE)
+        ),
+        conditionalPanel("input.vi_abs_or_perc == 'Absolute'",
+          column(8,
+            sliderInput("vi.abs", "Keep no. of most important features", min = 0L,
+              max = getTaskNFeats(tsk), value = getTaskNFeats(tsk), step = 1L)
+          )
+        ),
+        conditionalPanel("input.vi_abs_or_perc == 'Percentage'",
+          column(8,
+            sliderInput("vi.perc", "Keep % of most important features", min = 0L,
+              max = 100L, value = 100L, step = 1L)
+          )
+        ),
+        column(12,
+          selectInput("vi.method", "Choose a filter method:",
+            choices = list, selected = filter)
+        ),
+        br(),
+        column(12, align = "center",
+          actionButton("feature.selection.start", "Select feature subset")
         )
-      ),
-      conditionalPanel("input.vi_abs_or_perc == 'Percentage'",
-        column(8,
-          sliderInput("vi.perc", "Keep % of most important features", min = 0L,
-            max = 100L, value = 100L, step = 1L)
-        )
-      ),
-      column(12,
-        selectInput("vi.method", "Choose a filter method:",
-          choices = list, selected = filter)
-      ),
-      column(12, align = "center",
-        actionButton("feature.selection.start", "Select feature subset")
       )
     )
   )
@@ -626,13 +661,16 @@ observeEvent(input$feature.selection.start, {
 
 ### Merge small factor levels
 
-
 output$preproc_merge_factor_levels = renderUI({
   req(input$preproc_method)
   fnames = task.factor.feature.names()
   validate(need(length(fnames) > 0L, "No factor features available!"))
-  fluidRow(
+  help.texts = input$show.help
+  list(
     conditionalPanel("input.preproc_method == 'Merge small factor levels'",
+      if (help.texts == "Yes")
+        htmlOutput("merge.factors.text"),
+      br(),
       column(6,
         selectInput("merge_factors_cols", "Choose column", choices = fnames,
           selected = getFirst(fnames), multiple = TRUE)
