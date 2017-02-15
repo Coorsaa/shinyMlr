@@ -55,29 +55,31 @@ data.pred = reactive({
     task.data()
   } else {
     if (import.pred.type == "mlr") {
-      return(getTaskData(get(input$import.pred.mlr)))
+      df.test = getTaskData(get(input$import.pred.mlr))
     } else {
       if (import.pred.type == "CSV") {
-        f = input$import.pred.csv$datapath
-        if (is.null(f))
+        df = input$import.pred.csv$datapath
+        if (is.null(df))
           return(NULL)
-        read.csv(f, header = input$import.pred.header, sep = input$import.pred.sep,
+        df.test = read.csv(df, header = input$import.pred.header, sep = input$import.pred.sep,
           quote = input$import.pred.quote)
       } else {
         if (import.pred.type == "OpenML") {
           t = getOMLDataSet(data.id = input$import.pred.OpenML)
-          return(t$data)
+          df.test = t$data
         } else {
           if (input$import.type == "ARFF") {
-            f = input$import.pred.arff$datapath
-            if (is.null(f))
+            df = input$import.pred.arff$datapath
+            if (is.null(df))
               return(NULL)
-            readARFF(f)
+            df.test =readARFF(df)
           }
         }
       }
     }
   }
+  data$data.test = df.test
+  return(df.test)
 })
 
 output$import.pred.preview = renderDataTable({

@@ -10,7 +10,7 @@ output$import.ui = renderUI({
   makeImportSideBar(type)
 })
 
-data = reactiveValues(data = NULL)
+data = reactiveValues(data = NULL, data.test = NULL)
 
 
 observe({
