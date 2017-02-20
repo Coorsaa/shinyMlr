@@ -34,7 +34,8 @@ shinyUI(
         menuItem("Import", tabName = "import", icon = icon("folder-open")),
         menuItem("Data", tabName = "data", icon = icon("database"),
           menuSubItem("Summary", tabName = "summary", icon = icon("bar-chart")),
-          menuSubItem("Preprocessing", tabName = "preprocessing", icon = icon("magic"))),
+          menuSubItem("Preprocessing", tabName = "preprocessing", icon = icon("magic"))
+        ),
         menuItem("Task", tabName = "task", icon = icon("flag")),
         menuItem("Learners", tabName = "learners", icon = icon("cog")),
         menuItem("Tuning", tabName = "tuning", icon = icon("wrench")),

@@ -24,7 +24,7 @@ output$summary.text = renderUI({
 
 output$preproc.text = renderUI({
   box(width = 12, status = "primary", collapsible = TRUE,
-    helpText("You can choose here between several data preprocessing methods. The first ones in group 'On Task' only require a dataset while the ones of group 'On Task' are wrappers which need you to create a task first. You can do this in the next tab 'Task'.")
+    helpText("You can choose here between several data preprocessing methods. The first ones in group 'On Data' only require a dataset while the ones of group 'On Task' are wrappers which need you to create a task first. You can do this in the next tab 'Task'.")
   )
 })
 

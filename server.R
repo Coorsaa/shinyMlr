@@ -29,6 +29,7 @@ shinyServer(function(input, output, session) {
   
   source("server_import.R", local = TRUE)
   source("server_data_summary.R", local = TRUE)
+  source("server_preprocessing.R", local = TRUE)
   source("server_task.R", local = TRUE)
   source("server_learners.R", local = TRUE)
   source("server_tuning.R", local = TRUE)

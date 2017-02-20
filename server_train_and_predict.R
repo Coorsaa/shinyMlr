@@ -45,46 +45,46 @@ output$import.pred.ui = renderUI({
   makeImportPredSideBar(type, newdata.type)
 })
 
-data.pred = reactive({
+observe({
   req(task())
   reqAndAssign(input$newdatatype, "newdata.type")
   import.pred.type = input$import.pred.type
   if (is.null(import.pred.type))
     import.pred.type = "mlr"
   if (newdata.type == "task") {
-    task.data()
+    df.test = task.data()
   } else {
     if (import.pred.type == "mlr") {
-      return(getTaskData(get(input$import.pred.mlr)))
+      df.test = getTaskData(get(input$import.pred.mlr))
     } else {
       if (import.pred.type == "CSV") {
-        f = input$import.pred.csv$datapath
-        if (is.null(f))
+        df = input$import.pred.csv$datapath
+        if (is.null(df))
           return(NULL)
-        read.csv(f, header = input$import.pred.header, sep = input$import.pred.sep,
+        df.test = read.csv(df, header = input$import.pred.header, sep = input$import.pred.sep,
           quote = input$import.pred.quote)
       } else {
         if (import.pred.type == "OpenML") {
           t = getOMLDataSet(data.id = input$import.pred.OpenML)
-          return(t$data)
+          df.test = t$data
         } else {
           if (input$import.type == "ARFF") {
-            f = input$import.pred.arff$datapath
-            if (is.null(f))
+            df = input$import.pred.arff$datapath
+            if (is.null(df))
               return(NULL)
-            readARFF(f)
+            df.test = readARFF(df)
           }
         }
       }
     }
   }
+  data$data.test = df.test
 })
 
 output$import.pred.preview = renderDataTable({
   validateTask(input$create.task, task.data(), data$data, req = TRUE)
   validateLearnerModel(model(), input$train.learner.sel)
-  reqAndAssign(data.pred(), "d")
-  d = data.pred()
+  d = data$data.test
   colnames(d) = make.names(colnames(d))
   d
 }, options = list(lengthMenu = c(5, 30, 50), pageLength = 5, scrollX = TRUE, pagingType = "simple"))
@@ -96,7 +96,7 @@ pred = eventReactive(input$predict.run, {
   validateTask(input$create.task, task.data(), data$data, req = TRUE)
   model = model()
   validate(need(!is.null(model), "Train a model first to make predictions"))
-  newdata = data.pred()
+  newdata = data$data.test
   colnames(newdata) = make.names(colnames(newdata))
   feat.names = task.feature.names()
   validate(need(all(feat.names %in% colnames(newdata)),
