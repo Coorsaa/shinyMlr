@@ -55,7 +55,8 @@ observe({
     df.test = task.data()
   } else {
     if (import.pred.type == "mlr") {
-      df.test = getTaskData(get(input$import.pred.mlr))
+      mlr.imp = input$import.mlr
+      df.test = getTaskData(get(mlr.imp))
     } else {
       if (import.pred.type == "CSV") {
         df = input$import.pred.csv$datapath
