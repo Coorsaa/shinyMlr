@@ -1,8 +1,13 @@
 preproc.data = reactiveValues(data = NULL, data.collection = NULL)
 
+preproc.type = eventReactive(input$preproc_df, {
+  input$preproc_df
+}, ignoreNULL = FALSE)
+
 observe({
-  req(input$preproc_df)
-  df.type = input$preproc_df
+  # req(input$preproc_df)
+  req(counter$count < 2)
+  df.type = preproc.type()
   if (df.type == "training set" | is.null(df.type)) {
     preproc.data$data = data$data
     preproc.data$data.collection = list(data$data)
@@ -149,7 +154,11 @@ preproc_remconst = reactive({
 observeEvent(input$preproc_go, {
   req(input$preproc_method == "Remove constant variables")
   d = isolate(preproc.data$data)
-  na.ign = input$remconst_na == "yes"
+  if (!is.null(input$remconst_na)) {
+    na.ign = (input$remconst_na == "yes")  
+  } else {
+    na.ign = FALSE
+  }
   preproc.data$data = removeConstantFeatures(d, perc = input$remconst_perc,
     dont.rm = input$remconst_cols, na.ignore = na.ign)
 })
@@ -457,8 +466,7 @@ preproc_merge_factor_levels = reactive({
       selected = getFirst(fnames), multiple = TRUE),
     sliderInput("merge_factors_min_perc", "% of combined proportion should be exceeded",
       min = 0L, max = 100L, value = 1L, step = 1L),
-    textInput("merge_factors_new_lvl", "New name of merged level", value = ".merged"),
-    go = actionButton("merge_factors_start", "Convert variable(s)")
+    textInput("merge_factors_new_lvl", "New name of merged level", value = ".merged")
   )
 })
 
@@ -470,7 +478,6 @@ observeEvent(input$preproc_go, {
   reqAndAssign(input$merge_factors_new_lvl, "new.lvl")
   merged.task = mergeSmallFactorLevels(tsk, cols = cols, min.perc = min.perc/100, new.level = new.lvl)
   preproc.data$data = getTaskData(merged.task)
-  # task.object$task = merged.task
 })
 
 counter = reactiveValues(count = 1L)
@@ -501,6 +508,10 @@ observeEvent(input$preproc_undo, {
     data$data = preproc.data$data
   } else {
     data$data.test = preproc.data$data
+  }
+
+  if (input$preproc_method %in% c("Merge small factor levels", "Feature selection")) {
+    task.object$task = mlr:::changeData(task.object$task, preproc.data$data)
   }
   counter$count = counter$count - 1L
 })
