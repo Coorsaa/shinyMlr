@@ -135,7 +135,18 @@ makePredictionPlot = function(mod, tsk, tsk.type, plot.type, lrn, fnames, feats,
     validate(checkPlotPartialDependency(tsk.type, lrn, fnames))
     req(length(ind) != 0L)
     req(length(feats) != 0L)
-    pd = generatePartialDependenceData(mod, tsk, feats, individual = ind)
+    if (tsk.type == "classif") {
+      if (ind == "Yes") {
+        clist = list()
+        clist[feats] = min(getTaskData(tsk)[feats])
+        pd = generatePartialDependenceData(mod, tsk, feats, individual = ind,
+        center = clist[feats])
+      } else {
+        pd = generatePartialDependenceData(mod, tsk, feats, individual = ind)
+      }
+    } else {
+      pd = generatePartialDependenceData(mod, tsk, feats, individual = ind)
+    }
     q = plotPartialDependence(pd)
   } else if (plot.type == "confusion matrix") {
     q = NULL
@@ -153,32 +164,62 @@ makeConfusionMatrix = function(plot.type, preds) {
 }
 
 makePredictionPlotSettingsUI = function(plot.type, fnames, feats, ms.def, ms,
-  tsk.type, fm, predict.type, width = 200) {
+  tsk.type, fm, predict.type, help.texts, width = 200) {
   if (plot.type == "prediction") {
+    if (help.texts == "Yes")
+      settings.text = htmlOutput("prediction.plot.text")
+    else
+      settings.text = NULL
     req(length(fnames) != 0L)
     settings.inp = selectInput("predictionplot.feat.sel", "Select variables:",
       choices = fnames, multiple = TRUE, width = width)
-    settings.ui = column(width = 4, settings.inp)
+    settings.ui = list(
+      column(width = 4, settings.inp),
+      column(width = 12, settings.text)
+    )
   } else if (plot.type == "residuals") {
+    if (help.texts == "Yes")
+      settings.text = htmlOutput("residual.plot.text")
+    else
+      settings.text = NULL
     settings.inp = selectInput("residualplot.type", "Select type of plot:",
       choices = c("scatterplot", "histogram"), selected = "scatterplot",
       width = width)
-    settings.ui = column(4, settings.inp)
+    settings.ui = list(
+      column(4, settings.inp),
+      column(width = 12, settings.text)
+    )
   } else if (plot.type == "partial dependency") {
+    if (help.texts == "Yes")
+      settings.text = htmlOutput("partial.dep.plot.text")
+    else
+      settings.text = NULL
     req(length(fnames) != 0L)
     settings.inp = selectInput("predictionplot.feat.sel", "Select variables:",
-        choices = fnames, selected = getFirst(fnames), multiple = TRUE, width = width)
+        choices = fnames, selected = getFirst(fnames), multiple = FALSE, width = width)
     if (predict.type != "se") {
       settings.ind = radioButtons("pd.plot.ind", "Individual expectation?", 
-        choices = c("TRUE", "FALSE"), inline = TRUE, selected = "FALSE")
+        choices = c("Yes" = "TRUE", "No" = "FALSE"), inline = TRUE, selected = "FALSE")
     } else
       settings.ind = NULL
+    
     settings.ui = list(
       column(width = 4, settings.inp),
-      column(width = 4, settings.ind)
+      column(width = 4, settings.ind),
+      column(width = 12, settings.text)
     )
-  } else if (plot.type %in% c("confusion matrix", "ROC")) {
-    settings.ui = column(4, NULL)
+  } else if (plot.type == "confusion matrix") {
+    if (help.texts == "Yes")
+      settings.text = htmlOutput("confusion.matrix.text")
+    else
+      settings.text = NULL
+    settings.ui = column(width = 12, settings.text)
+  } else if (plot.type == "ROC") {
+    if (help.texts == "Yes")
+      settings.text = htmlOutput("roc.plot.text")
+    else
+      settings.text = NULL
+    settings.ui = column(width = 12, settings.text)
   }
   return(settings.ui)
 }

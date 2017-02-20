@@ -1,5 +1,7 @@
 tabpanel.import = list(fluidRow(
-  box(width = 12, collapsible = TRUE, title = "Import",
+  box(width = 12, title = "Import",
+    htmlOutput("import.text"),
+    br(),
     uiOutput("import.ui"),
     hidden(
       div(id = "loading.message", align = "center",

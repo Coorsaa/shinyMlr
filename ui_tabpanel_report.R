@@ -1,4 +1,5 @@
 tabpanel.report = fluidRow(
+  htmlOutput("report.text"),
   column(width = 3, align = "center",
     makeSidebar(bar.height = 600,
       selectInput("report.format", "Document Format",

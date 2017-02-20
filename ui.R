@@ -41,7 +41,12 @@ shinyUI(
         menuItem("Tuning", tabName = "tuning", icon = icon("wrench")),
         menuItem("Train and Predict", tabName = "modelling", icon = icon("graduation-cap")),
         menuItem("Benchmark", tabName = "benchmark", icon = icon("hourglass-start")),
-        menuItem("Report", tabName = "report", icon = icon("book"))
+        menuItem("Report", tabName = "report", icon = icon("book")),
+        br(),
+        # menuItem("Help", tabName = "help", icon = icon("info"),
+        radioButtons("show.help", "Show help?", choices = c("Yes", "No"),
+          selected = "No", inline = TRUE)
+        # )
       )
     ),
     
