@@ -78,540 +78,540 @@ observeEvent(summary.vis.out(), {
 
 ##### preprocessing #####
 
-preproc.data = reactiveValues(data = NULL, data.old = NULL)
+# preproc.data = reactiveValues(data = NULL, data.old = NULL)
 
 
-observeEvent(input$preproc_df,{
-  if (preproc.df == "training set") {
-    preproc.data$data = data$data
-  } else {
-    validate(need(data$data.test, "You didn't upload a test set yet. \n
-      Click on the 'train and predict' panel to do so."))
-    preproc.data$data = data$data.test
-  }
-})
+# observeEvent(input$preproc_df,{
+#   if (input$preproc_df == "training set") {
+#     preproc.data$data = data$data
+#   } else {
+#     validate(need(data$data.test, "You didn't upload a test set yet. \n
+#       Click on the 'train and predict' panel to do so."))
+#     preproc.data$data = data$data.test
+#   }
+# })
 
-observe({
-  df = preproc.data$data
-  cond = (input$preproc_df == "training set" |
-    input$preproc_method %in% c("Feature selection",
-      "Merge small factor levels"))
-  if (cond) {
-    data$data = df
-  } else {
-    data$data.test = df
-  }
-})
+# observe({
+#   df = preproc.data$data
+#   cond = (input$preproc_df == "training set" |
+#     input$preproc_method %in% c("Feature selection",
+#       "Merge small factor levels"))
+#   if (cond) {
+#     data$data = df
+#   } else {
+#     data$data.test = df
+#   }
+# })
 
 
-### Impute
+# ### Impute
 
-preproc_impute = reactive({
-  req(input$preproc_method)
-  reqAndAssign(preproc.data$data, "d")
-  makePreprocUI(
-    selectInput("impute_exclude", "Exclude column(s) (optional)",
-      choices =  as.list(colnames(d)), multiple = TRUE),
-    selectInput("impute_methods_num", "Choose imputation method for numeric variables",
-      selected = "imputeMean",
-      choices = c("imputeConstant", "imputeMean", "imputeMedian",
-        "imputeMode", "imputeMin", "imputeMax", "imputeNormal", "imputeHist")),
-    numericInput("impute_constant_num_input", "Constant value for numerical features",
-      min = -Inf,  max = Inf, value = 0),
-    selectInput("impute_methods_fac", "Choose imputation method for factor variables", selected = "imputeMode",
-      choices = c("imputeConstant", "imputeMode")),
-    umericInput("impute_constant_fac_input", "Constant value for factors", min = -Inf,  max = Inf, value = 0),
-    go = actionButton("impute_start", "Start imputation")
-  )
-})
+# preproc_impute = reactive({
+#   req(input$preproc_method)
+#   reqAndAssign(preproc.data$data, "d")
+#   makePreprocUI(
+#     selectInput("impute_exclude", "Exclude column(s) (optional)",
+#       choices =  as.list(colnames(d)), multiple = TRUE),
+#     selectInput("impute_methods_num", "Choose imputation method for numeric variables",
+#       selected = "imputeMean",
+#       choices = c("imputeConstant", "imputeMean", "imputeMedian",
+#         "imputeMode", "imputeMin", "imputeMax", "imputeNormal", "imputeHist")),
+#     numericInput("impute_constant_num_input", "Constant value for numerical features",
+#       min = -Inf,  max = Inf, value = 0),
+#     selectInput("impute_methods_fac", "Choose imputation method for factor variables", selected = "imputeMode",
+#       choices = c("imputeConstant", "imputeMode")),
+#     umericInput("impute_constant_fac_input", "Constant value for factors", min = -Inf,  max = Inf, value = 0),
+#     go = actionButton("impute_start", "Start imputation")
+#   )
+# })
 
-observeEvent(input$impute_start, {
-  # reqAndAssign(preproc.data(), "d")
-  preproc.data$data_old = d
-  d = preproc.data$data
-  reqAndAssign(input$impute_methods_num, "num")
-  reqAndAssign(input$impute_methods_fac, "fac")
+# observeEvent(input$impute_start, {
+#   # reqAndAssign(preproc.data(), "d")
+#   preproc.data$data_old = d
+#   d = preproc.data$data
+#   reqAndAssign(input$impute_methods_num, "num")
+#   reqAndAssign(input$impute_methods_fac, "fac")
   
-  if (num == "imputeConstant" ) {
-    num_impute = imputeConstant(input$impute_constant_num_input)
-  } else {
-    num_impute = match.fun(num)()
-  }
+#   if (num == "imputeConstant" ) {
+#     num_impute = imputeConstant(input$impute_constant_num_input)
+#   } else {
+#     num_impute = match.fun(num)()
+#   }
     
-  if (fac == "imputeConstant" ) {
-    fac_impute = imputeConstant(input$impute_constant_fac_input)
-  } else {
-    fac_impute = match.fun(fac)()
-  }   
+#   if (fac == "imputeConstant" ) {
+#     fac_impute = imputeConstant(input$impute_constant_fac_input)
+#   } else {
+#     fac_impute = match.fun(fac)()
+#   }   
   
-  imputed = impute(d, target = impute_target(), classes = list(numeric = num_impute, factor = fac_impute))
-  preproc.data$data = imputed$data
-})
+#   imputed = impute(d, target = impute_target(), classes = list(numeric = num_impute, factor = fac_impute))
+#   preproc.data$data = imputed$data
+# })
 
-impute_target = reactive({
-  tar = input$impute_exclude
-  ifelse (is.null(tar) | tar == "", character(0L), tar)
-})
-
-
-### createDummyFeatures
-
-preproc_createdummy = reactive({
-  reqAndAssign(preproc.data$data, "d")
-  req(input$preproc_method)
-  choices = factorFeatures()
-  validate(need(length(choices) > 0L, "No factor features available!"))
-  makePreprocUI(
-    selectInput("createdummy_exclude", "Exclude column(s) (optional)",
-      choices = choices, multiple = TRUE),
-    selectInput("createdummy_method", "Choose Method", selected = "1-of-n",
-      choices = c("1-of-n", "reference")),
-    selectInput("createdummy_cols", "Choose specific column(s) (optional)",
-      choices = choices, multiple = TRUE),
-    go = actionButton("createdummy_start", "Create dummy features")
-  )
-})
-
-createdummy_target = reactive({
-  tar = input$createdummy_exclude
-  ifelse (is.null(tar) | tar == "", character(0L), tar)
-})
-
-observeEvent(input$createdummy_start, {
-  preproc.data$data_old = preproc.data$data
-  d = preproc.data$data
-  preproc.data$data = createDummyFeatures(d, target = createdummy_target(),
-    method = input$createdummy_method, cols = input$createdummy_cols)
-})
+# impute_target = reactive({
+#   tar = input$impute_exclude
+#   ifelse (is.null(tar) | tar == "", character(0L), tar)
+# })
 
 
-### dropFeature
+# ### createDummyFeatures
 
-preproc_dropfeature = reactive({
-  d = preproc.data$data
-  req(input$preproc_method)
-  makePreprocUI(
-    selectInput("dropfeature_cols", "Choose column(s)",
-      choices =  as.list(colnames(d)), multiple = TRUE),
-    actionButton("dropfeature_start", "Drop variable(s)")
-  )
-})
+# preproc_createdummy = reactive({
+#   reqAndAssign(preproc.data$data, "d")
+#   req(input$preproc_method)
+#   choices = factorFeatures()
+#   validate(need(length(choices) > 0L, "No factor features available!"))
+#   makePreprocUI(
+#     selectInput("createdummy_exclude", "Exclude column(s) (optional)",
+#       choices = choices, multiple = TRUE),
+#     selectInput("createdummy_method", "Choose Method", selected = "1-of-n",
+#       choices = c("1-of-n", "reference")),
+#     selectInput("createdummy_cols", "Choose specific column(s) (optional)",
+#       choices = choices, multiple = TRUE),
+#     go = actionButton("createdummy_start", "Create dummy features")
+#   )
+# })
 
-dropfeature_target = reactive({
-  tar = input$dropfeature_cols
-  ifelse (is.null(tar) | tar == "", character(0L), tar)
-})
+# createdummy_target = reactive({
+#   tar = input$createdummy_exclude
+#   ifelse (is.null(tar) | tar == "", character(0L), tar)
+# })
 
-observeEvent(input$dropfeature_start, {
-  preproc.data$data_old = preproc.data$data
-  d = preproc.data$data
-  preproc.data$data = dropNamed(d, dropfeature_target())
-})
-
-
-### removeConstantFeatures
-
-
-preproc_remconst = reactiveUI({
-  d = preproc.data$data
-  choices = as.list(colnames(d))
-  req(input$preproc_method)
-  makePreprocUI(
-    sliderInput("remconst_perc", "Choose % of feat. values different from mode",
-      value = 0L, min = 0L, max = 1L, step = 0.01),
-    selectInput("remconst_cols", "Choose columns which must not deleted",
-      choices = choices, multiple = TRUE),
-    radioButtons("remconst_na", "Ignore NAs in %-calculation?",
-      choices = c("TRUE", "FALSE"), selected = "FALSE"),
-    go = actionButton("remconst_start", "Remove constant variables")
-
-  )
-})
+# observeEvent(input$createdummy_start, {
+#   preproc.data$data_old = preproc.data$data
+#   d = preproc.data$data
+#   preproc.data$data = createDummyFeatures(d, target = createdummy_target(),
+#     method = input$createdummy_method, cols = input$createdummy_cols)
+# })
 
 
-observeEvent(input$remconst_start, {
-  preproc.data$data_old = preproc.data$data
-  d = preproc.data$data
-  preproc.data$data = removeConstantFeatures(d, perc = input$remconst_perc, dont.rm = input$remconst_cols, na.ignore = as.logical(input$remconst_na))
-})
+# ### dropFeature
+
+# preproc_dropfeature = reactive({
+#   d = preproc.data$data
+#   req(input$preproc_method)
+#   makePreprocUI(
+#     selectInput("dropfeature_cols", "Choose column(s)",
+#       choices =  as.list(colnames(d)), multiple = TRUE),
+#     actionButton("dropfeature_start", "Drop variable(s)")
+#   )
+# })
+
+# dropfeature_target = reactive({
+#   tar = input$dropfeature_cols
+#   ifelse (is.null(tar) | tar == "", character(0L), tar)
+# })
+
+# observeEvent(input$dropfeature_start, {
+#   preproc.data$data_old = preproc.data$data
+#   d = preproc.data$data
+#   preproc.data$data = dropNamed(d, dropfeature_target())
+# })
 
 
-### normalizeFeatures
+# ### removeConstantFeatures
 
 
-preproc_normfeat = reactive({
-  d = preproc.data$data
-  choices = numericFeatures()
-  req(input$preproc_method)
-  makePreprocUI(
-    selectInput("normfeat_exclude", "Exclude column(s) (optional)", choices = choices, multiple = TRUE),
-    selectInput("normfeat_cols", "Choose columns (optional)", choices = choices, multiple = TRUE),
-    selectInput("normfeat_method", "Choose method", selected = "standardize",
-      choices = c("center", "scale", "standardize", "range")),
-    # FIXME What would be the best range?
-    sliderInput("normfeat_range", "Choose range", min = -10L, max = 10L,
-      value = c(0, 1), round = TRUE, step = 1L),
-    selectInput("normfeat_on_constant", "How should constant vectors be treated?", selected = "quiet",
-            choices = c("quiet", "warn", "stop")),
-    go = actionButton("normfeat_start", "Normalize variables")
-  )
-})
+# preproc_remconst = reactiveUI({
+#   d = preproc.data$data
+#   choices = as.list(colnames(d))
+#   req(input$preproc_method)
+#   makePreprocUI(
+#     sliderInput("remconst_perc", "Choose % of feat. values different from mode",
+#       value = 0L, min = 0L, max = 1L, step = 0.01),
+#     selectInput("remconst_cols", "Choose columns which must not deleted",
+#       choices = choices, multiple = TRUE),
+#     radioButtons("remconst_na", "Ignore NAs in %-calculation?",
+#       choices = c("TRUE", "FALSE"), selected = "FALSE"),
+#     go = actionButton("remconst_start", "Remove constant variables")
 
-normfeat_target = reactive({
-  tar = input$normfeat_exclude
-  ifelse (is.null(tar) | tar == "", character(0L), tar)
-})
-
-observeEvent(input$normfeat_start, {
-  preproc.data$data_old = preproc.data$data
-  d = preproc.data$data
-  preproc.data$data = normalizeFeatures(d, target = normfeat_target(), method = input$normfeat_method, cols = input$normfeat_cols,
-    range = input$normfeat_range, on.constant = input$normfeat_on_constant)
-})
+#   )
+# })
 
 
-### capLargeValues
+# observeEvent(input$remconst_start, {
+#   preproc.data$data_old = preproc.data$data
+#   d = preproc.data$data
+#   preproc.data$data = removeConstantFeatures(d, perc = input$remconst_perc, dont.rm = input$remconst_cols, na.ignore = as.logical(input$remconst_na))
+# })
 
-preproc_caplarge = reactive({
-  req(input$preproc_method)
-  d = preproc.data$data
-  choices = numericFeatures()
-  tr = input$caplarge_threshold
-  exc = input$caplarge_exclude
-  cols = input$caplarge_cols
-  what = input$caplarge_what
+
+# ### normalizeFeatures
+
+
+# preproc_normfeat = reactive({
+#   d = preproc.data$data
+#   choices = numericFeatures()
+#   req(input$preproc_method)
+#   makePreprocUI(
+#     selectInput("normfeat_exclude", "Exclude column(s) (optional)", choices = choices, multiple = TRUE),
+#     selectInput("normfeat_cols", "Choose columns (optional)", choices = choices, multiple = TRUE),
+#     selectInput("normfeat_method", "Choose method", selected = "standardize",
+#       choices = c("center", "scale", "standardize", "range")),
+#     # FIXME What would be the best range?
+#     sliderInput("normfeat_range", "Choose range", min = -10L, max = 10L,
+#       value = c(0, 1), round = TRUE, step = 1L),
+#     selectInput("normfeat_on_constant", "How should constant vectors be treated?", selected = "quiet",
+#             choices = c("quiet", "warn", "stop")),
+#     go = actionButton("normfeat_start", "Normalize variables")
+#   )
+# })
+
+# normfeat_target = reactive({
+#   tar = input$normfeat_exclude
+#   ifelse (is.null(tar) | tar == "", character(0L), tar)
+# })
+
+# observeEvent(input$normfeat_start, {
+#   preproc.data$data_old = preproc.data$data
+#   d = preproc.data$data
+#   preproc.data$data = normalizeFeatures(d, target = normfeat_target(), method = input$normfeat_method, cols = input$normfeat_cols,
+#     range = input$normfeat_range, on.constant = input$normfeat_on_constant)
+# })
+
+
+# ### capLargeValues
+
+# preproc_caplarge = reactive({
+#   req(input$preproc_method)
+#   d = preproc.data$data
+#   choices = numericFeatures()
+#   tr = input$caplarge_threshold
+#   exc = input$caplarge_exclude
+#   cols = input$caplarge_cols
+#   what = input$caplarge_what
   
-  if (!is.null(tr) && !is.na(tr)) {
-    imp = tr
-  } else {
-    imp = NA
-  }
+#   if (!is.null(tr) && !is.na(tr)) {
+#     imp = tr
+#   } else {
+#     imp = NA
+#   }
   
-  if (is.null(exc) || is.na(exc))
-    exc = NA
-  if (is.null(cols) || is.na(cols))
-    cols = NA
-  if (is.null(what) || is.na(what)) 
-    what = "abs"
+#   if (is.null(exc) || is.na(exc))
+#     exc = NA
+#   if (is.null(cols) || is.na(cols))
+#     cols = NA
+#   if (is.null(what) || is.na(what)) 
+#     what = "abs"
   
   
-  makePreprocUI(
-    selectInput("caplarge_exclude", "Exclude column(s) (optional)",
-      choices = choices, selected = exc, multiple = TRUE),
-    selectInput("caplarge_cols", "Choose columns (optional)",
-      choices = choices, selected = cols, multiple = TRUE),
-    numericInput("caplarge_threshold", "Choose threshold", value = imp),
-    numericInput("caplarge_impute", "Choose impute value (optional)", value = tr),
-    selectInput("caplarge_what", "What kind of entries are affected?",
-      selected = what, choices = c("abs", "pos", "neg")),
-    go = actionButton("caplarge_start", "Cap large values")
-  )
-})
+#   makePreprocUI(
+#     selectInput("caplarge_exclude", "Exclude column(s) (optional)",
+#       choices = choices, selected = exc, multiple = TRUE),
+#     selectInput("caplarge_cols", "Choose columns (optional)",
+#       choices = choices, selected = cols, multiple = TRUE),
+#     numericInput("caplarge_threshold", "Choose threshold", value = imp),
+#     numericInput("caplarge_impute", "Choose impute value (optional)", value = tr),
+#     selectInput("caplarge_what", "What kind of entries are affected?",
+#       selected = what, choices = c("abs", "pos", "neg")),
+#     go = actionButton("caplarge_start", "Cap large values")
+#   )
+# })
 
-caplarge_target = reactive({
-  tar = input$caplarge_exclude
-  ifelse (is.null(tar) | tar == "", character(0L), tar)
-})
+# caplarge_target = reactive({
+#   tar = input$caplarge_exclude
+#   ifelse (is.null(tar) | tar == "", character(0L), tar)
+# })
 
-observeEvent(input$caplarge_start, {
-  preproc.data$data_old = preproc.data$data
-  d = preproc.data$data
-  tr = isolate(input$caplarge_threshold)
-  if (is.na(tr))
-    tr = Inf
-  imp = isolate(input$caplarge_impute)
-  if (is.na(imp))
-    imp = Inf
-  preproc.data$data = capLargeValues(d, target = caplarge_target(), cols = isolate(input$caplarge_cols), threshold = tr,
-    impute = imp, what = isolate(input$caplarge_what))
-})
-
-
-### convert columns
+# observeEvent(input$caplarge_start, {
+#   preproc.data$data_old = preproc.data$data
+#   d = preproc.data$data
+#   tr = isolate(input$caplarge_threshold)
+#   if (is.na(tr))
+#     tr = Inf
+#   imp = isolate(input$caplarge_impute)
+#   if (is.na(imp))
+#     imp = Inf
+#   preproc.data$data = capLargeValues(d, target = caplarge_target(), cols = isolate(input$caplarge_cols), threshold = tr,
+#     impute = imp, what = isolate(input$caplarge_what))
+# })
 
 
-preproc_convar = reactive({
-  req(input$preproc_method)
-  d = preproc.data$data
-  makePreprocUI(
-    selectInput("convar_cols", "Choose column",
-      choices = as.list(colnames(d)), multiple = FALSE),
-    selectInput("convar_type", "Convert to",
-      choices = c("numeric", "factor", "integer"))
-    go = actionButton("convar_start", "Convert variable(s)")
-  )
-})
+# ### convert columns
 
-convar_target = reactive({
-  tar = input$convar_cols
-  ifelse (is.null(tar) | tar == "", character(0L), tar)
-})
 
-observeEvent(input$convar_start, {
-  preproc.data$data_old = preproc.data$data
-  type = input$convar_type
+# preproc_convar = reactive({
+#   req(input$preproc_method)
+#   d = preproc.data$data
+#   makePreprocUI(
+#     selectInput("convar_cols", "Choose column",
+#       choices = as.list(colnames(d)), multiple = FALSE),
+#     selectInput("convar_type", "Convert to",
+#       choices = c("numeric", "factor", "integer"))
+#     go = actionButton("convar_start", "Convert variable(s)")
+#   )
+# })
+
+# convar_target = reactive({
+#   tar = input$convar_cols
+#   ifelse (is.null(tar) | tar == "", character(0L), tar)
+# })
+
+# observeEvent(input$convar_start, {
+#   preproc.data$data_old = preproc.data$data
+#   type = input$convar_type
   
-  if (type == "numeric")
-    preproc.data$data[,convar_target()] = as.numeric(preproc.data$data[,convar_target()])
+#   if (type == "numeric")
+#     preproc.data$data[,convar_target()] = as.numeric(preproc.data$data[,convar_target()])
   
-  if (type == "factor")
-    preproc.data$data[,convar_target()] = as.factor(preproc.data$data[,convar_target()])
+#   if (type == "factor")
+#     preproc.data$data[,convar_target()] = as.factor(preproc.data$data[,convar_target()])
   
-  if (type == "integer")
-    preproc.data$data[,convar_target()] = as.integer(preproc.data$data[,convar_target()])
-})
+#   if (type == "integer")
+#     preproc.data$data[,convar_target()] = as.integer(preproc.data$data[,convar_target()])
+# })
 
 
-### preproc_data
+# ### preproc_data
 
-output$preproc_data = DT::renderDataTable({
-  d = preproc.data$data
-  colnames(d) = make.names(colnames(d))
-  d
-}, options = list(lengthMenu = c(5, 20, 50), pageLength = 5, scrollX = TRUE)
-)
+# output$preproc_data = DT::renderDataTable({
+#   d = preproc.data$data
+#   colnames(d) = make.names(colnames(d))
+#   d
+# }, options = list(lengthMenu = c(5, 20, 50), pageLength = 5, scrollX = TRUE)
+# )
 
-### undo
+# ### undo
 
-observeEvent(input$preproc_undo, {
-  req(preproc.data$data_old)
-  if (!is.null(task.object$task_old))
-    task.object$task = task.object$task_old
-  preproc.data$data = preproc.data$data_old
-})
-
-
-
-### subset
-
-preproc_subset = reactive({
-  req(input$preproc_method)
-  d = preproc.data$data
-  method = subset.method()
-  makePreprocUI(
-    radioButtons("preproc_subset_method", "Type of subset",
-      choices = c("Random", "Fix"), selected = method, inline = TRUE),
-    numericInput("preproc.subset.nsamples", "No. of random samples", min = 1L,
-            max = nrow(d), value = 2*ceiling(nrow(d)/3), step = 1L),
-    sliderInput("preproc.subset", "Choose subset rows", min = 1L, max = nrow(d),
-            value = c(1, 2*ceiling(nrow(d)/3)), step = 1L),
-    go = actionButton("subset.start", "Make subset")
-  )
-})
-
-subset.method = reactive({
-  method = input$preproc_subset_method
-  if (is.null(method))
-    return("Random")
-  else
-    method
-})
-
-observeEvent(input$subset.start, {
-  preproc.data$data_old = preproc.data$data
-  d = preproc.data$data
-  reqAndAssign(input$preproc_subset_method, "method")
-  if (method == "Fix") {
-    ss = input$preproc.subset
-    preproc.data$data = d[seq(ss[1], ss[2]), ]
-  } else {
-    reqAndAssign(input$preproc.subset.nsamples, "n")
-    preproc.data$data = d[sample(nrow(d), n), ]
-  }
-})
+# observeEvent(input$preproc_undo, {
+#   req(preproc.data$data_old)
+#   if (!is.null(task.object$task_old))
+#     task.object$task = task.object$task_old
+#   preproc.data$data = preproc.data$data_old
+# })
 
 
-### Feature Selection (Filter methods)
 
-filter.methods = reactive({
-  listFilterMethods(tasks = TRUE)
-})
+# ### subset
 
+# preproc_subset = reactive({
+#   req(input$preproc_method)
+#   d = preproc.data$data
+#   method = subset.method()
+#   makePreprocUI(
+#     radioButtons("preproc_subset_method", "Type of subset",
+#       choices = c("Random", "Fix"), selected = method, inline = TRUE),
+#     numericInput("preproc.subset.nsamples", "No. of random samples", min = 1L,
+#             max = nrow(d), value = 2*ceiling(nrow(d)/3), step = 1L),
+#     sliderInput("preproc.subset", "Choose subset rows", min = 1L, max = nrow(d),
+#             value = c(1, 2*ceiling(nrow(d)/3)), step = 1L),
+#     go = actionButton("subset.start", "Make subset")
+#   )
+# })
 
-preproc_feature_selection = reactive({
-  req(input$preproc_method)
-  reqAndAssign(task(), "tsk")
-  tsk.type = tsk$type
-  type = pasteDot("task", tsk.type)
-  reqAndAssign(isolate(filter.methods()), "fm")
-  fm.ids = as.character(fm[which(fm[, type]), "id"])
-  d = preproc.data$data
-  filter = vi.filter()
-  makePreprocUI(
-    radioButtons("vi_abs_or_perc", "Absolute or percentage?", 
-      choices = c("Absolute", "Percentage"), selected = "Absolute", inline = TRUE),
-    sliderInput("vi.abs", "Keep no. of most important features", min = 0L,
-      max = getTaskNFeats(tsk), value = getTaskNFeats(tsk), step = 1L),
-    sliderInput("vi.perc", "Keep % of most important features", min = 0L,
-      max = 100L, value = 100L, step = 1L),
-    selectInput("vi.method", "Choose a filter method:",
-      choices = fm.ids, selected = filter),
-    go = actionButton("feature.selection.start", "Select feature subset")
-  )
-})
+# subset.method = reactive({
+#   method = input$preproc_subset_method
+#   if (is.null(method))
+#     return("Random")
+#   else
+#     method
+# })
 
-vi.filter = reactive({
-  method = input$vi.method
-  if (is.null(method))
-    return("randomForestSRC.rfsrc")
-  else
-    method
-})
-
-
-vi.abs.or.perc = reactive(input$vi_abs_or_perc)
-
-output$plot.feature.selection = renderPlot({
-  reqAndAssign(task(), "tsk")
-  tsk.type = tsk$type
-  reqAndAssign(input$vi.method, "vi.method")
-  vi.data = generateFilterValuesData(tsk, method = vi.method)
-  plotFilterValues(vi.data)
-})
+# observeEvent(input$subset.start, {
+#   preproc.data$data_old = preproc.data$data
+#   d = preproc.data$data
+#   reqAndAssign(input$preproc_subset_method, "method")
+#   if (method == "Fix") {
+#     ss = input$preproc.subset
+#     preproc.data$data = d[seq(ss[1], ss[2]), ]
+#   } else {
+#     reqAndAssign(input$preproc.subset.nsamples, "n")
+#     preproc.data$data = d[sample(nrow(d), n), ]
+#   }
+# })
 
 
-preproc.method = reactive(input$preproc_method)
+# ### Feature Selection (Filter methods)
+
+# filter.methods = reactive({
+#   listFilterMethods(tasks = TRUE)
+# })
 
 
-output$vi.task.check = renderPrint({
-  validateTask(input$create.task, task.data(), data$data)
-})
+# preproc_feature_selection = reactive({
+#   req(input$preproc_method)
+#   reqAndAssign(task(), "tsk")
+#   tsk.type = tsk$type
+#   type = pasteDot("task", tsk.type)
+#   reqAndAssign(isolate(filter.methods()), "fm")
+#   fm.ids = as.character(fm[which(fm[, type]), "id"])
+#   d = preproc.data$data
+#   filter = vi.filter()
+#   makePreprocUI(
+#     radioButtons("vi_abs_or_perc", "Absolute or percentage?", 
+#       choices = c("Absolute", "Percentage"), selected = "Absolute", inline = TRUE),
+#     sliderInput("vi.abs", "Keep no. of most important features", min = 0L,
+#       max = getTaskNFeats(tsk), value = getTaskNFeats(tsk), step = 1L),
+#     sliderInput("vi.perc", "Keep % of most important features", min = 0L,
+#       max = 100L, value = 100L, step = 1L),
+#     selectInput("vi.method", "Choose a filter method:",
+#       choices = fm.ids, selected = filter),
+#     go = actionButton("feature.selection.start", "Select feature subset")
+#   )
+# })
 
-observeEvent(preproc.method(), {
-  method = preproc.method()
-  if (method %in% c("Feature selection", "Merge small factor levels")) {
-    req(is.null(task.object$task))
-    shinyjs::show("vi.task.check")
-  } else {
-    shinyjs::hide("vi.task.check")
-  }  
-})
+# vi.filter = reactive({
+#   method = input$vi.method
+#   if (is.null(method))
+#     return("randomForestSRC.rfsrc")
+#   else
+#     method
+# })
+
+
+# vi.abs.or.perc = reactive(input$vi_abs_or_perc)
+
+# output$plot.feature.selection = renderPlot({
+#   reqAndAssign(task(), "tsk")
+#   tsk.type = tsk$type
+#   reqAndAssign(input$vi.method, "vi.method")
+#   vi.data = generateFilterValuesData(tsk, method = vi.method)
+#   plotFilterValues(vi.data)
+# })
+
+
+# preproc.method = reactive(input$preproc_method)
+
+
+# output$vi.task.check = renderPrint({
+#   validateTask(input$create.task, task.data(), data$data)
+# })
+
+# observeEvent(preproc.method(), {
+#   method = preproc.method()
+#   if (method %in% c("Feature selection", "Merge small factor levels")) {
+#     req(is.null(task.object$task))
+#     shinyjs::show("vi.task.check")
+#   } else {
+#     shinyjs::hide("vi.task.check")
+#   }  
+# })
   
-observeEvent(task(),{
-  shinyjs::hide("vi.task.check")
-})
+# observeEvent(task(),{
+#   shinyjs::hide("vi.task.check")
+# })
 
 
-observeEvent(preproc.method(), {
-  method = preproc.method()
-  if (method == "Feature selection") {
-    req(task())
-    shinyjs::show("plot.feature.selection")
-  } else {
-    shinyjs::hide("plot.feature.selection")
-  }
-})
+# observeEvent(preproc.method(), {
+#   method = preproc.method()
+#   if (method == "Feature selection") {
+#     req(task())
+#     shinyjs::show("plot.feature.selection")
+#   } else {
+#     shinyjs::hide("plot.feature.selection")
+#   }
+# })
 
-observeEvent(input$create.task, {
-  method = preproc.method()
-  if (method == "Feature selection")
-    shinyjs::show("plot.feature.selection")
-})
+# observeEvent(input$create.task, {
+#   method = preproc.method()
+#   if (method == "Feature selection")
+#     shinyjs::show("plot.feature.selection")
+# })
 
 
-observeEvent(input$feature.selection.start, {
-  reqAndAssign(task(), "tsk")
-  task.object$task_old = tsk
-  data$data_old = data$data
-  tsk.type = tsk$type
-  reqAndAssign(input$vi.method, "method")
-  reqAndAssign(vi.abs.or.perc(), "choice")
+# observeEvent(input$feature.selection.start, {
+#   reqAndAssign(task(), "tsk")
+#   task.object$task_old = tsk
+#   data$data_old = data$data
+#   tsk.type = tsk$type
+#   reqAndAssign(input$vi.method, "method")
+#   reqAndAssign(vi.abs.or.perc(), "choice")
   
-  if (choice == "Absolute") {
-    abs = input$vi.abs
-    filtered.task = filterFeatures(tsk, method = method, abs = abs)
-  } else if (choice == "Percentage") {
-    perc = input$vi.perc/100
-    filtered.task = filterFeatures(tsk, method = method, perc = perc)
-  }
+#   if (choice == "Absolute") {
+#     abs = input$vi.abs
+#     filtered.task = filterFeatures(tsk, method = method, abs = abs)
+#   } else if (choice == "Percentage") {
+#     perc = input$vi.perc/100
+#     filtered.task = filterFeatures(tsk, method = method, perc = perc)
+#   }
   
-  task.object$task_old = task.object$task
-  task.object$task = filtered.task
-  data$data = getTaskData(filtered.task)
-})
+#   task.object$task_old = task.object$task
+#   task.object$task = filtered.task
+#   data$data = getTaskData(filtered.task)
+# })
 
 
-### Merge small factor levels
+# ### Merge small factor levels
 
 
-preproc_merge_factor_levels = reactive({
-  req(input$preproc_method)
-  fnames = task.factor.feature.names()
-  validate(need(length(fnames) > 0L, "No factor features available!"))
-  makePreprocUI(
-    selectInput("merge_factors_cols", "Choose column", choices = fnames,
-      selected = getFirst(fnames), multiple = TRUE),
-    sliderInput("merge_factors_min_perc", "% of combined proportion should be exceeded",
-      min = 0L, max = 100L, value = 1L, step = 1L),
-    textInput("merge_factors_new_lvl", "New name of merged level", value = ".merged"),
-    go = actionButton("merge_factors_start", "Convert variable(s)")
-  )
-})
+# preproc_merge_factor_levels = reactive({
+#   req(input$preproc_method)
+#   fnames = task.factor.feature.names()
+#   validate(need(length(fnames) > 0L, "No factor features available!"))
+#   makePreprocUI(
+#     selectInput("merge_factors_cols", "Choose column", choices = fnames,
+#       selected = getFirst(fnames), multiple = TRUE),
+#     sliderInput("merge_factors_min_perc", "% of combined proportion should be exceeded",
+#       min = 0L, max = 100L, value = 1L, step = 1L),
+#     textInput("merge_factors_new_lvl", "New name of merged level", value = ".merged"),
+#     go = actionButton("merge_factors_start", "Convert variable(s)")
+#   )
+# })
 
 
-output$preproc.ui = renderUI({
-  switch(input$preproc_method,
-    "Drop variable(s)" = preproc_dropfeature(),
-    "Convert variable" = preproc_convar(),
-    "Normalize variables" = preproc_normfeat(),
-    "Remove constant variables" = preproc_remconst(),
-    "Cap large values" = preproc_caplarge(),
-    "Subset" = preproc_subset(),
-    "Create dummy features" = preproc_createdummy(),
-    "Impute" = preproc_impute(),
-    "Feature selection" = preproc_feature_selection(),
-    "Merge small factor levels" = preproc_merge_factor_levels())
-})
-
-
-
-observeEvent(input$merge_factors_start, {
-  reqAndAssign(task(), "tsk")
-  reqAndAssign(input$merge_factors_cols, "cols")
-  reqAndAssign(input$merge_factors_min_perc, "min.perc")
-  reqAndAssign(input$merge_factors_new_lvl, "new.lvl")
-  data$data_old = data$data
-  task.object$task_old = task.object$task
-  merged.task = mergeSmallFactorLevels(tsk, cols = cols, min.perc = min.perc/100, new.level = new.lvl)
-  data$data = getTaskData(merged.task)
-  task.object$task = merged.task
-})
+# output$preproc.ui = renderUI({
+#   switch(input$preproc_method,
+#     "Drop variable(s)" = preproc_dropfeature(),
+#     "Convert variable" = preproc_convar(),
+#     "Normalize variables" = preproc_normfeat(),
+#     "Remove constant variables" = preproc_remconst(),
+#     "Cap large values" = preproc_caplarge(),
+#     "Subset" = preproc_subset(),
+#     "Create dummy features" = preproc_createdummy(),
+#     "Impute" = preproc_impute(),
+#     "Feature selection" = preproc_feature_selection(),
+#     "Merge small factor levels" = preproc_merge_factor_levels())
+# })
 
 
 
+# observeEvent(input$merge_factors_start, {
+#   reqAndAssign(task(), "tsk")
+#   reqAndAssign(input$merge_factors_cols, "cols")
+#   reqAndAssign(input$merge_factors_min_perc, "min.perc")
+#   reqAndAssign(input$merge_factors_new_lvl, "new.lvl")
+#   data$data_old = data$data
+#   task.object$task_old = task.object$task
+#   merged.task = mergeSmallFactorLevels(tsk, cols = cols, min.perc = min.perc/100, new.level = new.lvl)
+#   data$data = getTaskData(merged.task)
+#   task.object$task = merged.task
+# })
 
 
-observeEvent(input$preproc.go{
-  data.preproc = impute
-  data.preproc.collection[[input$preproc.go]] = data.preproc
-  if (data.preproc[[n]] != data.preproc[[n-1]]) {
-    input$redo --> disable
-    input$undo --> enable   
-  }
-  if (is.null(data.preproc[[n+1]]))
-    --> create
-  else
-    strip data.preproc then create
-})
 
-counter = reactiveValues({ count
 
-})
 
-counter = 1
+# observeEvent(input$preproc.go{
+#   data.preproc = impute
+#   data.preproc.collection[[input$preproc.go]] = data.preproc
+#   if (data.preproc[[n]] != data.preproc[[n-1]]) {
+#     input$redo --> disable
+#     input$undo --> enable   
+#   }
+#   if (is.null(data.preproc[[n+1]]))
+#     --> create
+#   else
+#     strip data.preproc then create
+# })
 
-observeEvent(input$preproc.go, {
-  counter ++
-  impute --> preproc.data / collection
-  strip collection
-})
+# counter = reactiveValues({ count
 
-observeEvent(input$undo{
-  counter() = counter() - 1
-  data.preproc = data.preproc.collection[n-1] 
-})
+# })
 
-observeEvent(input$redo{
-  dat = data.preproc.collection[n+1]
-  if null nth else counter ++ data.preproc = dat
-})
+# counter = 1
+
+# observeEvent(input$preproc.go, {
+#   counter ++
+#   impute --> preproc.data / collection
+#   strip collection
+# })
+
+# observeEvent(input$undo{
+#   counter() = counter() - 1
+#   data.preproc = data.preproc.collection[n-1] 
+# })
+
+# observeEvent(input$redo{
+#   dat = data.preproc.collection[n+1]
+#   if null nth else counter ++ data.preproc = dat
+# })

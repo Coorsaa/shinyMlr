@@ -64,6 +64,12 @@ validateNumFeatures = function(nfeats) {
   validate(need(length(nfeats) != 0L, "There are no numeric features to select."))
 }
 
+validatePreprocData = function(df, type) {
+  err.mess = ifelse(type == "training set", "",
+    "You didn't upload a test set yet. Click on the 'train and predict' panel to do so.")
+  validate(need(df, err.mess))
+}
+
 
 # FIXME: mlr: create makeAutoTask or whatever depending on target? 
 sMakeTask = function(id, target, data) {
@@ -104,47 +110,47 @@ makeResampleDescUI = function(rdesc.type) {
   inps
 }
 
-makePreprocUI = function(..., go) {
+makePreprocUI = function(...) {
   confs = list(...)
   confs = lapply(confs, function(conf) {
     column(6, conf)
   })
-  go = column(12, align = "center", go)
-  fluidRow(confs, go)
+  # go = column(12, align = "center", go)
+  fluidRow(confs)
 }
 
-switchPreprocType = function(inp, to = c("ui", "fun", "pars") {
-  if (to == "ui") {
-  res = switch(inp,
-    "Drop variable(s)" = preproc_dropfeature,
-    "Convert variable" = preproc_convar,
-    "Normalize variables" = preproc_normfeat,
-    "Remove constant variables" = preproc_remconst,
-    "Cap large values" = preproc_caplarge,
-    "Subset" = preproc_subset,
-    "Create dummy features" = preproc_createdummy,
-    "Impute" = preproc_impute,
-    "Feature selection" = preproc_feature_selection,
-    "Merge small factor levels" = preproc_merge_factor_levels)  
-  } else {
-    if (to = fun) {
-      res = switch(input$preproc_method,
-        "Drop variable(s)" = dropNamed,
-        "Convert variable" = dropNamed,
-        "Normalize variables" = normalizeFeatures,
-        "Remove constant variables" = removeConstantFeatures,
-        "Cap large values" = capLargeValues,
-        "Subset" = subset,
-        "Create dummy features" = createDummyFeatures,
-        "Impute" = impute,
-        "Feature selection" = filterFeatures,
-        "Merge small factor levels" = mergeSmallFactorLevels)
-    } else {
-      # pars
-    }
-  }
-  return(res)
-}
+# switchPreprocType = function(inp, to = c("ui", "fun", "pars") {
+#   if (to == "ui") {
+#   res = switch(inp,
+#     "Drop variable(s)" = preproc_dropfeature,
+#     "Convert variable" = preproc_convar,
+#     "Normalize variables" = preproc_normfeat,
+#     "Remove constant variables" = preproc_remconst,
+#     "Cap large values" = preproc_caplarge,
+#     "Subset" = preproc_subset,
+#     "Create dummy features" = preproc_createdummy,
+#     "Impute" = preproc_impute,
+#     "Feature selection" = preproc_feature_selection,
+#     "Merge small factor levels" = preproc_merge_factor_levels)  
+#   } else {
+#     if (to = fun) {
+#       res = switch(input$preproc_method,
+#         "Drop variable(s)" = dropNamed,
+#         "Convert variable" = dropNamed,
+#         "Normalize variables" = normalizeFeatures,
+#         "Remove constant variables" = removeConstantFeatures,
+#         "Cap large values" = capLargeValues,
+#         "Subset" = subset,
+#         "Create dummy features" = createDummyFeatures,
+#         "Impute" = impute,
+#         "Feature selection" = filterFeatures,
+#         "Merge small factor levels" = mergeSmallFactorLevels)
+#     } else {
+#       # pars
+#     }
+#   }
+#   return(res)
+# }
 
 
 
