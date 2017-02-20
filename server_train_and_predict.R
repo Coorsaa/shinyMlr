@@ -45,7 +45,7 @@ output$import.pred.ui = renderUI({
   makeImportPredSideBar(type, newdata.type)
 })
 
-data.pred = reactive({
+observe({
   req(task())
   reqAndAssign(input$newdatatype, "newdata.type")
   import.pred.type = input$import.pred.type
@@ -79,15 +79,12 @@ data.pred = reactive({
     }
   }
   data$data.test = df.test
-  return(df.test)
 })
 
 output$import.pred.preview = renderDataTable({
   validateTask(input$create.task, task.data(), data$data, req = TRUE)
   validateLearnerModel(model(), input$train.learner.sel)
-  reqAndAssign(data.pred(), "d")
-  # d = data$data.test
-  d = data.pred()
+  d = data$data.test
   colnames(d) = make.names(colnames(d))
   d
 }, options = list(lengthMenu = c(5, 30, 50), pageLength = 5, scrollX = TRUE, pagingType = "simple"))
@@ -99,8 +96,7 @@ pred = eventReactive(input$predict.run, {
   validateTask(input$create.task, task.data(), data$data, req = TRUE)
   model = model()
   validate(need(!is.null(model), "Train a model first to make predictions"))
-  # newdata = data$data.test
-  newdata = data.pred()
+  newdata = data$data.test
   colnames(newdata) = make.names(colnames(newdata))
   feat.names = task.feature.names()
   validate(need(all(feat.names %in% colnames(newdata)),

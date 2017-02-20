@@ -1,13 +1,12 @@
 preproc.data = reactiveValues(data = NULL, data.collection = NULL)
 
 observe({
-  req(counter$count < 2L)
   req(input$preproc_df)
-  if (input$preproc_df == "training set" | is.null(input$preproc_df)) {
+  df.type = input$preproc_df
+  if (df.type == "training set" | is.null(df.type)) {
     preproc.data$data = data$data
     preproc.data$data.collection = list(data$data)
   } else {
-    # validate(need(data$data.test, "You didn't upload a test set yet. Click on the 'train and predict' panel to do so."))
     preproc.data$data = data$data.test
     preproc.data$data.collection = list(data$data.test)
   }
@@ -44,7 +43,6 @@ preproc_impute = reactive({
 })
 
 observeEvent(input$preproc_go, {
-  # reqAndAssign(preproc.data(), "d")
   req(input$preproc_method == "Impute")
   d = isolate(preproc.data$data)
   reqAndAssign(input$impute_methods_num, "num")
@@ -150,7 +148,6 @@ preproc_remconst = reactive({
 
 observeEvent(input$preproc_go, {
   req(input$preproc_method == "Remove constant variables")
-  # preproc.data$data_old = preproc.data$data
   d = isolate(preproc.data$data)
   na.ign = input$remconst_na == "yes"
   preproc.data$data = removeConstantFeatures(d, perc = input$remconst_perc,
@@ -433,8 +430,6 @@ observeEvent(input$create.task, {
 observeEvent(input$preproc_go, {
   req(input$preproc_method == "Feature selection")
   reqAndAssign(task(), "tsk")
-  # task.object$task_old = tsk
-  # data$data_old = data$data
   tsk.type = tsk$type
   reqAndAssign(input$vi.method, "method")
   reqAndAssign(vi.abs.or.perc(), "choice")
@@ -446,9 +441,6 @@ observeEvent(input$preproc_go, {
     perc = input$vi.perc/100
     filtered.task = filterFeatures(tsk, method = method, perc = perc)
   }
-  
-  # task.object$task_old = task.object$task
-  # task.object$task = filtered.task
   preproc.data$data = getTaskData(filtered.task)
 })
 
@@ -476,15 +468,10 @@ observeEvent(input$preproc_go, {
   reqAndAssign(input$merge_factors_cols, "cols")
   reqAndAssign(input$merge_factors_min_perc, "min.perc")
   reqAndAssign(input$merge_factors_new_lvl, "new.lvl")
-  # data$data_old = data$data
-  # task.object$task_old = task.object$task
   merged.task = mergeSmallFactorLevels(tsk, cols = cols, min.perc = min.perc/100, new.level = new.lvl)
   preproc.data$data = getTaskData(merged.task)
   # task.object$task = merged.task
 })
-
-
-# preproc.data = reactiveValues(data = NULL, data.collection = NULL)
 
 counter = reactiveValues(count = 1L)
 
@@ -496,7 +483,7 @@ observeEvent(input$preproc_go, {
   counter$count = counter$count + 1L
 
   if (input$preproc_method %in% c("Merge small factor levels", "Feature selection")) {
-    task.object$task = changeData(task.object$task, preproc.data$data)
+    task.object$task = mlr:::changeData(task.object$task, preproc.data$data)
   }
 
   if (df.type == "training set") {
@@ -543,12 +530,4 @@ output$preproc_data = DT::renderDataTable({
   d
 }, options = list(lengthMenu = c(5, 20, 50), pageLength = 5, scrollX = TRUE)
 )
-
-
-output$preproc_testout = renderPrint({
-  # counter$count
-  # preproc.data$data.collection[counter$count]
-  # str(preproc.data$data.collection)
-  paste(counter$count, str(preproc.data$data.collection), sep =" \n")
-})
 
