@@ -45,9 +45,9 @@ output$import.pred.ui = renderUI({
   makeImportPredSideBar(type, newdata.type)
 })
 
-observe({
+data.pred = reactive({
   req(task())
-  # reqAndAssign(input$newdatatype, "newdata.type")
+  reqAndAssign(input$newdatatype, "newdata.type")
   import.pred.type = input$import.pred.type
   if (is.null(import.pred.type))
     import.pred.type = "mlr"
@@ -79,14 +79,15 @@ observe({
     }
   }
   data$data.test = df.test
-  # return(df.test)
+  return(df.test)
 })
 
 output$import.pred.preview = renderDataTable({
   validateTask(input$create.task, task.data(), data$data, req = TRUE)
   validateLearnerModel(model(), input$train.learner.sel)
   reqAndAssign(data.pred(), "d")
-  d = data$data.test
+  # d = data$data.test
+  d = data.pred()
   colnames(d) = make.names(colnames(d))
   d
 }, options = list(lengthMenu = c(5, 30, 50), pageLength = 5, scrollX = TRUE, pagingType = "simple"))
@@ -98,7 +99,8 @@ pred = eventReactive(input$predict.run, {
   validateTask(input$create.task, task.data(), data$data, req = TRUE)
   model = model()
   validate(need(!is.null(model), "Train a model first to make predictions"))
-  newdata = data$data.test
+  # newdata = data$data.test
+  newdata = data.pred()
   colnames(newdata) = make.names(colnames(newdata))
   feat.names = task.feature.names()
   validate(need(all(feat.names %in% colnames(newdata)),
