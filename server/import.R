@@ -43,7 +43,8 @@ observe({
     if (is.null(f)) {
       data$data = NULL
     } else {
-      data$data = readARFF(f)
+      data$data = foreign::read.arff(f)
+      # data$data = readARFF(f)
     }
   }
 })

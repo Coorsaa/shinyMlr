@@ -38,7 +38,7 @@ makeImportSideBar = function(type) {
       column(width = 4, height = 250,
         imptype.sel.input,
         fileInput("import.arff", "Choose ARFF File",
-          accept = c("text/arff", "text/comma-separated-values,text/plain", ".arff"))
+          accept = c(".arff"))
       )
     )
   )
