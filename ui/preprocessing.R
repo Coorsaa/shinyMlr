@@ -11,19 +11,21 @@ tabpanel.preprocessing = list(
             "Subset", "Create dummy features", "Impute"),
           "On task" = c("Feature selection", "Merge small factor levels")),
           selected = "Drop variable(s)"),
+        tags$hr(),
         actionButton("preproc_go", "Apply preprocessing"),
         br(),
-        br(),
         tags$hr(),
-        actionButton("preproc_undo", "Undo")
+        bsButton("preproc_undo", "Undo")
       )
     ),
     column(width = 9,
-      box(width = 12, height = 300, title = "Settings",
-        uiOutput("preproc_out")
+      box(width = 12, title = "Settings",
+        uiOutput("preproc_out"),
+        plotOutput("plot.feature.selection")
       ),
       box(width = 12,
-        dataTableOutput("preproc_data")
+        dataTableOutput("preproc_data")# ,
+        # verbatimTextOutput("preproc_testout")
       )
     )
   )

@@ -166,7 +166,7 @@ makeConfusionMatrix = function(plot.type, preds) {
 makePredictionPlotSettingsUI = function(plot.type, fnames, feats, ms.def, ms,
   tsk.type, fm, predict.type, help.texts, width = 200) {
   if (plot.type == "prediction") {
-    if (help.texts == "Yes")
+    if (help.texts)
       settings.text = htmlOutput("prediction.plot.text")
     else
       settings.text = NULL
@@ -178,7 +178,7 @@ makePredictionPlotSettingsUI = function(plot.type, fnames, feats, ms.def, ms,
       column(width = 12, settings.text)
     )
   } else if (plot.type == "residuals") {
-    if (help.texts == "Yes")
+    if (help.texts)
       settings.text = htmlOutput("residual.plot.text")
     else
       settings.text = NULL
@@ -190,7 +190,7 @@ makePredictionPlotSettingsUI = function(plot.type, fnames, feats, ms.def, ms,
       column(width = 12, settings.text)
     )
   } else if (plot.type == "partial dependency") {
-    if (help.texts == "Yes")
+    if (help.texts)
       settings.text = htmlOutput("partial.dep.plot.text")
     else
       settings.text = NULL
@@ -209,13 +209,13 @@ makePredictionPlotSettingsUI = function(plot.type, fnames, feats, ms.def, ms,
       column(width = 12, settings.text)
     )
   } else if (plot.type == "confusion matrix") {
-    if (help.texts == "Yes")
+    if (help.texts)
       settings.text = htmlOutput("confusion.matrix.text")
     else
       settings.text = NULL
     settings.ui = column(width = 12, settings.text)
   } else if (plot.type == "ROC") {
-    if (help.texts == "Yes")
+    if (help.texts)
       settings.text = htmlOutput("roc.plot.text")
     else
       settings.text = NULL

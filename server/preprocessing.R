@@ -4,6 +4,15 @@ preproc.type = eventReactive(input$preproc_df, {
   input$preproc_df
 }, ignoreNULL = FALSE)
 
+observeEvent(input$preproc_df, {
+  counter$count = 1L
+})
+
+observe({
+  disabled = (counter$count == 1L)
+  updateButton(session, inputId = "preproc_undo", disabled = disabled)
+})
+
 observe({
   # req(input$preproc_df)
   req(counter$count < 2)
@@ -23,6 +32,8 @@ preproc_impute = reactive({
   req(input$preproc_method)
   reqAndAssign(preproc.data$data, "d")
   makePreprocUI(
+    if (input$show.help)
+      help = htmlOutput("impute.text"),
     list(
       selectInput("impute_exclude", "Exclude column(s) (optional)",
         choices =  as.list(colnames(d)), multiple = TRUE),
@@ -83,6 +94,8 @@ preproc_createdummy = reactive({
   choices = factorFeatures()
   validate(need(length(choices) > 0L, "No factor features available!"))
   makePreprocUI(
+    if (input$show.help)
+      help = htmlOutput("createdummy.text"),
     selectInput("createdummy_method", "Choose Method", selected = "1-of-n",
       choices = c("1-of-n", "reference")),
     conditionalPanel("input.createdummy_cols == null",
@@ -115,6 +128,8 @@ preproc_dropfeature = reactive({
   d = preproc.data$data
   req(input$preproc_method)
   makePreprocUI(
+    if (input$show.help)
+      help = htmlOutput("dropfeature.text"),
     selectInput("dropfeature_cols", "Choose column(s)",
       choices =  as.list(colnames(d)), multiple = TRUE)
   )
@@ -140,6 +155,8 @@ preproc_remconst = reactive({
   choices = as.list(colnames(d))
   req(input$preproc_method)
   makePreprocUI(
+    if (input$show.help)
+      help = htmlOutput("remconst.text"),
     selectInput("remconst_cols", "Exclude columns (optional)",
       choices = choices, multiple = TRUE),
     sliderInput("remconst_perc", "Choose % of feat. values different from mode",
@@ -171,6 +188,8 @@ preproc_normfeat = reactive({
   choices = numericFeatures()
   req(input$preproc_method)
   makePreprocUI(
+    if (input$show.help)
+      help = htmlOutput("normfeat.text"),
     list(
       conditionalPanel("input.normfeat_cols == null",
         selectInput("normfeat_exclude", "Exclude column(s) (optional)", choices = choices, multiple = TRUE)
@@ -233,6 +252,8 @@ preproc_caplarge = reactive({
   
   
   makePreprocUI(
+    if (input$show.help)
+      help = htmlOutput("caplarge.text"),
     list(
       conditionalPanel("input.caplarge_cols == null",
         selectInput("caplarge_exclude", "Exclude column(s) (optional)",
@@ -277,6 +298,8 @@ preproc_convar = reactive({
   req(input$preproc_method)
   d = isolate(preproc.data$data)
   makePreprocUI(
+    if (input$show.help)
+      help = htmlOutput("convar.text"),
     selectInput("convar_cols", "Choose column",
       choices = as.list(colnames(d)), multiple = FALSE),
     selectInput("convar_type", "Convert to",
@@ -310,6 +333,8 @@ preproc_subset = reactive({
   d = isolate(preproc.data$data)
   # method = subset.method()
   makePreprocUI(
+    if (input$show.help)
+      help = htmlOutput("subset.text"),
     radioButtons("preproc_subset_method", "Type of subset",
       choices = c("Random", "Fix"), selected = "Random", inline = TRUE),
     conditionalPanel("input.preproc_subset_method == 'Random'",
@@ -353,6 +378,7 @@ filter.methods = reactive({
 
 
 preproc_feature_selection = reactive({
+  validateTask(input$create.task, task.data(), data$data)
   req(input$preproc_method)
   reqAndAssign(task(), "tsk")
   tsk.type = tsk$type
@@ -362,6 +388,8 @@ preproc_feature_selection = reactive({
   d = preproc.data$data
   # filter = vi.filter()
   makePreprocUI(
+    if (input$show.help)
+      help = htmlOutput("feature.sel.text"),
     radioButtons("vi_abs_or_perc", "Absolute or percentage?", 
       choices = c("Absolute", "Percentage"), selected = "Absolute", inline = TRUE),
     conditionalPanel("input.vi_abs_or_perc == 'Absolute'",
@@ -377,14 +405,6 @@ preproc_feature_selection = reactive({
   )
 })
 
-# vi.filter = reactive({
-#   method = input$vi.method
-#   if (is.null(method))
-#     return("randomForestSRC.rfsrc")
-#   else
-#     method
-# })
-
 
 vi.abs.or.perc = reactive(input$vi_abs_or_perc)
 
@@ -399,11 +419,6 @@ output$plot.feature.selection = renderPlot({
 
 preproc.method = reactive(input$preproc_method)
 
-
-output$vi.task.check = renderPrint({
-  validateTask(input$create.task, task.data(), data$data)
-})
-
 observeEvent(preproc.method(), {
   method = preproc.method()
   if (method %in% c("Feature selection", "Merge small factor levels")) {
@@ -413,11 +428,6 @@ observeEvent(preproc.method(), {
     shinyjs::hide("vi.task.check")
   }  
 })
-  
-observeEvent(task(),{
-  shinyjs::hide("vi.task.check")
-})
-
 
 observeEvent(preproc.method(), {
   method = preproc.method()
@@ -458,10 +468,13 @@ observeEvent(input$preproc_go, {
 
 
 preproc_merge_factor_levels = reactive({
+  validateTask(input$create.task, task.data(), data$data)
   req(input$preproc_method)
   fnames = task.factor.feature.names()
   validate(need(length(fnames) > 0L, "No factor features available!"))
   makePreprocUI(
+    if (input$show.help)
+      help = htmlOutput("merge.factors.text"),
     selectInput("merge_factors_cols", "Choose column", choices = fnames,
       selected = getFirst(fnames), multiple = TRUE),
     sliderInput("merge_factors_min_perc", "% of combined proportion should be exceeded",
@@ -541,4 +554,11 @@ output$preproc_data = DT::renderDataTable({
   d
 }, options = list(lengthMenu = c(5, 20, 50), pageLength = 5, scrollX = TRUE)
 )
+
+# output$preproc_testout = renderPrint({
+#   paste(str(preproc.data$data),
+#     str(preproc.data$data.collection),
+#     counter$count,
+#     sep = " \n")
+# })
 
