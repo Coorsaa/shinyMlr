@@ -328,7 +328,7 @@ observeEvent(input$show.help, {
     "benchmark.plots.text",
     "report.text"
   )
-  if (help == "Yes") {
+  if (help) {
     lapply(texts, shinyjs::show)
   } else {
     lapply(texts, shinyjs::hide)
