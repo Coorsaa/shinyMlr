@@ -49,3 +49,12 @@ border-top-color:#ffffff;
 .rollovericons a{
     margin: 10px;
 }
+
+/*.btn.sbs-toggle-button.shiny-bound-input.active {
+
+}*/
+
+.btn.sbs-toggle-button.shiny-bound-input.active {
+  background-color: #3c8dbc;
+  border-color: #3c8dbc;
+}

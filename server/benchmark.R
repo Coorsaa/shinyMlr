@@ -1,4 +1,4 @@
-##### benchmark #####
+
 
 output$benchmark.learners.sel = renderUI({
   validateLearner(input$learners.sel)
@@ -119,3 +119,54 @@ output$benchmark.overview = renderDataTable({
 }, options = list(lengthMenu = c(10, 20), pageLength = 10,
   scrollX = TRUE)
 )
+
+
+
+
+##### visualization #####
+
+
+
+##### benchmark plots #####
+
+output$bmrplot.measures.sel = renderUI({
+  ms = input$benchmark.measures.sel
+  selectInput("plot.measures.sel", "Measures", choices = ms,
+    selected = measures.default(), width = 200)
+})
+
+
+bmr.plots.out = reactive({
+  req(bmr())
+  req(measures.bmr())
+  req(input$plot.measures.sel)
+  plot.type = switch(input$bmrplots.type,
+    Beanplots = "violin",
+    Boxplots = "box"
+  )
+  ms = isolate(measures.bmr())[[input$plot.measures.sel]]
+  plotBMRBoxplots(bmr(), style = plot.type, measure = ms)
+})
+
+output$bmrplots = renderPlot({
+  q = bmr.plots.out()
+  q
+})
+
+bmr.plots.collection = reactiveValues(plot.titles = NULL, bmr.plots = NULL)
+
+observeEvent(bmr.plots.out(), {
+  q = bmr.plots.out()
+  plot.title = isolate(input$bmrplots.type)
+  bmr.plots.collection$plot.titles = unique(c(bmr.plots.collection$plot.titles,
+    plot.title))
+  bmr.plots.collection$bmr.plots[[plot.title]] = q
+})
+
+observeEvent(prediction.plot.out(), {
+  q = prediction.plot.out()
+  plot.title = isolate(input$prediction.plot.sel)
+  prediction.plot.collection$plot.titles = c(prediction.plot.collection$plot.titles, plot.title)
+  prediction.plot.collection$pred.plots[[plot.title]] = q
+})
+

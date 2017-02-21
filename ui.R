@@ -1,18 +1,17 @@
 library(shiny)
 library(shinydashboard)
 library(shinyjs)
+library(shinyBS)
 library(DT)
 
-source("ui_helpers.R")
-source("ui_tabpanel_import.R")
-source("ui_tabpanel_summary.R")
-source("ui_tabpanel_preprocessing.R")
-source("ui_tabpanel_task.R")
-source("ui_tabpanel_learners.R")
-source("ui_tabpanel_tuning.R")
-source("ui_tabpanel_train_and_predict.R")
-source("ui_tabpanel_benchmark.R")
-source("ui_tabpanel_report.R")
+source("./helpers/helpers_ui.R", local = TRUE)$value
+
+ui.files = list.files(path = "./ui", pattern = "*.R")
+ui.files = paste0("ui/", ui.files)
+
+for (i in seq_along(ui.files)) {
+  source(ui.files[i], local = TRUE)
+}
 
 shinyUI(
   dashboardPage(
@@ -43,10 +42,10 @@ shinyUI(
         menuItem("Benchmark", tabName = "benchmark", icon = icon("hourglass-start")),
         menuItem("Report", tabName = "report", icon = icon("book")),
         br(),
-        # menuItem("Help", tabName = "help", icon = icon("info"),
-        radioButtons("show.help", "Show help?", choices = c("Yes", "No"),
-          selected = "No", inline = TRUE)
-        # )
+        column(align = "center", width = 6,
+        bsButton("show.help", "Show help", type = "toggle",
+          icon = icon("question-circle"))
+        )
       )
     ),
     
