@@ -45,46 +45,47 @@ output$import.pred.ui = renderUI({
   makeImportPredSideBar(type, newdata.type)
 })
 
-data.pred = reactive({
+observe({
   req(task())
   reqAndAssign(input$newdatatype, "newdata.type")
   import.pred.type = input$import.pred.type
   if (is.null(import.pred.type))
     import.pred.type = "mlr"
   if (newdata.type == "task") {
-    task.data()
+    df.test = task.data()
   } else {
     if (import.pred.type == "mlr") {
-      return(getTaskData(get(input$import.pred.mlr)))
+      mlr.imp = input$import.mlr
+      df.test = getTaskData(get(mlr.imp))
     } else {
       if (import.pred.type == "CSV") {
-        f = input$import.pred.csv$datapath
-        if (is.null(f))
+        df = input$import.pred.csv$datapath
+        if (is.null(df))
           return(NULL)
-        read.csv(f, header = input$import.pred.header, sep = input$import.pred.sep,
+        df.test = read.csv(df, header = input$import.pred.header, sep = input$import.pred.sep,
           quote = input$import.pred.quote)
       } else {
         if (import.pred.type == "OpenML") {
           t = getOMLDataSet(data.id = input$import.pred.OpenML)
-          return(t$data)
+          df.test = t$data
         } else {
           if (input$import.type == "ARFF") {
-            f = input$import.pred.arff$datapath
-            if (is.null(f))
+            df = input$import.pred.arff$datapath
+            if (is.null(df))
               return(NULL)
-            readARFF(f)
+            df.test = readARFF(df)
           }
         }
       }
     }
   }
+  data$data.test = df.test
 })
 
 output$import.pred.preview = renderDataTable({
   validateTask(input$create.task, task.data(), data$data, req = TRUE)
   validateLearnerModel(model(), input$train.learner.sel)
-  reqAndAssign(data.pred(), "d")
-  d = data.pred()
+  d = data$data.test
   colnames(d) = make.names(colnames(d))
   d
 }, options = list(lengthMenu = c(5, 30, 50), pageLength = 5, scrollX = TRUE, pagingType = "simple"))
@@ -96,7 +97,7 @@ pred = eventReactive(input$predict.run, {
   validateTask(input$create.task, task.data(), data$data, req = TRUE)
   model = model()
   validate(need(!is.null(model), "Train a model first to make predictions"))
-  newdata = data.pred()
+  newdata = data$data.test
   colnames(newdata) = make.names(colnames(newdata))
   feat.names = task.feature.names()
   validate(need(all(feat.names %in% colnames(newdata)),
@@ -169,4 +170,113 @@ output$performance.overview = renderUI({
   ms = isolate(measures.perf())
   perf = isolate(perf())
   makePerformanceUI(ms, perf)
+})
+
+
+
+
+##### prediction plot ####
+
+output$visualisation.selection = renderUI({
+  reqAndAssign(task(), "tsk")
+  column(width = 4,
+    makeVisualisationSelectionUI(tsk)
+  )
+})
+
+output$predictionplot.x.sel = renderUI({
+  fnames = task.feature.names() #FIXME
+  selectInput("predictionplot.x.sel", "Select variables:", choices = fnames,
+    multiple = TRUE)
+})
+
+output$predictionplot.settings = renderUI({
+  reqAndAssign(pred(), "preds")
+  fnames = task.numeric.feature.names()
+  feats = task.feature.names()
+  ms = measures.train.avail()
+  ms.def = measures.default()
+  reqAndAssign(input$prediction.plot.sel, "plot.type")
+  tsk.type = getTaskType(task())
+  reqAndAssign(isolate(filter.methods()), "fm")
+  lrn.sel = input$train.learner.sel
+  lrn = isolate(learners())[[lrn.sel]]
+  predict.type = lrn$predict.type
+  help.texts = input$show.help
+  makePredictionPlotSettingsUI(plot.type, fnames, feats, ms.def, ms, tsk.type, fm, predict.type, help.texts)
+})
+
+measures.plot = reactive({
+  tsk = isolate(task())
+  reqAndAssign(measures.default(), "ms.def")
+  reqAndAssign(input$prediction.plot.sel, "plot.type")
+  if (plot.type == "prediction") {
+    ms = ms.def
+  } else {
+    if (plot.type == "ROC") {
+      ms = c("fpr", "tpr")
+    } else {
+      ms = 1L
+    }
+  }
+  listMeasures(tsk, create = TRUE)[ms]
+})
+
+prediction.plot.out = reactive({
+  lrn.sel = input$train.learner.sel
+  validateLearnerModel(model(), lrn.sel)
+  validateTask(input$create.task, task.data(), data$data)
+  reqAndAssign(isolate(task()), "tsk")
+  tsk.type = tsk$type
+  reqAndAssign(isolate(model()), "mod")
+  reqAndAssign(input$prediction.plot.sel, "plot.type")
+  lrn = learners()[[lrn.sel]]
+  fnames = task.numeric.feature.names()
+  feats = input$predictionplot.feat.sel
+  preds = pred()
+  ms = measures.plot()
+  resplot.type = input$residualplot.type
+  if (plot.type == "variable importance")
+    reqAndAssign(input$vi.method, "vi.method")
+  
+  if (plot.type == "partial dependency" && lrn$predict.type == "se")
+    ind = "FALSE"
+  else
+    ind = as.logical(input$pd.plot.ind)
+  makePredictionPlot(mod, tsk, tsk.type, plot.type, lrn, fnames, feats, preds, ms,
+    resplot.type, vi.method, ind)
+})
+
+output$prediction.plot = renderPlot({
+  prediction.plot.out()
+})
+
+prediction.plot.collection = reactiveValues(plot.titles = NULL,
+  pred.plots = NULL)
+
+observeEvent(prediction.plot.out(), {
+  q = prediction.plot.out()
+  plot.title = isolate(input$prediction.plot.sel)
+  prediction.plot.collection$plot.titles = c(prediction.plot.collection$plot.titles, plot.title)
+  prediction.plot.collection$pred.plots[[plot.title]] = q
+})
+
+output$confusion.matrix = renderPrint({
+  reqAndAssign(isolate(pred()), "preds")
+  reqAndAssign(input$prediction.plot.sel, "plot.type")
+  if (plot.type == "confusion matrix") {
+    t = makeConfusionMatrix(plot.type, preds)
+    print(t)
+  } else {
+    invisible(NULL)
+  }
+})
+
+observeEvent(input$prediction.plot.sel, {
+  reqAndAssign(input$prediction.plot.sel, "plot.type")
+  if (plot.type == "confusion matrix") {
+    shinyjs::show("confusion.matrix", animType = "fade")
+  } else {
+    shinyjs::hide("confusion.matrix", anim = TRUE)
+  }
 })

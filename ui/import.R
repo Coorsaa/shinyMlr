@@ -14,7 +14,7 @@ tabpanel.import = list(fluidRow(
       DT::dataTableOutput("import.preview")
     )
   ),
-  uiOutput("tabpanel.browse.openml")
+  fluidRow(uiOutput("tabpanel.browse.openml"))
 )
 
 

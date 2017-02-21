@@ -10,7 +10,7 @@ output$import.ui = renderUI({
   makeImportSideBar(type)
 })
 
-data = reactiveValues(data = NULL)
+data = reactiveValues(data = NULL, data.test = NULL)
 
 
 observe({
@@ -113,6 +113,10 @@ observeEvent(input$import.browse.openml_rows_selected, {
 
 
 OMLData = reactive({
+  # openml.dfs = tryCatch(listOMLDataSets(), error = function(err) {
+  #   "Failed to load data sets from server."
+  # })
+  # openml.dfs
   listOMLDataSets()
 })
 

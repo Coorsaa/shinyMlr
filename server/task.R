@@ -12,7 +12,7 @@ output$task.target = renderUI({
 })
 
 
-task.object = reactiveValues(task = NULL, task_old = NULL)
+task.object = reactiveValues(task = NULL)
 
 observeEvent(input$create.task, {
   req(data$data)
