@@ -26,13 +26,22 @@ model = eventReactive(input$train.run, {
   mod
 })
 
-output$model.overview = renderUI({
+
+model.ov = reactive({
   validate(need(input$train.run != 0L, "No model trained yet"))
   validateTask(input$create.task, task.data(), data$data)
   input$train.run
   mod = isolate(model())
   validateLearnerModel(mod, input$train.learner.sel)
   makeModelUI(mod, task())
+})
+
+output$model.overview = renderUI({
+  model.ov()[[1L]]
+})
+
+output$model.params = renderUI({
+  model.ov()[[2L]]
 })
 
 
@@ -251,15 +260,15 @@ output$prediction.plot = renderPlot({
   prediction.plot.out()
 })
 
-prediction.plot.collection = reactiveValues(plot.titles = NULL,
-  pred.plots = NULL)
+# prediction.plot.collection = reactiveValues(plot.titles = NULL,
+#   pred.plots = NULL)
 
-observeEvent(prediction.plot.out(), {
-  q = prediction.plot.out()
-  plot.title = isolate(input$prediction.plot.sel)
-  prediction.plot.collection$plot.titles = c(prediction.plot.collection$plot.titles, plot.title)
-  prediction.plot.collection$pred.plots[[plot.title]] = q
-})
+# observeEvent(prediction.plot.out(), {
+#   q = prediction.plot.out()
+#   plot.title = isolate(input$prediction.plot.sel)
+#   prediction.plot.collection$plot.titles = c(prediction.plot.collection$plot.titles, plot.title)
+#   prediction.plot.collection$pred.plots[[plot.title]] = q
+# })
 
 output$confusion.matrix = renderPrint({
   reqAndAssign(isolate(pred()), "preds")

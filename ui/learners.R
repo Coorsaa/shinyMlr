@@ -4,7 +4,6 @@ tabpanel.learners = list(
       htmlOutput("learners.text"),
       div(align = "center",
         uiOutput("learners.sel")
-        #uiOutput("learners.choose")
       )
     )
   ),

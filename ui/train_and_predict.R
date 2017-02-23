@@ -4,21 +4,24 @@ tabpanel.modelling = fluidRow(
       # fluidRow(
       fluidRow(
         htmlOutput("train.text"),
-        column(width = 4, NULL),
         column(width = 4, align = "center",
-          fluidRow(uiOutput("train.learner.sel")),
-          br(),
-          br(),
-          fluidRow(uiOutput("model.overview"))
+          makeSidebar(
+            fluidRow(uiOutput("train.learner.sel")),
+            br(),
+            hr(),
+            fluidRow(uiOutput("model.overview"))
+          )
         ),
-        column(width = 4, NULL)
+        column(width = 8, align = "center",
+          fluidRow(uiOutput("model.params"))
+        )
       )
     ),
     tabPanel(title = "Predict",
       htmlOutput("prediction.text"),
       fluidRow(
         column(width = 3, align = "center",
-          box(background = "light-blue", width = NULL, height = 520,
+          makeSidebar(
             selectInput("newdatatype", "Predict on:", choices = c("task", "new data"),
               selected = "task"),
             conditionalPanel("input.newdatatype == 'new data'",
