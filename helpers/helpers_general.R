@@ -8,8 +8,15 @@ writeBold = function(chr) {
   tags$b(chr)
 }
 
-makeInfoDescription = function(header, body, width) {
-  column(width = width, align = "center", writeBold(header), h5(body)) 
+makeInfoDescription = function(header, body, width, inline = FALSE) {
+  if (inline) {
+    fluidRow(
+      column(width = width, align = "center", h5(header)),
+      column(width = width, align = "center", h5(body))
+    )
+  } else {
+    column(width = width, align = "center", div(class = "padded-text", h5(body)))  
+  }
 }
 
 replaceInfiniteValues = function(val) {

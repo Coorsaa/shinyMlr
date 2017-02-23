@@ -330,7 +330,7 @@ observeEvent(input$preproc_go, {
 
 preproc_subset = reactive({
   req(input$preproc_method)
-  d = isolate(preproc.data$data)
+  d = preproc.data$data
   # method = subset.method()
   makePreprocUI(
     if (input$show.help)
@@ -347,14 +347,6 @@ preproc_subset = reactive({
     )
   )
 })
-
-# subset.method = reactive({
-#   method = input$preproc_subset_method
-#   if (is.null(method))
-#     return("Random")
-#   else
-#     method
-# })
 
 observeEvent(input$preproc_go, {
   req(input$preproc_method == "Subset")
@@ -554,11 +546,4 @@ output$preproc_data = DT::renderDataTable({
   d
 }, options = list(lengthMenu = c(5, 20, 50), pageLength = 5, scrollX = TRUE)
 )
-
-# output$preproc_testout = renderPrint({
-#   paste(str(preproc.data$data),
-#     str(preproc.data$data.collection),
-#     counter$count,
-#     sep = " \n")
-# })
 

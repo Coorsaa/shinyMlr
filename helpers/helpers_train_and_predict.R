@@ -1,23 +1,32 @@
 makeModelUI = function(mod, tsk) {
   lrn = mod$learner
-  lrn.name = getLearnerShortName(lrn)
+  lrn.name = lrn$name
   lrn.par.vals = getLearnerParVals(lrn)
   if (length(lrn.par.vals) > 0) {
     lrn.par.vals = t(data.frame(lrn.par.vals))
-    lrn.par.vals = datatable(lrn.par.vals, colnames = NULL,
+    lrn.par.vals = datatable(lrn.par.vals, colnames = c("", ""),
       options = list(paging = FALSE, searching = FALSE,
-        bInfo = FALSE, ordering = FALSE))
-    # lrn.par.vals = renderDataTable(lrn.par.vals)
+       bInfo = FALSE, ordering = FALSE))
   } else {
     lrn.par.vals = NULL
   }
   tsk.size = getTaskSize(tsk)
   tsk.nfeats = getTaskNFeats(tsk)
-  mod.box = box(title = "Modeloverview", status = "primary",
-    solidHeader = TRUE, width = 12,
-      makeInfoDescription("Learner", lrn.name, 4),
-      makeInfoDescription("Observations", tsk.size, 4),
-      makeInfoDescription("Features", tsk.nfeats, 4)
+  # mod.box = box(title = "Modeloverview", status = "primary",
+  #   solidHeader = TRUE, width = 12,
+  #     makeInfoDescription("Learner", lrn.name, 4),
+  #     makeInfoDescription("Observations", tsk.size, 4),
+  #     makeInfoDescription("Features", tsk.nfeats, 4)
+  # )
+  mod.box = list(
+    fluidRow(
+      h3("Model:"),
+      h4(lrn.name)
+    ),
+    fluidRow(
+      makeInfoDescription("Observations:", tsk.size, 6, inline = TRUE),
+      makeInfoDescription("Features:", tsk.nfeats, 6, inline = TRUE)
+    )
   )
   par.vals.box = box(title = "Parameter values", status = "primary",
     solidHeader = TRUE, width = 12,
@@ -25,8 +34,8 @@ makeModelUI = function(mod, tsk) {
     renderDataTable(lrn.par.vals)
   )
   ui = list(
-    fluidRow(mod.box),
-    fluidRow(par.vals.box)
+    mod.box,
+    par.vals.box
   )
   return(ui)
 }

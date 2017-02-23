@@ -33,16 +33,26 @@ learners.params = reactive({
   reqAndAssign(learners.par.sets(), "par.sets")
   lrns.names = names(par.sets)
   params = extractSubList(par.sets, "pars")
+  params = lapply(params, function(pars) {
+    if (length(pars) == 0L)
+      pars = NA
+    return(pars)
+  })
   params.names = lapply(params, names)
   lrns.params = Map(function(lrn.name, pars) {
     par.names = params.names[[lrn.name]]
-    lrn.params = Map(function(param.name, lrn.par) {
-      par.name = pasteDot(lrn.name, param.name)
-      par = input[[par.name]]
-      par = convertParamForLearner(lrn.par, par)
-    }, par.names, pars)
-    names(lrn.params) = par.names
-    lrn.params
+    if (is.null(par.names)) {
+      lrn.params = NA
+    } else {
+      lrn.params = Map(function(param.name, lrn.par) {
+        par.name = pasteDot(lrn.name, param.name)
+        par = input[[par.name]]
+        par = convertParamForLearner(lrn.par, par)
+        return(par)
+      }, par.names, pars)
+      names(lrn.params) = par.names
+    }
+    return(lrn.params)
   }, lrns.names, params)
   names(lrns.params) = lrns.names
   lrns.params = lapply(lrns.params, function(pars) {
@@ -131,6 +141,8 @@ observe({
     # didnt find easy way to do it
     if (any(is.na(thresh)) | length(thresh) == 0L)
       thresh = NULL
+    if (any(is.na(pars)) | length(pars) == 0L)
+      pars = list()
 
     makeLearner(lrn, predict.type = pred.type,
       par.vals = pars, predict.threshold = thresh)

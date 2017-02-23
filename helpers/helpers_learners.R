@@ -7,6 +7,17 @@ filterParSetsForUI = function(par.sets) {
   return(par.sets)
 }
 
+paramBox = function(title, inp, desc, fill = TRUE) {
+  content = div(class = "param-box",
+    span(class = "param-box-title", class = if (fill) "param-box-filled",
+      title),
+    span(class = "param-box-inp", inp),
+    span(class = "param-box-desc", desc)
+  )
+  content = div(class = "col-sm-12", content)
+  return(content)
+}
+
 makeLearnerParamInfoUI = function(par) {
   par.type = par$type
   par.def = par$default
@@ -19,7 +30,8 @@ makeLearnerParamInfoUI = function(par) {
     par.tun = "no"
   }
 
-  info.ui = list(makeInfoDescription("type", par.type, width = 2),
+  info.ui = list(
+    makeInfoDescription("type", par.type, width = 2),
     makeInfoDescription("default", par.def, width = 4),
     makeInfoDescription("tunable", par.tun, width = 2)
   )
@@ -41,48 +53,53 @@ makeLearnerParamInfoUI = function(par) {
 }
 
 makeLearnerParamUI = function(par.sets, params.inp, inp.width = 150) {
-  lab.val = "value"
+  lab.val = NULL
   params = Map(function(par.set, lrn.name) {
-    Map(function(par, par.name) {
-      par.type = par$type
-      par.id = pasteDot(lrn.name, par.name)
-      par.inp = params.inp[[lrn.name]][[par.name]]
-      if (is.null(par.inp)) {
-        if (is.null(par$default))
-          par.inp = NA
-        else
-          par.inp = par$default
-      }
-
-      if (par.type %in% c("numeric", "integer")) {
-        if (par.type == "integer")
-          step = 1L
-        else
-          step = NA
-        
-        if (is.null(par$lower))
-          par$lower = NA
-        if (is.null(par$upper))
-          par$upper = NA
-          
-        inp = numericInput(par.id, value = par.inp, min = par$lower,
-          max = par$upper, step = step, width = inp.width, label = lab.val)
-      } else {
-        if (par.type %in% c("logical", "discrete")) {
-          inp = radioButtons(par.id, par$values, par.inp, inline = TRUE, label = lab.val)
-        } else {
-          inp = textInput(par.id, par.inp, width = inp.width, label = lab.val)
+    if (length(par.set$pars) == 0L) {
+      h4("This learner has no hyperparameters.")
+    } else {
+      Map(function(par, par.name) {
+        par.type = par$type
+        par.id = pasteDot(lrn.name, par.name)
+        par.inp = params.inp[[lrn.name]][[par.name]]
+        if (is.null(par.inp)) {
+          if (is.null(par$default))
+            par.inp = NA
+          else
+            par.inp = par$default
         }
-      }
-      par.info.ui = makeLearnerParamInfoUI(par)
-      par.ui = box(width = 12, height = 130, title = par.name, solidHeader = TRUE, status = "primary",
-        fluidRow(
-          column(width = 5, div(height = "130px", inp)),
-          column(width = 7, div(height = "130px", par.info.ui))
-        )
-      )
-      return(par.ui)
-    }, par.set$pars, names(par.set$pars))
+
+        if (par.type %in% c("numeric", "integer")) {
+          if (par.type == "integer")
+            step = 1L
+          else
+            step = NA
+        
+          if (is.null(par$lower))
+            par$lower = NA
+          if (is.null(par$upper))
+            par$upper = NA
+          
+          inp = numericInput(par.id, value = par.inp, min = par$lower,
+            max = par$upper, step = step, width = inp.width, label = lab.val)
+        } else {
+          if (par.type %in% c("logical", "discrete")) {
+            inp = radioButtons(par.id, par$values, par.inp, inline = TRUE, label = lab.val)
+          } else {
+            inp = textInput(par.id, par.inp, width = inp.width, label = lab.val)
+          }
+        }
+        par.info.ui = makeLearnerParamInfoUI(par)
+        # par.ui = box(title = par.name, width = 12, height = 130, title = par.name, solidHeader = TRUE, status = "primary",
+        #   body = fluidRow(
+        #     column(width = 6, align = "center", inp),
+        #     column(width = 6, par.info.ui)
+        #   )
+        # )
+        par.ui = paramBox(title = par.name, inp = inp, desc = par.info.ui)
+        return(par.ui)
+      }, par.set$pars, names(par.set$pars))
+    }
   }, par.sets, names(par.sets))
   names(params) = NULL
   return(params)
@@ -154,6 +171,15 @@ makeLearnerConstructionUI = function(lrns.names, par.sets, params, pred.types, t
         pred.type
       ),
       h3("Hyperparameters:"),
+      column(width = 3, align = "center", h4("name")),
+      column(width = 3, align = "left", h4("value")),
+      column(width = 6,
+        column(width = 2, align = "left", h4("type")),
+        column(width = 3, align = "center", h4("default")),
+        column(width = 2, align = "left", h4("tunable")),
+        column(width = 2, align = "center", h4("lower")),
+        column(width = 2, align = "center", h4("upper"))
+      ),
       br(),
       fluidRow(
         column(width = 12, hyppar)
