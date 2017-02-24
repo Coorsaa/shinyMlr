@@ -1,8 +1,6 @@
 #### train ####
 
 output$train.learner.sel = renderUI({
-  validateTask(input$create.task, task.data(), data$data, req = TRUE)
-  validateLearner(input$learners.sel)
   reqAndAssign(learners(), "lrns")
   lrns.ids = names(lrns)
   sel.inp = selectInput("train.learner.sel", "Learners",
@@ -19,7 +17,6 @@ train.learner = reactive({
 })
 
 model = eventReactive(input$train.run, {
-  req(train.learner())
   lrn = train.learner()
   tsk = isolate({task()})
   mod = tryCatch(train(lrn, tsk), error = errAsString)
@@ -28,22 +25,24 @@ model = eventReactive(input$train.run, {
 
 
 model.ov = reactive({
-  validate(need(input$train.run != 0L, "No model trained yet"))
-  validateTask(input$create.task, task.data(), data$data)
   input$train.run
   mod = isolate(model())
-  validateLearnerModel(mod, input$train.learner.sel)
   makeModelUI(mod, task())
 })
 
 output$model.overview = renderUI({
+  validateLearnerModel(model(), input$train.learner.sel, req = TRUE)
   model.ov()[[1L]]
 })
 
 output$model.params = renderUI({
+    validateTask(input$create.task, task.data(), data$data,
+    task.weights = input$task.weights)
+  validateLearner(learner$learner)
+  validateLearner(list(train.learner()), check = "err")
+  validateLearnerModel(model(), input$train.learner.sel)
   model.ov()[[2L]]
 })
-
 
 
 ##### prediction data import #####
@@ -92,7 +91,8 @@ observe({
 })
 
 output$import.pred.preview = renderDataTable({
-  validateTask(input$create.task, task.data(), data$data, req = TRUE)
+    validateTask(input$create.task, task.data(), data$data,
+    task.weights = input$task.weights, req = TRUE)
   validateLearnerModel(model(), input$train.learner.sel)
   d = data$data.test
   colnames(d) = make.names(colnames(d))
@@ -103,7 +103,8 @@ output$import.pred.preview = renderDataTable({
 ##### predict on new data #####
 
 pred = eventReactive(input$predict.run, {
-  validateTask(input$create.task, task.data(), data$data, req = TRUE)
+    validateTask(input$create.task, task.data(), data$data,
+    task.weights = input$task.weights, req = TRUE)
   model = model()
   validate(need(!is.null(model), "Train a model first to make predictions"))
   newdata = data$data.test
@@ -121,9 +122,8 @@ observeEvent(input$predict.run, {
 })
 
 output$predoverview = renderDataTable({
-  # validate(need("Prediction" %in% class(pred()),
-  #   "Predicting the model failed. Train a different model."))
-  validateTask(input$create.task, task.data(), data$data, req = TRUE)
+    validateTask(input$create.task, task.data(), data$data,
+    task.weights = input$task.weights, req = TRUE)
   validateLearnerModel(model(), input$train.learner.sel)
   p = pred()
   validate(need("Prediction" %in% class(p),
@@ -174,7 +174,8 @@ perf = eventReactive(input$performance.run, {
 output$performance.overview = renderUI({
   input$performance.run
   req(perf())
-  validateTask(input$create.task, task.data(), data$data, req = TRUE)
+    validateTask(input$create.task, task.data(), data$data,
+    task.weights = input$task.weights, req = TRUE)
   validateLearnerModel(model(), input$train.learner.sel)
   ms = isolate(measures.perf())
   perf = isolate(perf())
@@ -234,7 +235,8 @@ measures.plot = reactive({
 prediction.plot.out = reactive({
   lrn.sel = input$train.learner.sel
   validateLearnerModel(model(), lrn.sel)
-  validateTask(input$create.task, task.data(), data$data)
+  validateTask(input$create.task, task.data(), data$data,
+    task.weights = input$task.weights)
   reqAndAssign(isolate(task()), "tsk")
   tsk.type = tsk$type
   reqAndAssign(isolate(model()), "mod")

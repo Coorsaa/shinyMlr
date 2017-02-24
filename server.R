@@ -13,6 +13,7 @@ library(ggplot2)
 library(DT)
 library(parallelMap)
 library(rmarkdown)
+library(xtable)
 
 
 

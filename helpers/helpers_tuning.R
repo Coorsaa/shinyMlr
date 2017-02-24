@@ -27,7 +27,7 @@ makeTuningParameterUI = function(par.set, param.ids, param.types) {
           label = "Trafo", choices = c("linear", "log2", "log10"), selected = "linear", inline = TRUE)
       }
       
-      par.info.ui = makeLearnerParamInfoUI(par)
+      par.info.ui = makeLearnerParamInfoUI(par, inline = FALSE)
       pars1 = box(width = 12, height = 175, title = param, solidHeader = TRUE, status = "primary",
         fluidRow(width = 12,
           column(12, div(height = "130px"), par.info.ui),

@@ -1,10 +1,8 @@
-
-
 output$benchmark.learners.sel = renderUI({
-  validateLearner(input$learners.sel)
-  lrns = learners()
-  validateTask(input$create.task, task.data(), data$data, req = TRUE)
-  lrn.ids = names(lrns)
+  lrn.ids = input$learners.sel
+    validateTask(input$create.task, task.data(), data$data,
+    task.weights = input$task.weights, req = TRUE)
+  # lrn.ids = names(lrns)
   selectInput("benchmark.learners.sel", NULL, choices = lrn.ids,
     multiple = TRUE, selected = lrn.ids)
 })
@@ -62,6 +60,7 @@ rdesc = reactive({
 
 measures.bmr.avail = reactive({
   reqAndAssign(task(), "tsk")
+  validateLearner(lrns = learners(), req = TRUE, check = "err")
   listMatchingMeasures(tsk, bmr.learners())
 })
 
@@ -84,7 +83,6 @@ measures.bmr = reactive({
 })
 
 bmr = eventReactive(input$benchmark.run, {
-  req(learners())
   ms = measures.bmr()
   lrns = bmr.learners()
   rd = rdesc()
@@ -94,7 +92,8 @@ bmr = eventReactive(input$benchmark.run, {
   if (parallel == "Yes") {
     parallelStartSocket(cpus = input$benchmark.parallel.nc, level = "mlr.resample")
     withCallingHandlers({
-      bmr = benchmark(lrns, tsk, rd, measures = ms, show.info = TRUE)
+      bmr = tryCatch(benchmark(lrns, tsk, rd, measures = ms, show.info = TRUE),
+        error = errAsString)
     },
       message = function(m) {
         shinyjs::html(id = "benchmark.text", html = m$message, add = FALSE)
@@ -103,7 +102,8 @@ bmr = eventReactive(input$benchmark.run, {
     parallelStop()
   } else {
     withCallingHandlers({
-      bmr = benchmark(lrns, tsk, rd, measures = ms, show.info = TRUE)
+      bmr = tryCatch(benchmark(lrns, tsk, rd, measures = ms, show.info = TRUE),
+        error = errAsString)
     },
       message = function(m) {
         shinyjs::html(id = "benchmark.text", html = m$message, add = FALSE)
@@ -114,13 +114,11 @@ bmr = eventReactive(input$benchmark.run, {
 })
 
 output$benchmark.overview = renderDataTable({
-  reqAndAssign(bmr(), "b")
-  getBMRAggrPerformances(b, as.df = TRUE)
-}, options = list(lengthMenu = c(10, 20), pageLength = 10,
-  scrollX = TRUE)
-)
-
-
+  validateLearner(learner$learner)
+  validateLearner(lrns = bmr.learners(), check = "err")
+  validateExperiment(bmr(), "BenchmarkResult")
+  getBMRAggrPerformances(bmr(), as.df = TRUE)
+}, options = list(lengthMenu = c(10, 20), pageLength = 10,scrollX = TRUE))
 
 
 ##### visualization #####
@@ -149,24 +147,20 @@ bmr.plots.out = reactive({
 })
 
 output$bmrplots = renderPlot({
-  q = bmr.plots.out()
+  validateLearner(lrns = bmr.learners())
+  reqAndAssign(bmr.plots.out(), "q")
   q
 })
 
-bmr.plots.collection = reactiveValues(plot.titles = NULL, bmr.plots = NULL)
+# bmr.plots.collection = reactiveValues(plot.titles = NULL, bmr.plots = NULL)
 
-observeEvent(bmr.plots.out(), {
-  q = bmr.plots.out()
-  plot.title = isolate(input$bmrplots.type)
-  bmr.plots.collection$plot.titles = unique(c(bmr.plots.collection$plot.titles,
-    plot.title))
-  bmr.plots.collection$bmr.plots[[plot.title]] = q
-})
-
-observeEvent(prediction.plot.out(), {
-  q = prediction.plot.out()
-  plot.title = isolate(input$prediction.plot.sel)
-  prediction.plot.collection$plot.titles = c(prediction.plot.collection$plot.titles, plot.title)
-  prediction.plot.collection$pred.plots[[plot.title]] = q
-})
+# observeEvent(bmr.plots.out(), {
+#   validateLearner(lrns = bmr.learners())
+#   req(bmr())
+#   q = bmr.plots.out()
+#   plot.title = isolate(input$bmrplots.type)
+#   bmr.plots.collection$plot.titles = unique(c(bmr.plots.collection$plot.titles,
+#     plot.title))
+#   bmr.plots.collection$bmr.plots[[plot.title]] = q
+# })
 

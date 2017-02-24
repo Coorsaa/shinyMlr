@@ -12,20 +12,14 @@ makeModelUI = function(mod, tsk) {
   }
   tsk.size = getTaskSize(tsk)
   tsk.nfeats = getTaskNFeats(tsk)
-  # mod.box = box(title = "Modeloverview", status = "primary",
-  #   solidHeader = TRUE, width = 12,
-  #     makeInfoDescription("Learner", lrn.name, 4),
-  #     makeInfoDescription("Observations", tsk.size, 4),
-  #     makeInfoDescription("Features", tsk.nfeats, 4)
-  # )
   mod.box = list(
     fluidRow(
       h3("Model:"),
       h4(lrn.name)
     ),
     fluidRow(
-      makeInfoDescription("Observations:", tsk.size, 6, inline = TRUE),
-      makeInfoDescription("Features:", tsk.nfeats, 6, inline = TRUE)
+      makeInfoDescription("Observations:", tsk.size, 6, inline = FALSE),
+      makeInfoDescription("Features:", tsk.nfeats, 6, inline = FALSE)
     )
   )
   par.vals.box = box(title = "Parameter values", status = "primary",
@@ -119,8 +113,8 @@ makePerformanceUI = function(measures, performances) {
       ),
       fluidRow(
         column(width = 12, align = "center",
-          makeInfoDescription("worst", worst, width = 6),
-          makeInfoDescription("best", best, width = 6)
+          makeInfoDescription("worst", worst, width = 6, inline = FALSE),
+          makeInfoDescription("best", best, width = 6, inline = FALSE)
         )
 
       )

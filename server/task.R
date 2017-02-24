@@ -7,8 +7,18 @@ output$task.id = renderUI({
 })
 
 output$task.target = renderUI({
-  choices = as.list(colnames(data$data))
+  col.names = colnames(data$data)
+  tsk.weights = input$task.weights
+  choices = col.names[col.names != tsk.weights]
   selectInput("task.target", "Choose a target:", choices = choices, selected = getLast(choices))
+})
+
+output$task.weights = renderUI({
+  col.names = colnames(Filter(is.numeric, data$data))
+  tsk.tar = input$task.target
+  choices = col.names[col.names != tsk.tar]
+  choices = c("-", choices)
+  selectInput("task.weights", "Observation weights (optional):", choices = choices, selected = NULL)
 })
 
 
@@ -16,12 +26,19 @@ task.object = reactiveValues(task = NULL)
 
 observeEvent(input$create.task, {
   req(data$data)
-  d = data$data
-  colnames(d) = make.names(colnames(d)) 
-  task = sMakeTask(input$task.id, input$task.target, d)
+  d = isolate(data$data)
+  colnames(d) = make.names(colnames(d))
+  org.col.names = colnames(d)
+  task = sMakeTask(input$task.id, input$task.target, d, input$task.weights)
   task.object$task = task
-  data$data = getTaskData(task)
-  task
+  task.df = getTaskData(task)
+  if (input$task.weights != "-") {
+    df = getTaskData(task)
+    df[, input$task.weights] = mlr:::getTaskWeights(task)
+    data$data = df[, org.col.names]
+  } else {
+    data$data = getTaskData(task)  
+  }
 })
 
 task = reactive({
@@ -65,17 +82,12 @@ task.factor.feature.names = reactive({
 })
 
 task.out = reactive({
-  validateTask(input$create.task, task.data(), data$data)
+  validateTask(input$create.task, task.data(), data$data,
+    task.weights = isolate(input$task.weights))
   tsk = task()
   tsk
 })
 
 output$task.overview = renderPrint({
-  # validateTask(input$create.task, task.data(), data$data)
-  # tsk = task()
-  print(task.out())
-})
-
-task.is.consistent = reactive({
-  identical(task.data(), data$data)
+  printTaskOverviewUI(task.out())
 })

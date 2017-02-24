@@ -1,7 +1,8 @@
 ##### learners #####
 
 learners.avail = reactive({
-  validateTask(input$create.task, task.data(), data$data)
+  validateTask(input$create.task, task.data(), data$data,
+    task.weights = input$task.weights)
   tsk = task()
   listLearners(tsk)
 })
@@ -119,7 +120,7 @@ learners.pred.types.ui = reactive({
 })
 
 output$learners.ui = renderUI({ 
-  req(task.is.consistent())
+  # req(task.is.consistent())
   lrns.sel = input$learners.sel
   par.sets = isolate(learners.par.sets())
   params = learners.params.ui()
@@ -144,8 +145,8 @@ observe({
     if (any(is.na(pars)) | length(pars) == 0L)
       pars = list()
 
-    makeLearner(lrn, predict.type = pred.type,
-      par.vals = pars, predict.threshold = thresh)
+    lrn = tryCatch(makeLearner(lrn, predict.type = pred.type, par.vals = pars, predict.threshold = thresh),
+      error = errAsString)
   }, lrns.sel, lrns.params, pred.types, threshs)
   learner$learner = setNames(lrns, lrns.sel)
 })
