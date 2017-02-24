@@ -2,7 +2,8 @@
 
 output$tuning.sel = renderUI({
   req(task())
-  req(learners())
+  validateLearner(learners(), req = TRUE)
+  validateLearner(learners(), req = TRUE, check = "err")
   reqAndAssign(measures.tuning.avail(), "ms")
   reqAndAssign(measures.default(), "ms.def")
   lrns = learners()
@@ -20,12 +21,15 @@ output$tuning.sel = renderUI({
 })
 
 output$tuning.validation = renderUI({
-  validateTask(input$create.task, task.data(), data$data, req = TRUE)
-  validateLearner(input$learners.sel) 
+    validateTask(input$create.task, task.data(), data$data,
+    task.weights = input$task.weights, req = TRUE)
+  validateLearner(lrns = learner$learner)
+  validateLearner(lrns = learners(), check = "err")
 })
 
 measures.tuning.avail = reactive({
   reqAndAssign(task(), "tsk")
+  req(learners())
   listMatchingMeasures(tsk, learners())
 })
 
@@ -81,7 +85,7 @@ output$tuning.table = DT::renderDataTable({
   reqAndAssign(tuning.par.set(), "par.set")
   dt = ParamHelpers:::getParSetPrintData(par.set)
   dt
-}, options = list(scrollX = TRUE),
+}, options = list(scrollX = TRUE, paging = FALSE, searching = FALSE, bInfo = FALSE),
   caption = "Click on params you want to tune and go to 'Param settings' tab afterwards")
 
 
@@ -96,7 +100,7 @@ output$tuning.learner.params = renderUI({
 tuning = eventReactive(input$tune.run, {
   reqAndAssign(isolate(learners()), "lrns")
   reqAndAssign(tuning.par.set(), "par.set")
-  reqAndAssign(input$tuning.learner.sel, "lrn")
+  reqAndAssign(tuning.learner(), "lrn")
   reqAndAssign(task(), "tsk")
   reqAndAssign(input$tuning.method, "method")
   reqAndAssign(input$tuning.cv, "cv")
@@ -157,8 +161,7 @@ tuning = eventReactive(input$tune.run, {
       }
     }, param.ids, param.types, param.defs)
   )
-  
-  configureMlr(on.learner.error = "warn")
+
   rdesc = makeResampleDesc("CV", iters = input$tuning.cv)
 
   if (method == "Grid") {
@@ -174,8 +177,8 @@ tuning = eventReactive(input$tune.run, {
   
   if (parallel == "No") {
     withCallingHandlers({
-    res = tuneParams(lrn, task = tsk, resampling = rdesc, par.set = ps,
-        control = ctrl, measures = ms)
+    res = tryCatch(tuneParams(lrn, task = tsk, resampling = rdesc, par.set = ps,
+      control = ctrl, measures = ms), error = errAsString)
     },
       message = function(m) {
         shinyjs::html(id = "tuning.text", html = m$message, add = FALSE)
@@ -183,8 +186,8 @@ tuning = eventReactive(input$tune.run, {
   } else {
     parallelStartSocket(cpus = input$tuning.parallel.nc, level = "mlr.tuneParams")
     withCallingHandlers({
-    res = tuneParams(lrn, task = tsk, resampling = rdesc, par.set = ps,
-        control = ctrl, measures = ms)
+    res = tryCatch(tuneParams(lrn, task = tsk, resampling = rdesc, par.set = ps,
+      control = ctrl, measures = ms), error = errAsString)
     },
       message = function(m) {
         shinyjs::html(id = "tuning.text", html = m$message, add = FALSE)
@@ -192,19 +195,20 @@ tuning = eventReactive(input$tune.run, {
     parallelStop()
   }
   
-  configureMlr()
-  
-  lrn.sel = lrns[[lrn]]
-  tuned.lrn = setHyperPars(lrn.sel, par.vals = res$x)
-  lrns[[lrn]] = tuned.lrn
-  learner$tuned.learner = lrns
+  # configureMlr()
+
+  if (!is.character(res)) {
+    tuned.lrn = setHyperPars(lrn, par.vals = res$x)
+    lrns[[lrn$id]] = tuned.lrn
+    learner$tuned.learner = lrns    
+  }
   return(res)
 })
 
 
 output$print.tuning.ps = renderPrint({
-  reqAndAssign(tuning(), "result")
-  return(result)
+  validateExperiment(tuning(), "TuneResult")
+  return(tuning())
 })
 
 

@@ -370,7 +370,8 @@ filter.methods = reactive({
 
 
 preproc_feature_selection = reactive({
-  validateTask(input$create.task, task.data(), data$data)
+    validateTask(input$create.task, task.data(), data$data,
+    task.weights = input$task.weights)
   req(input$preproc_method)
   reqAndAssign(task(), "tsk")
   tsk.type = tsk$type
@@ -460,7 +461,8 @@ observeEvent(input$preproc_go, {
 
 
 preproc_merge_factor_levels = reactive({
-  validateTask(input$create.task, task.data(), data$data)
+  validateTask(input$create.task, task.data(), data$data,
+    task.weights = input$task.weights)
   req(input$preproc_method)
   fnames = task.factor.feature.names()
   validate(need(length(fnames) > 0L, "No factor features available!"))

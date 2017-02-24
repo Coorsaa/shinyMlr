@@ -18,7 +18,7 @@ paramBox = function(title, inp, desc, fill = TRUE) {
   return(content)
 }
 
-makeLearnerParamInfoUI = function(par) {
+makeLearnerParamInfoUI = function(par, inline = TRUE) {
   par.type = par$type
   par.def = par$default
   if (is.null(par.def))
@@ -31,9 +31,9 @@ makeLearnerParamInfoUI = function(par) {
   }
 
   info.ui = list(
-    makeInfoDescription("type", par.type, width = 2),
-    makeInfoDescription("default", par.def, width = 4),
-    makeInfoDescription("tunable", par.tun, width = 2)
+    makeInfoDescription("type", par.type, width = 2, inline = inline),
+    makeInfoDescription("default", par.def, width = 4, inline = inline),
+    makeInfoDescription("tunable", par.tun, width = 2, inline = inline)
   )
   if (par.type %in% c("numeric", "integer", "numericvector", "integervector")) {
     par.lower = par$lower
@@ -44,8 +44,8 @@ makeLearnerParamInfoUI = function(par) {
       par.upper = "-"
     
     info.ui = list(info.ui,
-      makeInfoDescription("lower", par.lower, width = 2),
-      makeInfoDescription("upper", par.upper, width = 2)
+      makeInfoDescription("lower", par.lower, width = 2, inline = inline),
+      makeInfoDescription("upper", par.upper, width = 2, inline = inline)
     )
   }
 
@@ -89,7 +89,7 @@ makeLearnerParamUI = function(par.sets, params.inp, inp.width = 150) {
             inp = textInput(par.id, par.inp, width = inp.width, label = lab.val)
           }
         }
-        par.info.ui = makeLearnerParamInfoUI(par)
+        par.info.ui = makeLearnerParamInfoUI(par, inline = TRUE)
         # par.ui = box(title = par.name, width = 12, height = 130, title = par.name, solidHeader = TRUE, status = "primary",
         #   body = fluidRow(
         #     column(width = 6, align = "center", inp),
@@ -153,7 +153,7 @@ makeLearnerPredTypesUI = function(pred.types, thresholds) {
       NULL
     } else {
       thresh = lapply(thresh, function(thrsh) {
-        column(thrsh, width = 2)
+        column(thrsh, width = 3)
       })
       box(width = 12, title = "Predict type:", status = "warning", solidHeader = TRUE,
         column(pred.type, width = 6, align = "center"),

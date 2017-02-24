@@ -21,9 +21,9 @@ tabpanel.benchmark = fluidRow(
           )
         ),
         column(width = 9, align = "center",
-          dataTableOutput("benchmark.overview"),
+          verbatimTextOutput("benchmark.text"), 
           br(),
-          verbatimTextOutput("benchmark.text")
+          dataTableOutput("benchmark.overview")
         )
       )
       #)
