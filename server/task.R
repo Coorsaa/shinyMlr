@@ -7,6 +7,7 @@ output$task.id = renderUI({
 })
 
 output$task.target = renderUI({
+  req(data$data)
   col.names = colnames(data$data)
   tsk.weights = input$task.weights
   choices = col.names[col.names != tsk.weights]
@@ -82,6 +83,7 @@ task.factor.feature.names = reactive({
 })
 
 task.out = reactive({
+  validateData(data$data)
   validateTask(input$create.task, task.data(), data$data,
     task.weights = isolate(input$task.weights))
   tsk = task()

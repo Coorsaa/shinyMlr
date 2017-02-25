@@ -120,7 +120,7 @@ learners.pred.types.ui = reactive({
 })
 
 output$learners.ui = renderUI({ 
-  # req(task.is.consistent())
+  validateData(data$data)
   lrns.sel = input$learners.sel
   par.sets = isolate(learners.par.sets())
   params = learners.params.ui()

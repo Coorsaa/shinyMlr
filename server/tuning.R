@@ -21,7 +21,8 @@ output$tuning.sel = renderUI({
 })
 
 output$tuning.validation = renderUI({
-    validateTask(input$create.task, task.data(), data$data,
+  validateData(data$data)
+  validateTask(input$create.task, task.data(), data$data,
     task.weights = input$task.weights, req = TRUE)
   validateLearner(lrns = learner$learner)
   validateLearner(lrns = learners(), check = "err")

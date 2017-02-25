@@ -36,7 +36,8 @@ output$model.overview = renderUI({
 })
 
 output$model.params = renderUI({
-    validateTask(input$create.task, task.data(), data$data,
+  validateData(data$data)
+  validateTask(input$create.task, task.data(), data$data,
     task.weights = input$task.weights)
   validateLearner(learner$learner)
   validateLearner(list(train.learner()), check = "err")

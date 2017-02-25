@@ -114,6 +114,7 @@ bmr = eventReactive(input$benchmark.run, {
 })
 
 output$benchmark.overview = renderDataTable({
+  validateData(data$data)
   validateLearner(learner$learner)
   validateLearner(lrns = bmr.learners(), check = "err")
   validateExperiment(bmr(), "BenchmarkResult")
