@@ -7,10 +7,10 @@ tabpanel.preprocessing = list(
           choices = c("training set", "test set"), selected = "training set"),
         selectInput("preproc_method", "Choose preprocessing method:",
           choices = list("On data" = c("Drop variable(s)", "Convert variable",
-            "Normalize variables", "Remove constant variables", "Cap large values",
-            "Subset", "Create dummy features", "Impute"),
-          "On task" = c("Feature selection", "Merge small factor levels")),
-          selected = "Drop variable(s)"),
+            "Normalize variables", "Remove constant variables",
+            "Recode factor levels", "Cap large values", "Subset",
+            "Create dummy features", "Impute"), "On task" = c("Feature selection",
+            "Merge small factor levels")), selected = "Drop variable(s)"),
         tags$hr(),
         actionButton("preproc_go", "Apply preprocessing"),
         br(),
@@ -24,8 +24,7 @@ tabpanel.preprocessing = list(
         plotOutput("plot.feature.selection")
       ),
       box(width = 12,
-        dataTableOutput("preproc_data")# ,
-        # verbatimTextOutput("preproc_testout")
+        dataTableOutput("preproc_data")
       )
     )
   )

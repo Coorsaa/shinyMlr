@@ -14,7 +14,7 @@ library(DT)
 library(parallelMap)
 library(rmarkdown)
 library(xtable)
-
+library(plyr)
 
 
 helper.files = list.files(path = "./helpers", pattern="*.R")
