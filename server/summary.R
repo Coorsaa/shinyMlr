@@ -15,7 +15,8 @@ factorFeatures = reactive({
 })
 
 output$summary.datatable = DT::renderDataTable({
-  reqAndAssign(data$data, "d")
+  validateData(data$data)
+  d = data$data
   colnames(d) = make.names(colnames(d))
   summarizeColumns(d)
 }, options = list(scrollX = TRUE),

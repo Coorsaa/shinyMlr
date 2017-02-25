@@ -576,6 +576,7 @@ output$preproc_out = renderUI({
 
 
 output$preproc_data = DT::renderDataTable({
+  validateData(data$data)
   validatePreprocData(preproc.data$data, input$preproc_df)
   d = preproc.data$data
   colnames(d) = make.names(colnames(d))

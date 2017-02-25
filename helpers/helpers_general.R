@@ -39,6 +39,10 @@ reqAndAssign = function(obj, name) {
   assign(name, obj, pos = 1L)
 }
 
+validateData = function(df) {
+  validate(need(class(df) == "data.frame", "You didn't import any data."))
+}
+
 validateTask = function(tsk.button, tsk.df, df, req = FALSE, task.weights = NULL) {
   validate(need(tsk.button != 0L, "you didn't create a task yet"))
   if (!is.null(task.weights) & task.weights != "-" ) {

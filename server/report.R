@@ -42,10 +42,10 @@ report.config = reactive({
     passage = passage)
 })
 
-output$testout = renderPrint({
-  reqAndAssign(summary.vis.var(), "feat")
-  str(summary.vis.collection[[feat]])
-})
+# output$testout = renderPrint({
+#   reqAndAssign(summary.vis.var(), "feat")
+#   str(summary.vis.collection[[feat]])
+# })
 
 
 output$report = downloadHandler(

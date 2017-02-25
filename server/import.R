@@ -114,10 +114,9 @@ observeEvent(input$import.browse.openml_rows_selected, {
 
 
 OMLData = reactive({
-  # openml.dfs = tryCatch(listOMLDataSets(), error = function(err) {
-  #   "Failed to load data sets from server."
-  # })
-  # openml.dfs
-  listOMLDataSets()
+  openml.dfs = tryCatch(listOMLDataSets(), error = function(err) {
+    "Failed to load data sets from server."
+  })
+  openml.dfs
 })
 
