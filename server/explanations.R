@@ -65,7 +65,15 @@ output$remconst.text = renderUI({
 
 output$normfeat.text = renderUI({
   box(width = 12, status = "primary", collapsible = TRUE,
-    helpText("Normalize features by different methods. only numeric features are considered. For constant features most methods fail, special behaviour for this case is implemented.")
+    helpText("Normalize features by different methods. Only numeric features are considered. For constant features most methods fail, special behaviour for this case is implemented.")
+  )
+})
+
+## Recode levels ##
+
+output$recodelevels.text = renderUI({
+  box(width = 12, status = "primary", collapsible = TRUE,
+    helpText("Here you can take care of factor level coding. You can drop empty levels and rename levels of specific factors.")
   )
 })
 

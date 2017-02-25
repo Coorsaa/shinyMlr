@@ -14,7 +14,6 @@ observe({
 })
 
 observe({
-  # req(input$preproc_df)
   req(counter$count < 2)
   df.type = preproc.type()
   if (df.type == "training set" | is.null(df.type)) {
@@ -46,7 +45,6 @@ preproc_impute = reactive({
         choices = c("imputeConstant", "imputeMode"))
     ),
     list(
-      NULL,
       conditionalPanel("input.impute_methods_num == 'imputeConstant'",
         numericInput("impute_constant_num_input", "Constant value for numerical features",
         min = -Inf,  max = Inf, value = 0)
@@ -142,7 +140,7 @@ dropfeature_target = reactive({
 
 observeEvent(input$preproc_go, {
   req(input$preproc_method == "Drop variable(s)")
-  d = isolate(preproc.data$data)
+  d = preproc.data$data
   preproc.data$data = dropNamed(d, dropfeature_target())
 })
 
@@ -330,8 +328,7 @@ observeEvent(input$preproc_go, {
 
 preproc_subset = reactive({
   req(input$preproc_method)
-  d = preproc.data$data
-  # method = subset.method()
+  reqAndAssign(preproc.data$data, "d")
   makePreprocUI(
     if (input$show.help)
       help = htmlOutput("subset.text"),
@@ -361,6 +358,42 @@ observeEvent(input$preproc_go, {
   }
 })
 
+### recode levels
+
+preproc_recodelevels = reactive({
+  req(input$preproc_method == "Recode factor levels")
+  d = preproc.data$data
+  fnames = colnames(Filter(is.factor, d))
+
+  makePreprocUI(
+    if (input$show.help)
+      help = htmlOutput("recodelevels.text"),
+    selectInput("droplevels_cols", "Choose column(s) to drop empty factor levels for",
+      choices =  fnames, multiple = TRUE),
+    selectInput("recodelevels_cols", "Choose column(s) to recode factor levels for",
+      choices =  fnames),
+    if (!is.null(input$recodelevels_cols) & "" %nin% input$recodelevels_cols)
+      makeRecodeLevelUI(levels(d[, input$recodelevels_cols]))
+  )
+})
+
+observeEvent(input$preproc_go, {
+  req(input$preproc_method == "Recode factor levels")
+  d = isolate(preproc.data$data)
+  if (!is.null(input$droplevels_cols) & "" %nin% input$droplevels_cols) {
+    cols.ex = colnames(d)[colnames(d) %nin% input$droplevels_cols]
+    preproc.data$data = droplevels(d, except = cols.ex)
+  }
+  if (!is.null(input$recodelevels_cols) & "" %nin% input$recodelevels_cols) {
+    fac = preproc.data$data[, input$recodelevels_cols]
+    new.levs = vcapply(levels(fac), function(lev) {
+      input[[paste("recode_", lev)]]
+    })
+    names(new.levs) = levels(fac)
+    preproc.data$data[, input$recodelevels_cols] = revalue(fac, new.levs)
+  }
+})
+
 
 ### Feature Selection (Filter methods)
 
@@ -379,7 +412,6 @@ preproc_feature_selection = reactive({
   reqAndAssign(isolate(filter.methods()), "fm")
   fm.ids = as.character(fm[which(fm[, type]), "id"])
   d = preproc.data$data
-  # filter = vi.filter()
   makePreprocUI(
     if (input$show.help)
       help = htmlOutput("feature.sel.text"),
@@ -532,12 +564,14 @@ output$preproc_out = renderUI({
     "Convert variable" = preproc_convar(),
     "Normalize variables" = preproc_normfeat(),
     "Remove constant variables" = preproc_remconst(),
+    "Recode factor levels" = preproc_recodelevels(),
     "Cap large values" = preproc_caplarge(),
     "Subset" = preproc_subset(),
     "Create dummy features" = preproc_createdummy(),
     "Impute" = preproc_impute(),
     "Feature selection" = preproc_feature_selection(),
-    "Merge small factor levels" = preproc_merge_factor_levels())
+    "Merge small factor levels" = preproc_merge_factor_levels()
+  )
 })
 
 

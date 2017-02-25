@@ -194,6 +194,19 @@ renderSimpleDataTable = function(df, ...) {
   renderDataTable(dt)
 }
 
+makeRecodeLevelUI = function(levs) {
+  lapply(levs, function(lev) {
+    # div(
+    #   column(width = 6,
+    #     NULL
+    #   ),
+    #   column(width = 6,
+        textInput(paste("recode_", lev), lev, lev)
+    #   )
+    # )
+  })
+}
+
 
 
 
