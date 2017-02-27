@@ -17,7 +17,7 @@ makeReportConfigUI = function(title, id, passage = "", ...) {
     "Hide source code", FALSE)
   info.text = textInput(paste("passage", id, sep = "."), "Additional text:",
     value = passage)
-  box(title = title, solidHeader = TRUE, width = 12, status = "primary",
+  box(title = title, solidHeader = TRUE, width = 12, status = "primary", collapsible = TRUE, collapsed = TRUE,
     section.title.inp,
     include.inp,
     hidden.inp,

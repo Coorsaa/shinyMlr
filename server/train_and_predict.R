@@ -263,15 +263,14 @@ output$prediction.plot = renderPlot({
   prediction.plot.out()
 })
 
-# prediction.plot.collection = reactiveValues(plot.titles = NULL,
-#   pred.plots = NULL)
+prediction.plot.collection = reactiveValues(plot.titles = NULL, pred.plots = NULL)
 
-# observeEvent(prediction.plot.out(), {
-#   q = prediction.plot.out()
-#   plot.title = isolate(input$prediction.plot.sel)
-#   prediction.plot.collection$plot.titles = c(prediction.plot.collection$plot.titles, plot.title)
-#   prediction.plot.collection$pred.plots[[plot.title]] = q
-# })
+observeEvent(prediction.plot.out(), {
+  q = prediction.plot.out()
+  plot.title = isolate(input$prediction.plot.sel)
+  # prediction.plot.collection$plot.titles = c(prediction.plot.collection$plot.titles, plot.title)
+  prediction.plot.collection$pred.plots[[plot.title]] = q
+})
 
 output$confusion.matrix = renderPrint({
   reqAndAssign(isolate(pred()), "preds")
