@@ -18,12 +18,16 @@ output$summary.datatable = DT::renderDataTable({
   validateData(data$data)
   d = data$data
   colnames(d) = make.names(colnames(d))
+  pos.x = colnames(Filter(function(x) "POSIXt" %in% class(x) , d))
+  d = dropNamed(d, drop = pos.x)    
   summarizeColumns(d)
 }, options = list(scrollX = TRUE),
   caption = "Click on variable for visualisation!")#, selection = "single")
 
 summary.vis.var = reactive({
   reqAndAssign(data$data, "d")
+  pos.x = colnames(Filter(function(x) "POSIXt" %in% class(x) , d))
+  d = dropNamed(d, drop = pos.x)
   s = summarizeColumns(d)
   s$name[input$summary.datatable_rows_selected]
 })
