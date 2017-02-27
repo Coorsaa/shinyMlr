@@ -16,7 +16,7 @@ tabpanel.preprocessing = list(
         uiOutput("preproc.go"),
         br(),
         tags$hr(),
-        bsButton("preproc_undo", "Undo"),
+        bsButton("preproc_undo", "undo", icon = icon("undo")),
         tags$hr(),
         downloadButton("preproc.data.download", "save processed data")
       )
