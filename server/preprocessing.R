@@ -25,14 +25,14 @@ observe({
   }
 })
 
-observe({
-  req(data.name)
-  df.type = preproc.type()
-  if (df.type == "training set" | is.null(df.type)) {
-    preproc.data$data = data$data
-    preproc.data$data.collection = list(data$data)
-  }
-})
+# observe({
+#   data$data.name
+#   df.type = isolate(preproc.type())
+#   if (df.type == "training set" | is.null(df.type)) {
+#     preproc.data$data = data$data
+#     preproc.data$data.collection = list(data$data)
+#   }
+# })
 
 ### Impute
 
@@ -373,33 +373,79 @@ preproc_recodelevels = reactive({
   req(input$preproc_method == "Recode factor levels")
   d = preproc.data$data
   fnames = colnames(Filter(is.factor, d))
-
+  col = preproc_recode$col
+  if (is.null(col) | col %nin% fnames)
+    col = "-"
+  # message(col)
   makePreprocUI(
     if (input$show.help)
       help = htmlOutput("recodelevels.text"),
-    selectInput("droplevels_cols", "Choose column(s) to drop empty factor levels for",
-      choices =  fnames, multiple = TRUE),
-    selectInput("recodelevels_cols", "Choose column(s) to recode factor levels for",
-      choices =  fnames),
-    if (!is.null(input$recodelevels_cols) & "" %nin% input$recodelevels_cols)
-      makeRecodeLevelUI(levels(d[, input$recodelevels_cols]))
+    selectInput("recodelevels_col", "Choose factor to modify",
+      choices =  c("-",fnames), selected = col),
+    selectInput("recodelevels_method", "Choose method",
+      choices =  c("drop", "recode", "findNA")),
+    conditionalPanel("input.recodelevels_method == 'recode'",
+      if (!is.null(col)) {
+        if (col != "-")
+         makeRecodeLevelUI(levels(d[, col]))
+      }
+    ),
+    conditionalPanel("input.recodelevels_method == 'findNA'",
+      if (!is.null(col)) {
+        if (col != "-")
+          selectInput("recodelevels_levels", "Choose level to set to NA",
+            choices = levels(d[, col]))
+      }
+    )
   )
 })
 
+
+
+# observeEvent(data.name, {
+#   updateSelectInput(session, "recodelevels_cols", selected = "-", choices = "-")
+# })
+
+preproc_recode = reactiveValues(col = NULL)
+
+observe({
+  # req(input$recodelevels_cols)
+  inp = input$recodelevels_col
+  if (is.null(inp))
+    inp = "-"
+  preproc_recode$col = inp
+})
+
+# observe({
+#   req(data.name())
+#   data.name()
+#   preproc_recode$levels = NULL
+# })
+
 observeEvent(input$preproc_go, {
   req(input$preproc_method == "Recode factor levels")
-  d = isolate(preproc.data$data)
-  if (!is.null(input$droplevels_cols) & "" %nin% input$droplevels_cols) {
-    cols.ex = colnames(d)[colnames(d) %nin% input$droplevels_cols]
-    preproc.data$data = droplevels(d, except = cols.ex)
-  }
-  if (!is.null(input$recodelevels_cols) & "" %nin% input$recodelevels_cols) {
-    fac = preproc.data$data[, input$recodelevels_cols]
-    new.levs = vcapply(levels(fac), function(lev) {
-      input[[paste("recode_", lev)]]
-    })
-    names(new.levs) = levels(fac)
-    preproc.data$data[, input$recodelevels_cols] = revalue(fac, new.levs)
+  d = preproc.data$data
+  col = input$recodelevels_col
+  method = input$recodelevels_method
+  if (!is.null(col) & "-" %nin% col) {
+    if (method == "drop") {
+      cols.ex = colnames(d)[colnames(d) %nin% col]
+      preproc.data$data = droplevels(d, except = cols.ex)      
+    } else {
+      fac = preproc.data$data[, col]
+      if (method == "recode") {
+        new.levs = vcapply(levels(fac), function(lev) {
+          input[[paste("recode_", lev)]]
+        })
+        names(new.levs) = levels(fac)
+        preproc.data$data[, col] = revalue(fac, new.levs)
+      } else {
+        fac = as.character(fac)
+        fac[fac == input$recodelevels_levels] = NA
+        preproc.data$data[, col] = factor(fac) 
+      }
+    }
+
   }
 })
 
@@ -593,7 +639,7 @@ output$preproc_out = renderUI({
     "Convert variable" = preproc_convar(),
     "Normalize variables" = preproc_normfeat(),
     "Remove constant variables" = preproc_remconst(),
-    "Recode factor levels" = preproc_recodelevels(),
+    "Recode factor levels" = c(preproc_recodelevels()),#  preproc_recodelevels_levels()),
     "Cap large values" = preproc_caplarge(),
     "Subset" = preproc_subset(),
     "Create dummy features" = preproc_createdummy(),
@@ -624,13 +670,22 @@ output$preproc.data.download = downloadHandler(
   }
 )
 
-observe({
-  if (is.null(preproc.data$data)) {
-    disable("preproc.data.download")
-    disable("preproc_go")
-  } else {
-    enable("preproc.data.download")
-    enable("preproc.data.go")
-  }
-})
+# observe({
+#   # preproc.data$data
+#   status = (class(data$data) == "data.frame")
+#   if (!(is.null(status))) {
+#     if (status) {
+#       enable("preproc.data.download")
+#       enable("preproc_go")
+#     } else {
+#       disable("preproc.data.download")
+#       disable("preproc_go")
+#       disable("preproc_undo")
+#     }
+#   } else {
+#     disable("preproc.data.download")
+#     disable("preproc_go")
+#     disable("preproc_undo")
+#   }    
+# })
 

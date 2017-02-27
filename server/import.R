@@ -10,7 +10,7 @@ output$import.ui = renderUI({
   makeImportSideBar(type)
 })
 
-data = reactiveValues(data = NULL, data.test = NULL)
+data = reactiveValues(data = NULL, data.test = NULL, data.name = NULL)
 
 
 observe({
@@ -64,6 +64,11 @@ data.name = reactive({
       }
     }
   }
+})
+
+observe({
+  reqAndAssign(input$import.type, "import.type")
+  data$data.name = data.name()
 })
 
 
