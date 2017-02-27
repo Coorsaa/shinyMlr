@@ -12,10 +12,13 @@ tabpanel.preprocessing = list(
             "Create dummy features", "Impute"), "On task" = c("Feature selection",
             "Merge small factor levels")), selected = "Drop variable(s)"),
         tags$hr(),
-        actionButton("preproc_go", "Apply preprocessing"),
+        br(),
+        uiOutput("preproc.go"),
         br(),
         tags$hr(),
-        bsButton("preproc_undo", "Undo")
+        bsButton("preproc_undo", "Undo"),
+        tags$hr(),
+        downloadButton("preproc.data.download", "save processed data")
       )
     ),
     column(width = 9,

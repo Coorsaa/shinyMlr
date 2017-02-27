@@ -25,6 +25,15 @@ observe({
   }
 })
 
+observe({
+  req(data.name)
+  df.type = preproc.type()
+  if (df.type == "training set" | is.null(df.type)) {
+    preproc.data$data = data$data
+    preproc.data$data.collection = list(data$data)
+  }
+})
+
 ### Impute
 
 preproc_impute = reactive({
@@ -555,6 +564,26 @@ observeEvent(input$preproc_undo, {
   counter$count = counter$count - 1L
 })
 
+### preproc go ###
+
+output$preproc.go = renderUI({
+  label = switch(input$preproc_method,
+    "Drop variable(s)" = "drop",
+    "Convert variable" = "convert",
+    "Normalize variables" = "normalize",
+    "Remove constant variables" = "remove",
+    "Recode factor levels" = "recode",
+    "Cap large values" = "cap",
+    "Subset" = "subset",
+    "Create dummy features" = "make dummies",
+    "Impute" = "impute",
+    "Feature selection" = "select features",
+    "Merge small factor levels" = "merge factor levels"
+  )
+  bsButton("preproc_go", label, style = "info", icon = icon("magic"))
+})
+
+
 
 #### Preproc out
 
@@ -583,4 +612,25 @@ output$preproc_data = DT::renderDataTable({
   d
 }, options = list(lengthMenu = c(5, 20, 50), pageLength = 5, scrollX = TRUE)
 )
+
+#### download processed data
+
+output$preproc.data.download = downloadHandler(
+  filename = function() {
+    pasteDot(data.name(), "_processed", "csv")
+  },
+  content = function(file) {
+    write.csv(preproc.data$data, file)
+  }
+)
+
+observe({
+  if (is.null(preproc.data$data)) {
+    disable("preproc.data.download")
+    disable("preproc_go")
+  } else {
+    enable("preproc.data.download")
+    enable("preproc.data.go")
+  }
+})
 
