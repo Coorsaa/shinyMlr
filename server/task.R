@@ -27,10 +27,12 @@ task.object = reactiveValues(task = NULL)
 
 observeEvent(input$create.task, {
   req(data$data)
+  validate(need("Task" %in% class(tsk), tsk))
   d = isolate(data$data)
   colnames(d) = make.names(colnames(d))
   org.col.names = colnames(d)
-  task = sMakeTask(input$task.id, input$task.target, d, input$task.weights)
+  task = tryCatch(sMakeTask(input$task.id, input$task.target, d, input$task.weights),
+    error = errAsString)
   task.object$task = task
   task.df = getTaskData(task)
   if (input$task.weights != "-") {
@@ -49,6 +51,7 @@ task = reactive({
 
 task.type = reactive({
   reqAndAssign(task(), "tsk")
+  validate(need("Task" %in% class(tsk), tsk))
   getTaskType(tsk)
 })
 
@@ -61,6 +64,7 @@ target.levels = reactive({
 })
 
 task.data = reactive({
+  validate(need("Task" %in% class(tsk), tsk))
   getTaskData(task())
 })
 
@@ -87,6 +91,7 @@ task.out = reactive({
   validateTask(input$create.task, task.data(), data$data,
     task.weights = isolate(input$task.weights))
   tsk = task()
+  validate(need("Task" %in% class(tsk), tsk))
   tsk
 })
 
