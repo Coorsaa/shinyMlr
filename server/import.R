@@ -47,6 +47,7 @@ observe({
       # data$data = readARFF(f)
     }
   }
+  preproc.data$data = isolate(data$data)
 })
 
 data.name = reactive({
