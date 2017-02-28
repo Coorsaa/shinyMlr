@@ -53,6 +53,7 @@ for (i in seq_along(plot.titles)) {
 task = reqReactive(task.out())
 params$include$task = all(params$include$task, !is.null(task))
 params$titles$task = ifelse(params$include$task, params$titles$task, "")
+task.type = getTaskType(task)
 out.task = ""
 ```
 
@@ -63,12 +64,14 @@ out.task = ""
 ```{r task,eval=params$include$task}
 #FIXME: make task dep
 tar.name = knit_expand(text="**Target name:** {{getTaskTargetNames(task)}} \n")
-tar.levs = paste("**Target levels:** ", collapse(getTaskClassLevels(task), sep = ", "),
-  "\n")
-tar.levs = knit_expand(text=tar.levs)
 n.obs = knit_expand(text="**Number of observations:** {{getTaskSize(task)}} \n")
 n.feats = knit_expand(text="**Number of features:** {{getTaskNFeats(task)}} \n")
-out.task = c(tar.name, tar.levs, n.obs, n.feats)
+out.task = c(tar.name, n.obs, n.feats)
+if (task.type == "classif") {
+  tar.levs = paste("**Target levels:** ", collapse(getTaskClassLevels(task), sep = ", "), "\n")
+  tar.levs = knit_expand(text = tar.levs)
+  out.task = c(out.task, tar.levs)
+}
 ```
 
 `r paste(knit(text = out.task), collapse = '\n')`
@@ -116,10 +119,23 @@ for (i in seq_along(learners.par.sets)) {
 
 ```{r modelling.prep}
 model = reqReactive(model())
+test.df = data$data.test
 train.learner = reqReactive(train.learner())
 measures.perf = reqReactive(measures.perf())
+if (is.null(measures.perf))
+  measures.perf = getDefaultMeasure(task)
 preds.on.task = predict(model, task)
-perf.on.task = performance(preds, measures.perf, model = model, task = task)
+perf.on.task = performance(preds.on.task, measures.perf, model = model, task = task)
+if (!(is.null(test.df))) {
+  preds.on.test = predict(model, newdata = test)
+  perf.on.test = performance(preds.on.task, measures.perf, model = model,
+    task = task)  
+}
+
+
+
+
+
 eval.model = all(!is.null(model), !is.null(measures.perf))
 params$include$modelling = all(params$include$modelling, eval.model)
 pred.plots = reqReactive(prediction.plot.collection)
@@ -135,20 +151,25 @@ params$titles$modelling = ifelse(params$include$modelling,
 
 ```{r modelling.text,eval=params$include$task}
 #FIXME: make task dep
-lrn.name = knit_expand(text="**Trained learner:** {{train.learner}} \n")
-mod.text.perf = knit_expand(text = "**Performance on task:** ")
+lrn.name = knit_expand(text="**Trained learner:** {{train.learner$name}} \n")
+mod.text.perf = knit_expand(text = "Performance on task:")
 mod.task.perf = kable(perf.on.task)
 out.mod = c(lrn.name, mod.text.perf, mod.task.perf)
+
+if (!(is.null(test.df))) {
+  mod.text.test = knit_expand(text = "Performance on test set:")
+  mod.test.perf = kable(perf.on.test)
+  out.mod = c(out.mod, mod.text.test, mod.test.perf)
+}
 ```
 
 `r paste(knit(text = out.mod), collapse = '\n')`
 
 ```{r modelling,include=params$include$modelling}
-print(model)
-preds = predict(model, task)
-summarizeColumns(preds$data)
-performance(preds, measures.perf, model = model, task = task)
+summarizeColumns(preds.on.test)
 ```
+
+\newpage
 
 ```{r pred.plots,eval=eval.pred.plots}
 plot.titles = names(pred.plots$pred.plots)
@@ -176,10 +197,6 @@ params$titles$tuning = ifelse(params$include$tuning,
 `r params$passage$tuning`
 
 ```{r tuning,include=params$include$tuning}
-names(tune.res)
-# tune.res$opt.path
-# names(tune.res$opt.path)
-# tune.res$learner
 tune.res$x
 tune.res$y
 ```
