@@ -128,12 +128,14 @@ makePredictionPlot = function(mod, tsk, tsk.type, plot.type, lrn, fnames, feats,
   if (plot.type == "prediction") {
     validate(checkPlotLearnerPrediction(tsk.type, fnames, feats))
     q = plotLearnerPrediction(learner = lrn, features = feats, task = tsk, cv = 0)
+    q = addPlotTheme(q)
   } else if (plot.type == "residuals") {
     req(resplot.type)
     resplot.type = switch(resplot.type,
       scatterplot = "scatterplot",
       "histogram" = "hist")
     q = plotResiduals(preds, type = resplot.type)
+    q = addPlotTheme(q)
   } else if (plot.type == "partial dependency") {
     validate(checkPlotPartialDependency(tsk.type, lrn, fnames))
     req(length(ind) != 0L)
@@ -151,12 +153,14 @@ makePredictionPlot = function(mod, tsk, tsk.type, plot.type, lrn, fnames, feats,
       pd = generatePartialDependenceData(mod, tsk, feats, individual = ind)
     }
     q = plotPartialDependence(pd)
+    q = addPlotTheme(q)
   } else if (plot.type == "confusion matrix") {
     q = NULL
   } else if (plot.type == "ROC") {
     checkPlotROCCurves(lrn)
-      df = generateThreshVsPerfData(preds, measures = ms)
-      q = plotROCCurves(df)
+    df = generateThreshVsPerfData(preds, measures = ms)
+    q = plotROCCurves(df)
+    q = addPlotTheme(q)
   }
   return(q)
 }
@@ -227,3 +231,16 @@ makePredictionPlotSettingsUI = function(plot.type, fnames, feats, ms.def, ms,
   return(settings.ui)
 }
 
+
+addPlotTheme = function(plot.obj) {
+  plot.theme = theme(axis.line = element_line(size = 1, colour = "black"),
+    panel.grid.major = element_line(colour = "#d3d3d3"),
+    panel.grid.minor = element_blank(),
+    panel.border = element_blank(),
+    panel.background = element_blank(),
+    plot.title = element_blank(),
+    text = element_text(family = "Tahoma"),
+    axis.text.x = element_text(colour = "black", size = 9),
+    axis.text.y = element_text(colour = "black", size = 9))
+  plot.obj + theme_bw() + plot.theme
+}
