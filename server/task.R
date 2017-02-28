@@ -10,6 +10,7 @@ output$task.target = renderUI({
   req(data$data)
   col.names = colnames(data$data)
   tsk.weights = input$task.weights
+  req(tsk.weights)
   choices = col.names[col.names != tsk.weights]
   selectInput("task.target", "Choose a target:", choices = choices, selected = getLast(choices))
 })

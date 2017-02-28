@@ -8,7 +8,9 @@ tabpanel.task = fluidRow(
           uiOutput("task.target"),
           uiOutput("task.weights"),
           tags$hr(),
-          actionButton("create.task", "create task")
+          bsButton("create.task", "create task", style = "info",
+              icon = icon("flag")),
+          tags$hr()
         )
       ),
       column(width = 9,

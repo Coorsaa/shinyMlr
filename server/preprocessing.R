@@ -25,14 +25,10 @@ observe({
   }
 })
 
-# observe({
-#   data$data.name
-#   df.type = isolate(preproc.type())
-#   if (df.type == "training set" | is.null(df.type)) {
-#     preproc.data$data = data$data
-#     preproc.data$data.collection = list(data$data)
-#   }
-# })
+observe({
+  data$data.name
+  counter$count = 1L
+})
 
 ### Impute
 

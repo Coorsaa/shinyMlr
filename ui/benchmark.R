@@ -17,7 +17,9 @@ tabpanel.benchmark = fluidRow(
             tags$hr(),
             uiOutput("benchmark.parallel.ui"),
             tags$hr(),
-            actionButton("benchmark.run", label = "Benchmark")
+            bsButton("benchmark.run", label = "benchmark", style = "info",
+              icon = icon("hourglass-start")),
+            tags$hr()
           )
         ),
         column(width = 9, align = "center",
