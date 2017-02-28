@@ -10,7 +10,7 @@ output$import.ui = renderUI({
   makeImportSideBar(type)
 })
 
-data = reactiveValues(data = NULL, data.test = NULL)
+data = reactiveValues(data = NULL, data.test = NULL, data.name = NULL)
 
 
 observe({
@@ -47,6 +47,7 @@ observe({
       # data$data = readARFF(f)
     }
   }
+  preproc.data$data = isolate(data$data)
 })
 
 data.name = reactive({
@@ -64,6 +65,11 @@ data.name = reactive({
       }
     }
   }
+})
+
+observe({
+  reqAndAssign(input$import.type, "import.type")
+  data$data.name = data.name()
 })
 
 

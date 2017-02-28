@@ -10,6 +10,7 @@ output$task.target = renderUI({
   req(data$data)
   col.names = colnames(data$data)
   tsk.weights = input$task.weights
+  req(tsk.weights)
   choices = col.names[col.names != tsk.weights]
   selectInput("task.target", "Choose a target:", choices = choices, selected = getLast(choices))
 })
@@ -30,7 +31,10 @@ observeEvent(input$create.task, {
   d = isolate(data$data)
   colnames(d) = make.names(colnames(d))
   org.col.names = colnames(d)
-  task = sMakeTask(input$task.id, input$task.target, d, input$task.weights)
+  task = tryCatch(sMakeTask(input$task.id, input$task.target, d, input$task.weights),
+    error = errAsString)
+  if (is.character(task))
+    return(NULL)
   task.object$task = task
   task.df = getTaskData(task)
   if (input$task.weights != "-") {
@@ -49,6 +53,7 @@ task = reactive({
 
 task.type = reactive({
   reqAndAssign(task(), "tsk")
+  validate(need("Task" %in% class(tsk), tsk))
   getTaskType(tsk)
 })
 
@@ -61,6 +66,8 @@ target.levels = reactive({
 })
 
 task.data = reactive({
+  tsk = task()
+  validate(need("Task" %in% class(tsk), tsk))
   getTaskData(task())
 })
 
@@ -87,6 +94,7 @@ task.out = reactive({
   validateTask(input$create.task, task.data(), data$data,
     task.weights = isolate(input$task.weights))
   tsk = task()
+  validate(need("Task" %in% class(tsk), tsk))
   tsk
 })
 

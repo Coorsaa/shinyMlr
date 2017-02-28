@@ -18,29 +18,45 @@ output$summary.datatable = DT::renderDataTable({
   validateData(data$data)
   d = data$data
   colnames(d) = make.names(colnames(d))
+  pos.x = colnames(Filter(function(x) "POSIXt" %in% class(x) , d))
+  d = dropNamed(d, drop = pos.x)    
   summarizeColumns(d)
 }, options = list(scrollX = TRUE),
-  caption = "Click on variable for visualisation!", selection = "single")
+  caption = "Click on variable for visualisation!")#, selection = "single")
 
 summary.vis.var = reactive({
   reqAndAssign(data$data, "d")
+  pos.x = colnames(Filter(function(x) "POSIXt" %in% class(x) , d))
+  d = dropNamed(d, drop = pos.x)
   s = summarizeColumns(d)
   s$name[input$summary.datatable_rows_selected]
 })
 
-output$summary.vis.hist.nbins = renderUI({
-  sliderInput("summary.vis.hist.nbins", "Number of bins", min = 1L, max = 100L, value = 30L, step = 1L, width = "95%")
+output$summary.vis.hist = renderUI({
+  list(
+    column(9,
+      sliderInput("summary.vis.hist.nbins", "Number of bins", min = 1L, max = 100L,
+        value = 30L, step = 1L, width = "95%")
+    ),
+    column(3,
+      radioButtons("summary.vis.dens", "Show density?", choices = c("Yes", "No"),
+        selected = "Yes", inline = TRUE)
+    )
+  )
 })
 
 observeEvent(summary.vis.var(), {
   feature = summary.vis.var()
   if (length(feature) > 0L) {
     shinyjs::show("summary.vis.box", anim = TRUE)
-    if (feature %in% factorFeatures()) {
-      shinyjs::hide("summary.vis.hist.nbins", animType = "fade")
-    } else {
-      shinyjs::show("summary.vis.hist.nbins", anim = TRUE)
-    }
+    if (length(feature) == 1L) {
+      if (feature %in% factorFeatures()) {
+        shinyjs::hide("summary.vis.hist", animType = "fade")
+      } else {
+        shinyjs::show("summary.vis.hist", anim = TRUE)
+      }
+    } else
+      shinyjs::hide("summary.vis.hist", animType = "fade")
   } else {
     shinyjs::hide("summary.vis.box", anim = TRUE)
   }
@@ -48,18 +64,27 @@ observeEvent(summary.vis.var(), {
 
 summary.vis.out = reactive({
   reqAndAssign(summary.vis.var(), "feature")
+  reqAndAssign(input$summary.vis.dens, "density")
   d = na.omit(data$data)
-  if (feature %in% numericFeatures()) {
-    ggplot(data = d, aes(x = as.numeric(d[,feature]))) + 
-      geom_histogram(aes(y = ..density..), fill = "white", color = "black", stat = "bin", bins = input$summary.vis.hist.nbins) + 
-      geom_density(fill = "blue", alpha = 0.1) + xlab(feature) +
-      geom_vline(aes(xintercept = quantile(as.numeric(d[,feature]), 0.05)), color = "blue", size = 0.5, linetype = "dashed") +
-      geom_vline(aes(xintercept = quantile(as.numeric(d[,feature]), 0.95)), color = "blue", size = 0.5, linetype = "dashed") +
-      geom_vline(aes(xintercept = quantile(as.numeric(d[,feature]), 0.5)), color = "blue", size = 1, linetype = "dashed")
-  } else {
-    ggplot(data = d, aes(x = d[,feature])) + 
-      geom_bar(aes(fill = d[,feature]), stat = "count") + xlab(feature) +
-      guides(fill = FALSE)
+  if (length(feature) == 1L) {
+    if (feature %in% numericFeatures()) {
+      summary.plot = ggplot(data = d, aes(x = as.numeric(d[,feature]))) + 
+        geom_histogram(aes(y = ..density..), fill = "white", color = "black", stat = "bin", bins = input$summary.vis.hist.nbins) + xlab(feature) +
+        geom_vline(aes(xintercept = quantile(as.numeric(d[,feature]), 0.05)), color = "blue", size = 0.5, linetype = "dashed") +
+        geom_vline(aes(xintercept = quantile(as.numeric(d[,feature]), 0.95)), color = "blue", size = 0.5, linetype = "dashed") +
+        geom_vline(aes(xintercept = quantile(as.numeric(d[,feature]), 0.5)), color = "blue", size = 1, linetype = "dashed")
+      if (density == "Yes")
+        summary.plot = summary.plot + geom_density(fill = "blue", alpha = 0.1)
+      summary.plot
+    } else {
+      summary.plot = ggplot(data = d, aes(x = d[,feature])) + 
+        geom_bar(aes(fill = d[,feature]), stat = "count") + xlab(feature) +
+        guides(fill = FALSE)
+      summary.plot
+    }
+  } else if (length(feature) > 1L) {
+    summary.plot = ggpairs(data = d, columns = input$summary.datatable_rows_selected)
+    summary.plot
   }
 })
 
@@ -72,6 +97,13 @@ summary.vis.collection = reactiveValues(var.names = NULL, var.plots = NULL)
 observeEvent(summary.vis.out(), {
   q = summary.vis.out()
   feat = isolate(summary.vis.var())
+# <<<<<<< HEAD
   # summary.vis.collection$var.names = c(summary.vis.collection$var.names,feat)
   summary.vis.collection$var.plots[[feat]] = q
+# =======
+  # if (length(feat) == 1L) {
+  #   summary.vis.collection$var.names = c(summary.vis.collection$var.names,feat)
+  #   summary.vis.collection$var.plots[[feat]] = q
+  # }
+# >>>>>>> master
 })

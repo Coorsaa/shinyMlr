@@ -15,6 +15,7 @@ library(parallelMap)
 library(rmarkdown)
 library(xtable)
 library(plyr)
+library(GGally)
 
 
 helper.files = list.files(path = "./helpers", pattern="*.R")

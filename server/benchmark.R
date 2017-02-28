@@ -117,8 +117,9 @@ output$benchmark.overview = renderDataTable({
   validateData(data$data)
   validateLearner(learner$learner)
   validateLearner(lrns = bmr.learners(), check = "err")
-  validateExperiment(bmr(), "BenchmarkResult")
-  getBMRAggrPerformances(bmr(), as.df = TRUE)
+  bmr = bmr()
+  validateExperiment(bmr, "BenchmarkResult")
+  getBMRAggrPerformances(bmr, as.df = TRUE)
 }, options = list(lengthMenu = c(10, 20), pageLength = 10,scrollX = TRUE))
 
 
@@ -153,15 +154,15 @@ output$bmrplots = renderPlot({
   q
 })
 
-# bmr.plots.collection = reactiveValues(plot.titles = NULL, bmr.plots = NULL)
+bmr.plots.collection = reactiveValues(plot.titles = NULL, bmr.plots = NULL)
 
-# observeEvent(bmr.plots.out(), {
-#   validateLearner(lrns = bmr.learners())
-#   req(bmr())
-#   q = bmr.plots.out()
-#   plot.title = isolate(input$bmrplots.type)
-#   bmr.plots.collection$plot.titles = unique(c(bmr.plots.collection$plot.titles,
-#     plot.title))
-#   bmr.plots.collection$bmr.plots[[plot.title]] = q
-# })
+observeEvent(bmr.plots.out(), {
+  validateLearner(lrns = bmr.learners())
+  req(bmr())
+  q = bmr.plots.out()
+  plot.title = isolate(input$bmrplots.type)
+  bmr.plots.collection$plot.titles = unique(c(bmr.plots.collection$plot.titles,
+    plot.title))
+  bmr.plots.collection$bmr.plots[[plot.title]] = q
+})
 

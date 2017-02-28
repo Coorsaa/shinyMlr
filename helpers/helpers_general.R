@@ -108,8 +108,9 @@ validatePreprocData = function(df, type) {
 }
 
 validateExperiment = function(res, cl) {
-  validate(need(class(res) %in% cl,
+  validate(need(cl == class(res),
     stri_paste("Computing failed with the following error:", res, sep = "\n")))
+  invisible(NULL)
 }
 
 

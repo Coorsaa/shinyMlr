@@ -43,7 +43,7 @@ makeImportPredSideBar = function(type, newdata.type) {
         selectInput("import.pred.mlr", "Choose toy task", choices = c("iris.task", "bh.task", "sonar.task"))
       ),
       OpenML = list(
-        numericInput("import.pred.OpenML", "Choose OpenML Data ID", value = 61L)
+        selectInput("import.pred.OpenML", "Choose OpenML Data ID", selected = 61L, choices = listOMLDataSets()[,1], multiple = FALSE)
       ),
       CSV = list(
         fileInput("import.pred.csv", "Choose CSV File",

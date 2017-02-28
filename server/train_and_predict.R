@@ -5,7 +5,8 @@ output$train.learner.sel = renderUI({
   lrns.ids = names(lrns)
   sel.inp = selectInput("train.learner.sel", "Learners",
     choices = lrns.ids, width = 250)
-  tr.button = actionButton("train.run", label = "Train")
+  tr.button = bsButton("train.run", label = "train", style = "info",
+    icon = icon("graduation-cap"))
   list(sel.inp, tr.button)
 })
 
@@ -75,7 +76,15 @@ observe({
           quote = input$import.pred.quote)
       } else {
         if (import.pred.type == "OpenML") {
-          t = getOMLDataSet(data.id = input$import.pred.OpenML)
+          imp.status = need(!is.null(input$import.pred.OpenML), "")
+          if (is.null(imp.status)) {
+            if (is.na(input$import.pred.OpenML))
+              return(NULL)
+            data.id = as.integer(input$import.pred.OpenML)
+          } else {
+            data.id = 61L
+          }
+          t = getOMLDataSet(data.id = data.id)
           df.test = t$data
         } else {
           if (input$import.type == "ARFF") {
