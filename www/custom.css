@@ -51,8 +51,20 @@ border-top-color:#ffffff;
 }
 
 .btn.sbs-toggle-button.shiny-bound-input.active {
-  background-color: #3c8dbc;
-  border-color: #3c8dbc;
+  background-color: #1d5a92;
+  border-color: #ffffff;
+  color: #ffffff;
+}
+
+.btn.action-button.btn-info.shiny-bound-input {
+  background-color: #1d5a92;
+  border-color: #ffffff;
+}
+
+.btn.btn-default.action-button.shiny-bound-input {
+  background-color: #1d5a92;
+  border-color: #ffffff;
+  color: #ffffff;
 }
 
 .padded-text {

@@ -22,7 +22,7 @@ output$summary.datatable = DT::renderDataTable({
   d = dropNamed(d, drop = pos.x)    
   summarizeColumns(d)
 }, options = list(scrollX = TRUE),
-  caption = "Click on variable for visualisation!")#, selection = "single")
+  caption = paste("Your dataset contains", nrow(d), "observations. Click on one or more variables for visualisation!"))
 
 summary.vis.var = reactive({
   reqAndAssign(data$data, "d")
