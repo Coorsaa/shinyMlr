@@ -145,7 +145,9 @@ bmr.plots.out = reactive({
     Boxplots = "box"
   )
   ms = isolate(measures.bmr())[[input$plot.measures.sel]]
-  plotBMRBoxplots(bmr(), style = plot.type, measure = ms)
+  bm.plot = plotBMRBoxplots(bmr(), style = plot.type, measure = ms)
+  bm.plot = addPlotTheme(bm.plot)
+  bm.plot
 })
 
 output$bmrplots = renderPlot({

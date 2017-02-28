@@ -66,34 +66,25 @@ summary.vis.out = reactive({
   reqAndAssign(summary.vis.var(), "feature")
   reqAndAssign(input$summary.vis.dens, "density")
   d = na.omit(data$data)
-  
   barfill = "#3c8dbc"
   barlines = "#1d5a92"
-  plot.theme = theme(axis.line = element_line(size = 1, colour = "black"),
-          panel.grid.major = element_line(colour = "#d3d3d3"),
-          panel.grid.minor = element_blank(),
-          panel.border = element_blank(),
-          panel.background = element_blank(),
-          plot.title = element_blank(),
-          text = element_text(family = "Tahoma"),
-          axis.text.x = element_text(colour = "black", size = 9),
-          axis.text.y = element_text(colour = "black", size = 9))
-  
   if (length(feature) == 1L) {
     if (feature %in% numericFeatures()) {
       summary.plot = ggplot(data = d, aes(x = as.numeric(d[,feature]))) + 
         geom_histogram(aes(y = ..density..), colour = barlines, fill = barfill, stat = "bin", bins = input$summary.vis.hist.nbins) + xlab(feature) +
         geom_vline(aes(xintercept = quantile(as.numeric(d[,feature]), 0.05)), color = "blue", size = 0.5, linetype = "dashed") +
         geom_vline(aes(xintercept = quantile(as.numeric(d[,feature]), 0.95)), color = "blue", size = 0.5, linetype = "dashed") +
-        geom_vline(aes(xintercept = quantile(as.numeric(d[,feature]), 0.5)), color = "blue", size = 1, linetype = "dashed") +
-        theme_bw() + plot.theme
+        geom_vline(aes(xintercept = quantile(as.numeric(d[,feature]), 0.5)), color = "blue", size = 1, linetype = "dashed")
+      summary.plot = addPlotTheme(summary.plot)
+      summary.plot
       if (density == "Yes")
         summary.plot = summary.plot + geom_density(fill = "blue", alpha = 0.1)
       summary.plot
     } else {
       summary.plot = ggplot(data = d, aes(x = d[,feature])) + 
         geom_bar(aes(fill = d[,feature]), stat = "count") + xlab(feature) +
-        guides(fill = FALSE) + theme_bw() + plot.theme
+        guides(fill = FALSE)
+      summary.plot = addPlotTheme(summary.plot)
       summary.plot
     }
   } else if (length(feature) > 1L) {
