@@ -240,7 +240,6 @@ addPlotTheme = function(plot.obj) {
     panel.border = element_blank(),
     panel.background = element_blank(),
     plot.title = element_blank(),
-    text = element_text(family = "Trebuchet MS"),
     axis.text.x = element_text(colour = "black", size = 9),
     axis.text.y = element_text(colour = "black", size = 9))
   plot.obj + theme_bw() + plot.theme
