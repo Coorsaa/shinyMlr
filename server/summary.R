@@ -22,7 +22,7 @@ output$summary.datatable = DT::renderDataTable({
   d = dropNamed(d, drop = pos.x)    
   summarizeColumns(d)
 }, options = list(scrollX = TRUE),
-  caption = "Click on variable for visualisation!")#, selection = "single")
+  caption = paste("Your dataset contains", nrow(d), "observations. Click on one or more variables for visualisation!"))
 
 summary.vis.var = reactive({
   reqAndAssign(data$data, "d")
@@ -66,13 +66,17 @@ summary.vis.out = reactive({
   reqAndAssign(summary.vis.var(), "feature")
   reqAndAssign(input$summary.vis.dens, "density")
   d = na.omit(data$data)
+  barfill = "#3c8dbc"
+  barlines = "#1d5a92"
   if (length(feature) == 1L) {
     if (feature %in% numericFeatures()) {
       summary.plot = ggplot(data = d, aes(x = as.numeric(d[,feature]))) + 
-        geom_histogram(aes(y = ..density..), fill = "white", color = "black", stat = "bin", bins = input$summary.vis.hist.nbins) + xlab(feature) +
+        geom_histogram(aes(y = ..density..), colour = barlines, fill = barfill, stat = "bin", bins = input$summary.vis.hist.nbins) + xlab(feature) +
         geom_vline(aes(xintercept = quantile(as.numeric(d[,feature]), 0.05)), color = "blue", size = 0.5, linetype = "dashed") +
         geom_vline(aes(xintercept = quantile(as.numeric(d[,feature]), 0.95)), color = "blue", size = 0.5, linetype = "dashed") +
         geom_vline(aes(xintercept = quantile(as.numeric(d[,feature]), 0.5)), color = "blue", size = 1, linetype = "dashed")
+      summary.plot = addPlotTheme(summary.plot)
+      summary.plot
       if (density == "Yes")
         summary.plot = summary.plot + geom_density(fill = "blue", alpha = 0.1)
       summary.plot
@@ -80,10 +84,13 @@ summary.vis.out = reactive({
       summary.plot = ggplot(data = d, aes(x = d[,feature])) + 
         geom_bar(aes(fill = d[,feature]), stat = "count") + xlab(feature) +
         guides(fill = FALSE)
+      summary.plot = addPlotTheme(summary.plot)
       summary.plot
     }
   } else if (length(feature) > 1L) {
-    summary.plot = ggpairs(data = d, columns = input$summary.datatable_rows_selected)
+    summary.plot = ggpairs(data = d, columns = input$summary.datatable_rows_selected,
+        upper = list(continuous = wrap("cor", size = 10)), 
+        lower = list(continuous = "smooth"))
     summary.plot
   }
 })

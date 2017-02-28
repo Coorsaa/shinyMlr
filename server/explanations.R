@@ -14,7 +14,7 @@ output$import.text = renderUI({
 
 output$summary.text = renderUI({
   box(width = 12, status = "primary", collapsible = TRUE,
-    helpText("In this panel you can get an overview over your dataset. In the table below you can see different location parameters for numeric variables and the number of levels for factor variables. Moreover, if any of the data's variables contains missing values, you can see the no. of NAs. Clicking on a numeric variable leads to a histogram shown below, clicking on a factor variable shows a bar plot.")
+    helpText("In this panel you can get an overview over your dataset. In the table below you can see different location parameters for numeric variables and the number of levels for factor variables. Moreover, if any of the data's variables contains missing values, you can see the no. of NAs. Clicking on a numeric variable leads to a histogram shown below, clicking on a factor variable shows a bar plot. If you select more than one variable, a correlation plot is shown via ggpairs.")
   )
 })
 
