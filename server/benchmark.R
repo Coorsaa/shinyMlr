@@ -118,7 +118,7 @@ output$benchmark.overview = renderDataTable({
   validateLearner(learner$learner)
   validateLearner(lrns = bmr.learners(), check = "err")
   bmr = bmr()
-  validateExperiment(bmr, "BenchmarkResult")
+  # validateExperiment(bmr, "BenchmarkResult")
   getBMRAggrPerformances(bmr, as.df = TRUE)
 }, options = list(lengthMenu = c(10, 20), pageLength = 10,scrollX = TRUE))
 

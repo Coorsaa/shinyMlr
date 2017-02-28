@@ -127,6 +127,7 @@ makePredictionPlot = function(mod, tsk, tsk.type, plot.type, lrn, fnames, feats,
   preds, ms, resplot.type, vi.method, ind) {
   if (plot.type == "prediction") {
     validate(checkPlotLearnerPrediction(tsk.type, fnames, feats))
+    req(lrn)
     q = plotLearnerPrediction(learner = lrn, features = feats, task = tsk, cv = 0)
     q = addPlotTheme(q)
   } else if (plot.type == "residuals") {
