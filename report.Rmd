@@ -122,17 +122,18 @@ model = reqReactive(model())
 test.df = data$data.test
 train.learner = reqReactive(train.learner())
 measures.perf = reqReactive(measures.perf())
-if (is.null(measures.perf))
+# print(measures.perf)
+if (is.null(measures.perf) | length(measures.perf) == 0L)
   measures.perf = getDefaultMeasure(task)
-preds.on.task = predict(model, task)
-perf.on.task = performance(preds.on.task, measures.perf, model = model, task = task)
-if (!(is.null(test.df))) {
-  preds.on.test = predict(model, newdata = test)
-  perf.on.test = performance(preds.on.task, measures.perf, model = model,
-    task = task)  
+if (class(model) == "WrappedModel") {
+ preds.on.task = predict(model, task)
+  perf.on.task = performance(preds.on.task, measures.perf, model = model, task = task) 
+  if (class(test.df) == "data.frame") {
+    preds.on.test = predict(model, newdata = test.df)
+    perf.on.test = performance(preds.on.test, measures.perf,
+      model = model, task = task)
+  }
 }
-
-
 
 
 
@@ -143,6 +144,7 @@ pred.plots = reqReactive(prediction.plot.collection)
 eval.pred.plots = all(params$include$modelling, !is.null(pred.plots))
 params$titles$modelling = ifelse(params$include$modelling,
   params$titles$modelling, "")
+out.mod = ""
 ```
 
 #`r params$titles$modelling`
@@ -150,23 +152,29 @@ params$titles$modelling = ifelse(params$include$modelling,
 `r params$passage$modelling`
 
 ```{r modelling.text,eval=params$include$task}
-#FIXME: make task dep
-lrn.name = knit_expand(text="**Trained learner:** {{train.learner$name}} \n")
-mod.text.perf = knit_expand(text = "Performance on task:")
-mod.task.perf = kable(perf.on.task)
-out.mod = c(lrn.name, mod.text.perf, mod.task.perf)
+if (class(model) == "WrappedModel") {
+  #FIXME: make task dep
+  lrn.name = knit_expand(text="**Trained learner:** {{train.learner$name}} \n")
+  mod.text.perf = knit_expand(text = "###Performance on task: \n")
+  mod.task.perf = kable(as.data.frame(perf.on.task))
+  out.mod = c(lrn.name, mod.text.perf, mod.task.perf)
 
-if (!(is.null(test.df))) {
-  mod.text.test = knit_expand(text = "Performance on test set:")
-  mod.test.perf = kable(perf.on.test)
-  out.mod = c(out.mod, mod.text.test, mod.test.perf)
+  if (class(test.df) == "data.frame") {
+    mod.text.test = knit_expand(text = "###Performance on test set: \n")
+    mod.test.perf = kable(as.data.frame(perf.on.test))
+    out.mod = c(out.mod, "\n", mod.text.test, mod.test.perf)
+  }  
 }
+
+if (is.null(out.mod) | length(out.mod) == 0L)
+  out.mod = ""
+
 ```
 
-`r paste(knit(text = out.mod), collapse = '\n')`
+`r knit(text = out.mod)`
 
 ```{r modelling,include=params$include$modelling}
-summarizeColumns(preds.on.test)
+# summarizeColumns(preds.on.test)
 ```
 
 \newpage
@@ -220,8 +228,25 @@ params$titles$benchmark = ifelse(params$include$benchmark,
 `r params$passage$benchmark`
 
 ```{r benchmark,include=params$include$benchmark}
-#coming soon
+if (class(bmr) == "BenchmarkResult") {
+  out.bmr = NULL
+  bmr.tab = getBMRAggrPerformances(bmr, as.df = TRUE)
+  # bmr.tab = unlist(bmr.tab, recursive = FALSE)
+  # for (i in seq_along(bmr.tab)) {
+  #   tab = as.data.frame(bmr.tab[[i]])
+  #       colnames(tab) = names(learners)[[i]]
+  #   tab = knit_expand(text="{{kable(tab)}} \n")
+  #   out.bmr = c(out.bmr, tab)
+  # }
+  out.bmr = knit_expand(text="{{kable(bmr.tab)}} \n")
+} else {
+  out.bmr = ""
+}
+
+
 ```
+
+`r paste(knit(text = out.bmr), collapse = '\n')`
 
 ```{r bmr.plots,eval=eval.bmr.plots}
 for (i in seq_along(bmr.plots$plot.titles)) {

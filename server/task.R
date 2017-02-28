@@ -20,7 +20,8 @@ output$task.weights = renderUI({
   tsk.tar = input$task.target
   choices = col.names[col.names != tsk.tar]
   choices = c("-", choices)
-  selectInput("task.weights", "Observation weights (optional):", choices = choices, selected = NULL)
+  sel = input$task.weights
+  selectInput("task.weights", "Observation weights (optional):", choices = choices, selected = sel)
 })
 
 

@@ -193,14 +193,13 @@ makeLearnerConstructionUI = function(lrns.names, par.sets, params, pred.types, t
 }
 
 stringToParamValue = function (par, x) {
-  assertClass(par, "Param")
+  # assertClass(par, "Param")
   assertCharacter(x)
-  
-  type = par$type
 
-  if (x == "") {
+  if (x == "" | is.character(par)) {
     res = NULL
   } else {
+    type = par$type
     if (type %in% c("numeric", "integer", "logical")) {
       res = do.call(paste0("as.", type), list(x))
     }

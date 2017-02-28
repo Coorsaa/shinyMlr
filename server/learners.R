@@ -36,7 +36,7 @@ learners.params = reactive({
   params = extractSubList(par.sets, "pars")
   params = lapply(params, function(pars) {
     if (length(pars) == 0L)
-      pars = NA
+      pars = NULL
     return(pars)
   })
   params.names = lapply(params, names)
