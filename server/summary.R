@@ -66,24 +66,40 @@ summary.vis.out = reactive({
   reqAndAssign(summary.vis.var(), "feature")
   reqAndAssign(input$summary.vis.dens, "density")
   d = na.omit(data$data)
+  
+  barfill = "#3c8dbc"
+  barlines = "#1d5a92"
+  plot.theme = theme(axis.line = element_line(size = 1, colour = "black"),
+          panel.grid.major = element_line(colour = "#d3d3d3"),
+          panel.grid.minor = element_blank(),
+          panel.border = element_blank(),
+          panel.background = element_blank(),
+          plot.title = element_blank(),
+          text = element_text(family = "Tahoma"),
+          axis.text.x = element_text(colour = "black", size = 9),
+          axis.text.y = element_text(colour = "black", size = 9))
+  
   if (length(feature) == 1L) {
     if (feature %in% numericFeatures()) {
       summary.plot = ggplot(data = d, aes(x = as.numeric(d[,feature]))) + 
-        geom_histogram(aes(y = ..density..), fill = "white", color = "black", stat = "bin", bins = input$summary.vis.hist.nbins) + xlab(feature) +
+        geom_histogram(aes(y = ..density..), colour = barlines, fill = barfill, stat = "bin", bins = input$summary.vis.hist.nbins) + xlab(feature) +
         geom_vline(aes(xintercept = quantile(as.numeric(d[,feature]), 0.05)), color = "blue", size = 0.5, linetype = "dashed") +
         geom_vline(aes(xintercept = quantile(as.numeric(d[,feature]), 0.95)), color = "blue", size = 0.5, linetype = "dashed") +
-        geom_vline(aes(xintercept = quantile(as.numeric(d[,feature]), 0.5)), color = "blue", size = 1, linetype = "dashed")
+        geom_vline(aes(xintercept = quantile(as.numeric(d[,feature]), 0.5)), color = "blue", size = 1, linetype = "dashed") +
+        theme_bw() + plot.theme
       if (density == "Yes")
         summary.plot = summary.plot + geom_density(fill = "blue", alpha = 0.1)
       summary.plot
     } else {
       summary.plot = ggplot(data = d, aes(x = d[,feature])) + 
         geom_bar(aes(fill = d[,feature]), stat = "count") + xlab(feature) +
-        guides(fill = FALSE)
+        guides(fill = FALSE) + theme_bw() + plot.theme
       summary.plot
     }
   } else if (length(feature) > 1L) {
-    summary.plot = ggpairs(data = d, columns = input$summary.datatable_rows_selected)
+    summary.plot = ggpairs(data = d, columns = input$summary.datatable_rows_selected,
+        upper = list(continuous = wrap("cor", size = 10)), 
+        lower = list(continuous = "smooth"))
     summary.plot
   }
 })
