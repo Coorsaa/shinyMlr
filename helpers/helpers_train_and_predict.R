@@ -166,12 +166,15 @@ makePredictionPlot = function(mod, tsk, tsk.type, plot.type, lrn, fnames, feats,
   return(q)
 }
 
-makeConfusionMatrix = function(plot.type, preds) {
-  calculateROCMeasures(preds)
+makeConfusionMatrix = function(plot.type, preds, tsk, rel.conf) {
+  if (length(tsk$task.desc$class.levels) == 2L)
+    calculateROCMeasures(preds)
+  else
+    calculateConfusionMatrix(preds, sums = TRUE, relative = rel.conf)
 }
 
 makePredictionPlotSettingsUI = function(plot.type, fnames, feats, ms.def, ms,
-  tsk.type, fm, predict.type, help.texts, width = 200) {
+  tsk.type, fm, predict.type, help.texts, tsk, width = 200) {
   if (plot.type == "prediction") {
     if (help.texts)
       settings.text = htmlOutput("prediction.plot.text")
@@ -203,7 +206,7 @@ makePredictionPlotSettingsUI = function(plot.type, fnames, feats, ms.def, ms,
       settings.text = NULL
     req(length(fnames) != 0L)
     settings.inp = selectInput("predictionplot.feat.sel", "Select variables:",
-        choices = fnames, selected = getFirst(fnames), multiple = FALSE, width = width)
+      choices = fnames, selected = getFirst(fnames), multiple = FALSE, width = width)
     if (predict.type != "se") {
       settings.ind = radioButtons("pd.plot.ind", "Individual expectation?", 
         choices = c("Yes" = "TRUE", "No" = "FALSE"), inline = TRUE, selected = "FALSE")
@@ -220,7 +223,16 @@ makePredictionPlotSettingsUI = function(plot.type, fnames, feats, ms.def, ms,
       settings.text = htmlOutput("confusion.matrix.text")
     else
       settings.text = NULL
-    settings.ui = column(width = 12, settings.text)
+    if (length(tsk$task.desc$class.levels) != 2L) {
+      settings.rel = radioButtons("confusion.matrix.relative", "Show relative confusion matrix?",
+        choices = c("Yes" = "TRUE", "No" = "FALSE"), inline = TRUE, selected = "FALSE")
+    } else {
+      settings.rel = NULL
+    }
+    settings.ui = list(
+      column(8, align = "center", settings.rel),
+      column(width = 12, settings.text)
+    )
   } else if (plot.type == "ROC") {
     if (help.texts)
       settings.text = htmlOutput("roc.plot.text")

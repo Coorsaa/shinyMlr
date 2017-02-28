@@ -217,13 +217,14 @@ output$predictionplot.settings = renderUI({
   ms = measures.train.avail()
   ms.def = measures.default()
   reqAndAssign(input$prediction.plot.sel, "plot.type")
-  tsk.type = getTaskType(task())
+  reqAndAssign(task(), "tsk")
+  tsk.type = getTaskType(tsk)
   reqAndAssign(isolate(filter.methods()), "fm")
   lrn.sel = input$train.learner.sel
   lrn = isolate(learners())[[lrn.sel]]
   predict.type = lrn$predict.type
   help.texts = input$show.help
-  makePredictionPlotSettingsUI(plot.type, fnames, feats, ms.def, ms, tsk.type, fm, predict.type, help.texts)
+  makePredictionPlotSettingsUI(plot.type, fnames, feats, ms.def, ms, tsk.type, fm, predict.type, help.texts, tsk)
 })
 
 measures.plot = reactive({
@@ -283,9 +284,11 @@ observeEvent(prediction.plot.out(), {
 
 output$confusion.matrix = renderPrint({
   reqAndAssign(isolate(pred()), "preds")
+  reqAndAssign(task(), "tsk")
   reqAndAssign(input$prediction.plot.sel, "plot.type")
+  rel.conf = as.logical(input$confusion.matrix.relative)
   if (plot.type == "confusion matrix") {
-    t = makeConfusionMatrix(plot.type, preds)
+    t = makeConfusionMatrix(plot.type, preds, tsk, rel.conf)
     print(t)
   } else {
     invisible(NULL)
