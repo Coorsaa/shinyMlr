@@ -167,8 +167,7 @@ makePredictionPlot = function(mod, tsk, tsk.type, plot.type, lrn, fnames, feats,
 }
 
 makeConfusionMatrix = function(plot.type, preds) {
-  conf = calculateConfusionMatrix(preds)
-  return(conf$result)
+  calculateROCMeasures(preds)
 }
 
 makePredictionPlotSettingsUI = function(plot.type, fnames, feats, ms.def, ms,
