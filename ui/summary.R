@@ -9,7 +9,7 @@ tabpanel.summary = fluidRow(
       column(12,
         uiOutput("summary.vis.hist")),
       column(12,
-      plotOutput("summary.vis")
+      plotlyOutput("summary.vis")
       )
     )
   )

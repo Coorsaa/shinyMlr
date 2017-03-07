@@ -24,7 +24,7 @@ tabpanel.preprocessing = list(
     column(width = 9,
       box(width = 12, title = "Settings",
         uiOutput("preproc_out"),
-        plotOutput("plot.feature.selection")
+        plotlyOutput("plot.feature.selection")
       ),
       box(width = 12,
         dataTableOutput("preproc_data")

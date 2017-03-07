@@ -269,7 +269,7 @@ prediction.plot.out = reactive({
     resplot.type, vi.method, ind)
 })
 
-output$prediction.plot = renderPlot({
+output$prediction.plot = renderPlotly({
   prediction.plot.out()
 })
 

@@ -484,12 +484,12 @@ preproc_feature_selection = reactive({
 
 vi.abs.or.perc = reactive(input$vi_abs_or_perc)
 
-output$plot.feature.selection = renderPlot({
+output$plot.feature.selection = renderPlotly({
   reqAndAssign(task(), "tsk")
   tsk.type = tsk$type
   reqAndAssign(input$vi.method, "vi.method")
   vi.data = generateFilterValuesData(tsk, method = vi.method)
-  plotFilterValues(vi.data)
+  ggplotly(plotFilterValues(vi.data))
 })
 
 

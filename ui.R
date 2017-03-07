@@ -3,6 +3,7 @@ library(shinydashboard)
 library(shinyjs)
 library(shinyBS)
 library(DT)
+library(plotly)
 
 source("./helpers/helpers_ui.R", local = TRUE)$value
 
