@@ -124,12 +124,11 @@ makePerformanceUI = function(measures, performances) {
 }
 
 makePredictionPlot = function(mod, tsk, tsk.type, plot.type, lrn, fnames, feats,
-  preds, ms, resplot.type, vi.method, ind) {
+  preds, ms, resplot.type, ind) {
   if (plot.type == "prediction") {
     validate(checkPlotLearnerPrediction(tsk.type, fnames, feats))
     req(lrn)
     q = plotLearnerPrediction(learner = lrn, features = feats, task = tsk, cv = 0)
-    # q = ggplotly(addPlotTheme(q))
     q = addPlotTheme(q)
   } else if (plot.type == "residuals") {
     req(resplot.type)
@@ -137,7 +136,7 @@ makePredictionPlot = function(mod, tsk, tsk.type, plot.type, lrn, fnames, feats,
       scatterplot = "scatterplot",
       "histogram" = "hist")
     q = plotResiduals(preds, type = resplot.type)
-    q = ggplotly(addPlotTheme(q))
+    q = addPlotTheme(q)
   } else if (plot.type == "partial dependency") {
     validate(checkPlotPartialDependency(tsk.type, lrn, fnames))
     req(length(ind) != 0L)
@@ -155,14 +154,14 @@ makePredictionPlot = function(mod, tsk, tsk.type, plot.type, lrn, fnames, feats,
       pd = generatePartialDependenceData(mod, tsk, feats, individual = ind)
     }
     q = plotPartialDependence(pd)
-    q = ggplotly(addPlotTheme(q))
+    q = addPlotTheme(q)
   } else if (plot.type == "confusion matrix") {
     q = NULL
   } else if (plot.type == "ROC") {
     checkPlotROCCurves(lrn)
     df = generateThreshVsPerfData(preds, measures = ms)
     q = plotROCCurves(df)
-    q = ggplotly(addPlotTheme(q))
+    q = addPlotTheme(q)
   }
   q
 }

@@ -76,27 +76,27 @@ summary.vis.out = reactive({
         geom_vline(aes(xintercept = quantile(as.numeric(d[,feature]), 0.95)), color = "blue", size = 0.5, linetype = "dashed") +
         geom_vline(aes(xintercept = quantile(as.numeric(d[,feature]), 0.5)), color = "blue", size = 1, linetype = "dashed")
       summary.plot = addPlotTheme(summary.plot)
-      ggplotly(summary.plot)
+      summary.plot
       if (density == "Yes")
         summary.plot = summary.plot + geom_density(fill = "blue", alpha = 0.1)
-      ggplotly(summary.plot)
+      summary.plot
     } else {
       summary.plot = ggplot(data = d, aes(x = d[,feature])) + 
         geom_bar(aes(fill = d[,feature]), stat = "count") + xlab(feature) +
         guides(fill = FALSE)
       summary.plot = addPlotTheme(summary.plot)
-      ggplotly(summary.plot)
+      summary.plot
     }
   } else if (length(feature) > 1L) {
     summary.plot = ggpairs(data = d, columns = input$summary.datatable_rows_selected,
         upper = list(continuous = wrap("cor", size = 10)), 
         lower = list(continuous = "smooth"))
-    ggplotly(summary.plot)
+    summary.plot
   }
 })
 
 output$summary.vis = renderPlotly({
-  summary.vis.out()
+  ggplotly(summary.vis.out())
 })
 
 summary.vis.collection = reactiveValues(var.names = NULL, var.plots = NULL)

@@ -147,13 +147,13 @@ bmr.plots.out = reactive({
   ms = isolate(measures.bmr())[[input$plot.measures.sel]]
   bm.plot = plotBMRBoxplots(bmr(), style = plot.type, measure = ms)
   bm.plot = addPlotTheme(bm.plot)
-  ggplotly(bm.plot)
+  bm.plot
 })
 
 output$bmrplots = renderPlotly({
   validateLearner(lrns = bmr.learners())
   reqAndAssign(bmr.plots.out(), "q")
-  q
+  ggplotly(q)
 })
 
 bmr.plots.collection = reactiveValues(plot.titles = NULL, bmr.plots = NULL)
