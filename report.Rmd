@@ -125,7 +125,7 @@ measures.perf = reqReactive(measures.perf())
 # print(measures.perf)
 if (is.null(measures.perf) | length(measures.perf) == 0L)
   measures.perf = getDefaultMeasure(task)
-if (class(model) == "WrappedModel") {
+if (!is.null(class(model)) & class(model) == "WrappedModel") {
  preds.on.task = predict(model, task)
   perf.on.task = performance(preds.on.task, measures.perf, model = model, task = task) 
   if (class(test.df) == "data.frame") {

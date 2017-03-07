@@ -95,22 +95,18 @@ summary.vis.out = reactive({
   }
 })
 
-output$summary.vis = renderPlot({
-  summary.vis.out()
+output$summary.vis = renderPlotly({
+  ggplotly(summary.vis.out())
 })
 
-summary.vis.collection = reactiveValues(var.names = NULL, var.plots = NULL)
+summary.vis.collection = reactiveValues(var.plots = NULL)#var.names = NULL, var.plots = NULL)
 
 observeEvent(summary.vis.out(), {
   q = summary.vis.out()
   feat = isolate(summary.vis.var())
-# <<<<<<< HEAD
-  # summary.vis.collection$var.names = c(summary.vis.collection$var.names,feat)
+  feat = paste(feat, collapse = ".x.")
+
+  # summary.vis.collection$var.names = c(summary.vis.collection$var.names, feat)
   summary.vis.collection$var.plots[[feat]] = q
-# =======
-  # if (length(feat) == 1L) {
-  #   summary.vis.collection$var.names = c(summary.vis.collection$var.names,feat)
-  #   summary.vis.collection$var.plots[[feat]] = q
-  # }
-# >>>>>>> master
+
 })

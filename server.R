@@ -16,6 +16,7 @@ library(rmarkdown)
 library(xtable)
 library(plyr)
 library(GGally)
+library(plotly)
 
 
 helper.files = list.files(path = "./helpers", pattern="*.R")

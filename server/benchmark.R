@@ -150,10 +150,10 @@ bmr.plots.out = reactive({
   bm.plot
 })
 
-output$bmrplots = renderPlot({
+output$bmrplots = renderPlotly({
   validateLearner(lrns = bmr.learners())
   reqAndAssign(bmr.plots.out(), "q")
-  q
+  ggplotly(q)
 })
 
 bmr.plots.collection = reactiveValues(plot.titles = NULL, bmr.plots = NULL)

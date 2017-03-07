@@ -43,7 +43,7 @@ tabpanel.benchmark = fluidRow(
       ),
       fluidRow(
         box(width = 12,
-          plotOutput("bmrplots")
+          plotlyOutput("bmrplots")
         )
       )
     )

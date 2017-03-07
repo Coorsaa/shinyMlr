@@ -258,19 +258,22 @@ prediction.plot.out = reactive({
   preds = pred()
   ms = measures.plot()
   resplot.type = input$residualplot.type
-  if (plot.type == "variable importance")
-    reqAndAssign(input$vi.method, "vi.method")
   
   if (plot.type == "partial dependency" && lrn$predict.type == "se")
     ind = "FALSE"
   else
     ind = as.logical(input$pd.plot.ind)
   makePredictionPlot(mod, tsk, tsk.type, plot.type, lrn, fnames, feats, preds, ms,
-    resplot.type, vi.method, ind)
+    resplot.type, ind)
 })
 
 output$prediction.plot = renderPlot({
-  prediction.plot.out()
+  pred.plot = prediction.plot.out()
+  reqAndAssign(input$prediction.plot.sel, "plot.type")
+  if (plot.type == "confusion matrix")
+    return(NULL)
+  else
+    pred.plot
 })
 
 prediction.plot.collection = reactiveValues(plot.titles = NULL, pred.plots = NULL)

@@ -124,7 +124,7 @@ makePerformanceUI = function(measures, performances) {
 }
 
 makePredictionPlot = function(mod, tsk, tsk.type, plot.type, lrn, fnames, feats,
-  preds, ms, resplot.type, vi.method, ind) {
+  preds, ms, resplot.type, ind) {
   if (plot.type == "prediction") {
     validate(checkPlotLearnerPrediction(tsk.type, fnames, feats))
     req(lrn)
@@ -163,7 +163,7 @@ makePredictionPlot = function(mod, tsk, tsk.type, plot.type, lrn, fnames, feats,
     q = plotROCCurves(df)
     q = addPlotTheme(q)
   }
-  return(q)
+  q
 }
 
 makeConfusionMatrix = function(plot.type, preds, tsk, rel.conf) {
