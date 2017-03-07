@@ -76,7 +76,7 @@ tabpanel.modelling = fluidRow(
       ),
       fluidRow(
         column(width = 12,
-          plotlyOutput("prediction.plot")
+          verbatimTextOutput("prediction.plot")
         )
       )
     )

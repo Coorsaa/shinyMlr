@@ -267,7 +267,7 @@ prediction.plot.out = reactive({
     resplot.type, ind)
 })
 
-output$prediction.plot = renderPlotly({
+output$prediction.plot = renderPrint({
   pred.plot = prediction.plot.out()
   reqAndAssign(input$prediction.plot.sel, "plot.type")
   if (plot.type == "confusion matrix")
