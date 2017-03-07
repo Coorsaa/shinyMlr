@@ -267,13 +267,13 @@ prediction.plot.out = reactive({
     resplot.type, ind)
 })
 
-output$prediction.plot = renderPrint({
+output$prediction.plot = renderPlot({
   pred.plot = prediction.plot.out()
   reqAndAssign(input$prediction.plot.sel, "plot.type")
   if (plot.type == "confusion matrix")
     return(NULL)
   else
-    ggplotly(pred.plot)
+    pred.plot
 })
 
 prediction.plot.collection = reactiveValues(plot.titles = NULL, pred.plots = NULL)
