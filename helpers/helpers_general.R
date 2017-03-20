@@ -113,6 +113,10 @@ validateExperiment = function(res, cl) {
   invisible(NULL)
 }
 
+reqNFeat = function(feat.sel, df) {
+  req(all(feat.sel %in% colnames(df)))
+}
+
 
 # FIXME: mlr: create makeAutoTask or whatever depending on target? 
 sMakeTask = function(id, target, df, weights = NULL) {

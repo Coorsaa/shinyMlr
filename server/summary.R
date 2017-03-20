@@ -66,6 +66,7 @@ summary.vis.out = reactive({
   reqAndAssign(summary.vis.var(), "feature")
   reqAndAssign(input$summary.vis.dens, "density")
   d = na.omit(data$data)
+  reqNFeat(feature, d)
   barfill = "#3c8dbc"
   barlines = "#1d5a92"
   if (length(feature) == 1L) {
@@ -88,7 +89,7 @@ summary.vis.out = reactive({
       summary.plot
     }
   } else if (length(feature) > 1L) {
-    summary.plot = ggpairs(data = d, columns = input$summary.datatable_rows_selected,
+    summary.plot = ggpairs(data = d, columns = feature,
         upper = list(continuous = wrap("cor", size = 10)), 
         lower = list(continuous = "smooth"))
     summary.plot
