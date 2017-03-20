@@ -26,8 +26,14 @@ tabpanel.preprocessing = list(
         uiOutput("preproc_out"),
         plotlyOutput("plot.feature.selection")
       ),
-      box(width = 12,
-        dataTableOutput("preproc_data")
+      tabBox(width = 12,
+        tabPanel(title = "Data",
+          dataTableOutput("preproc_data")
+        ),
+        tabPanel(title = "Summary",
+          dataTableOutput("summary.datatable2")
+        )
+        
       )
     )
   )

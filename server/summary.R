@@ -14,15 +14,29 @@ factorFeatures = reactive({
   return(colnames(Filter(is.factor, d)))
 })
 
-output$summary.datatable = DT::renderDataTable({
+data.summary = reactive({
   validateData(data$data)
   d = data$data
   colnames(d) = make.names(colnames(d))
   pos.x = colnames(Filter(function(x) "POSIXt" %in% class(x) , d))
   d = dropNamed(d, drop = pos.x)    
   summarizeColumns(d)
-}, options = list(scrollX = TRUE),
-  caption = paste("Your dataset contains", nrow(d), "observations. Click on one or more variables for visualisation!"))
+})
+
+output$data.summary.caption = renderUI({
+  capt = sprintf("Your dataset contains %i observations. Click on one or more variables for visualisation!", nrow(data$data))
+  helpText(capt)
+})
+
+output$summary.datatable = DT::renderDataTable({
+  data.summary()
+}, options = list(scrollX = TRUE))# , caption = capt)
+
+
+# used in preproc 
+output$summary.datatable2 = DT::renderDataTable({
+  data.summary()
+}, options = list(scrollX = TRUE))
 
 summary.vis.var = reactive({
   reqAndAssign(data$data, "d")

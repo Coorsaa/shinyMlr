@@ -2,6 +2,7 @@ tabpanel.summary = fluidRow(
   box(width = 12, title = "Data Summary",
     htmlOutput("summary.text"),
     br(),
+    htmlOutput("data.summary.caption"),
     DT::dataTableOutput("summary.datatable")
   ),
   box(width = 12, title = "Variable Visualization", id = "summary.vis.box",
