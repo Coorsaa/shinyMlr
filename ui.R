@@ -16,10 +16,10 @@ for (i in seq_along(ui.files)) {
 
 shinyUI(
   dashboardPage(
-    dashboardHeader(title = span(img(src = "logo.png", height = 40)),
+    dashboardHeader(title = span(img(src = "new_shiny_logo.png", height = 40)),
       tags$li(class = "dropdown",
         tags$a(href = "https://github.com/mlr-org/mlr", target = "_blank",  
-          tags$img(height = "19px", alt = "mlr Logo", src = "mlrLogo_blue_141x64.png")
+          tags$img(height = "21px", alt = "mlr Logo", src = "new_logo.png")
         )
       ),
       tags$li(class = "dropdown",

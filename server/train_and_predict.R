@@ -4,7 +4,7 @@ output$train.learner.sel = renderUI({
   reqAndAssign(learners(), "lrns")
   lrns.ids = names(lrns)
   sel.inp = selectInput("train.learner.sel", "Learners",
-    choices = lrns.ids, width = 250)
+    choices = lrns.ids)
   tr.button = bsButton("train.run", label = "train", style = "info",
     icon = icon("graduation-cap"))
   list(sel.inp, tr.button)

@@ -1,7 +1,7 @@
 makeSidebar = function(..., bar.height = 500) {
   args = list(...)
-  box(background = "light-blue", width = NULL, height = bar.height,
-    args
+  div(class = "sidebarbox",
+    box(width = NULL, height = bar.height, args)
   )
 }
 

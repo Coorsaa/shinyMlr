@@ -6,10 +6,10 @@ tabpanel.modelling = fluidRow(
         htmlOutput("train.text"),
         column(width = 4, align = "center",
           makeSidebar(
-            fluidRow(uiOutput("train.learner.sel")),
+            uiOutput("train.learner.sel"),
             br(),
             hr(),
-            fluidRow(uiOutput("model.overview"))
+            uiOutput("model.overview")
           )
         ),
         column(width = 8, align = "center",
