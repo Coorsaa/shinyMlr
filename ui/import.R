@@ -4,7 +4,7 @@ tabpanel.import = bootstrapPage(# theme = "bootstrap.css",
   # useShinyjs(),
   br(),
   # sidebarLayout(
-  dashboardHeader(),
+  dashboardHeader(disable = TRUE),
     dashboardSidebar(
       uiOutput("import.ui")
     ),
