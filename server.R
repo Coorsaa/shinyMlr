@@ -31,6 +31,7 @@ for (i in seq_along(helper.files)) {
 options(shiny.maxRequestSize = 9*1024^2)
 
 shinyServer(function(input, output, session) {
+  shinyjs::addClass(id = "mlrlink", class = "navbar-right")
 
   server.files = list.files(path = "./server", pattern = "*.R")
   server.files = paste0("server/", server.files)

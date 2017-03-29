@@ -36,8 +36,8 @@ preproc_impute = reactive({
   req(input$preproc_method)
   reqAndAssign(preproc.data$data, "d")
   makePreprocUI(
-    if (input$show.help)
-      help = htmlOutput("impute.text"),
+    # if (input$show.help)
+    help = htmlOutput("impute.text"),
     list(
       selectInput("impute_exclude", "Exclude column(s) (optional)",
         choices =  as.list(colnames(d)), multiple = TRUE),
@@ -66,19 +66,19 @@ observeEvent(input$preproc_go, {
   d = isolate(preproc.data$data)
   reqAndAssign(input$impute_methods_num, "num")
   reqAndAssign(input$impute_methods_fac, "fac")
-  
+
   if (num == "imputeConstant" ) {
     num_impute = imputeConstant(input$impute_constant_num_input)
   } else {
     num_impute = match.fun(num)()
   }
-    
+
   if (fac == "imputeConstant" ) {
     fac_impute = imputeConstant(input$impute_constant_fac_input)
   } else {
     fac_impute = match.fun(fac)()
-  }   
-  
+  }
+
   imputed = impute(d, target = impute_target(), classes = list(numeric = num_impute, factor = fac_impute))
   preproc.data$data = imputed$data
 })
@@ -97,8 +97,8 @@ preproc_createdummy = reactive({
   choices = factorFeatures()
   validate(need(length(choices) > 0L, "No factor features available!"))
   makePreprocUI(
-    if (input$show.help)
-      help = htmlOutput("createdummy.text"),
+    # if (input$show.help)
+    help = htmlOutput("createdummy.text"),
     selectInput("createdummy_method", "Choose Method", selected = "1-of-n",
       choices = c("1-of-n", "reference")),
     conditionalPanel("input.createdummy_cols == null",
@@ -131,8 +131,8 @@ preproc_dropfeature = reactive({
   d = preproc.data$data
   req(input$preproc_method)
   makePreprocUI(
-    if (input$show.help)
-      help = htmlOutput("dropfeature.text"),
+    # if (input$show.help)
+    help = htmlOutput("dropfeature.text"),
     selectInput("dropfeature_cols", "Choose column(s)",
       choices =  as.list(colnames(d)), multiple = TRUE)
   )
@@ -158,8 +158,8 @@ preproc_remconst = reactive({
   choices = as.list(colnames(d))
   req(input$preproc_method)
   makePreprocUI(
-    if (input$show.help)
-      help = htmlOutput("remconst.text"),
+    # if (input$show.help)
+    help = htmlOutput("remconst.text"),
     selectInput("remconst_cols", "Exclude columns (optional)",
       choices = choices, multiple = TRUE),
     sliderInput("remconst_perc", "Choose % of feat. values different from mode",
@@ -175,7 +175,7 @@ observeEvent(input$preproc_go, {
   req(input$preproc_method == "Remove constant variables")
   d = isolate(preproc.data$data)
   if (!is.null(input$remconst_na)) {
-    na.ign = (input$remconst_na == "yes")  
+    na.ign = (input$remconst_na == "yes")
   } else {
     na.ign = FALSE
   }
@@ -191,8 +191,8 @@ preproc_normfeat = reactive({
   choices = numericFeatures()
   req(input$preproc_method)
   makePreprocUI(
-    if (input$show.help)
-      help = htmlOutput("normfeat.text"),
+    # if (input$show.help)
+    help = htmlOutput("normfeat.text"),
     list(
       conditionalPanel("input.normfeat_cols == null",
         selectInput("normfeat_exclude", "Exclude column(s) (optional)", choices = choices, multiple = TRUE)
@@ -239,24 +239,24 @@ preproc_caplarge = reactive({
   exc = input$caplarge_exclude
   cols = input$caplarge_cols
   what = input$caplarge_what
-  
+
   if (!is.null(tr) && !is.na(tr)) {
     imp = tr
   } else {
     imp = NA
   }
-  
+
   if (is.null(exc) || is.na(exc))
     exc = NA
   if (is.null(cols) || is.na(cols))
     cols = NA
-  if (is.null(what) || is.na(what)) 
+  if (is.null(what) || is.na(what))
     what = "abs"
-  
-  
+
+
   makePreprocUI(
-    if (input$show.help)
-      help = htmlOutput("caplarge.text"),
+    # if (input$show.help)
+    help = htmlOutput("caplarge.text"),
     list(
       conditionalPanel("input.caplarge_cols == null",
         selectInput("caplarge_exclude", "Exclude column(s) (optional)",
@@ -301,8 +301,8 @@ preproc_convar = reactive({
   req(input$preproc_method)
   d = isolate(preproc.data$data)
   makePreprocUI(
-    if (input$show.help)
-      help = htmlOutput("convar.text"),
+    # if (input$show.help)
+    help = htmlOutput("convar.text"),
     selectInput("convar_cols", "Choose column",
       choices = as.list(colnames(d)), multiple = FALSE),
     selectInput("convar_type", "Convert to",
@@ -318,13 +318,13 @@ convar_target = reactive({
 observeEvent(input$preproc_go, {
   req(input$preproc_method == "Convert variable")
   type = input$convar_type
-  
+
   if (type == "numeric")
     preproc.data$data[,convar_target()] = as.numeric(preproc.data$data[,convar_target()])
-  
+
   if (type == "factor")
     preproc.data$data[,convar_target()] = as.factor(preproc.data$data[,convar_target()])
-  
+
   if (type == "integer")
     preproc.data$data[,convar_target()] = as.integer(preproc.data$data[,convar_target()])
 })
@@ -335,8 +335,8 @@ preproc_subset = reactive({
   req(input$preproc_method)
   reqAndAssign(preproc.data$data, "d")
   makePreprocUI(
-    if (input$show.help)
-      help = htmlOutput("subset.text"),
+    # if (input$show.help)
+    help = htmlOutput("subset.text"),
     radioButtons("preproc_subset_method", "Type of subset",
       choices = c("Random", "Fix"), selected = "Random", inline = TRUE),
     conditionalPanel("input.preproc_subset_method == 'Random'",
@@ -374,8 +374,8 @@ preproc_recodelevels = reactive({
     col = "-"
   # message(col)
   makePreprocUI(
-    if (input$show.help)
-      help = htmlOutput("recodelevels.text"),
+    # if (input$show.help)
+    help = htmlOutput("recodelevels.text"),
     selectInput("recodelevels_col", "Choose factor to modify",
       choices =  c("-",fnames), selected = col),
     selectInput("recodelevels_method", "Choose method",
@@ -426,7 +426,7 @@ observeEvent(input$preproc_go, {
   if (!is.null(col) & "-" %nin% col) {
     if (method == "drop") {
       cols.ex = colnames(d)[colnames(d) %nin% col]
-      preproc.data$data = droplevels(d, except = cols.ex)      
+      preproc.data$data = droplevels(d, except = cols.ex)
     } else {
       fac = preproc.data$data[, col]
       if (method == "recode") {
@@ -438,7 +438,7 @@ observeEvent(input$preproc_go, {
       } else {
         fac = as.character(fac)
         fac[fac == input$recodelevels_levels] = NA
-        preproc.data$data[, col] = factor(fac) 
+        preproc.data$data[, col] = factor(fac)
       }
     }
 
@@ -464,9 +464,9 @@ preproc_feature_selection = reactive({
   fm.ids = as.character(fm[which(fm[, type]), "id"])
   d = preproc.data$data
   makePreprocUI(
-    if (input$show.help)
-      help = htmlOutput("feature.sel.text"),
-    radioButtons("vi_abs_or_perc", "Absolute or percentage?", 
+    # if (input$show.help)
+    help = htmlOutput("feature.sel.text"),
+    radioButtons("vi_abs_or_perc", "Absolute or percentage?",
       choices = c("Absolute", "Percentage"), selected = "Absolute", inline = TRUE),
     conditionalPanel("input.vi_abs_or_perc == 'Absolute'",
       sliderInput("vi.abs", "Keep no. of most important features", min = 0L,
@@ -502,7 +502,7 @@ observeEvent(preproc.method(), {
     shinyjs::show("vi.task.check")
   } else {
     shinyjs::hide("vi.task.check")
-  }  
+  }
 })
 
 observeEvent(preproc.method(), {
@@ -528,7 +528,7 @@ observeEvent(input$preproc_go, {
   tsk.type = tsk$type
   reqAndAssign(input$vi.method, "method")
   reqAndAssign(vi.abs.or.perc(), "choice")
-  
+
   if (choice == "Absolute") {
     abs = input$vi.abs
     filtered.task = filterFeatures(tsk, method = method, abs = abs)
@@ -550,8 +550,8 @@ preproc_merge_factor_levels = reactive({
   fnames = task.factor.feature.names()
   validate(need(length(fnames) > 0L, "No factor features available!"))
   makePreprocUI(
-    if (input$show.help)
-      help = htmlOutput("merge.factors.text"),
+    # if (input$show.help)
+    help = htmlOutput("merge.factors.text"),
     selectInput("merge_factors_cols", "Choose column", choices = fnames,
       selected = getFirst(fnames), multiple = TRUE),
     sliderInput("merge_factors_min_perc", "% of combined proportion should be exceeded",
@@ -622,7 +622,7 @@ output$preproc.go = renderUI({
     "Feature selection" = "select features",
     "Merge small factor levels" = "merge factor levels"
   )
-  bsButton("preproc_go", label, style = "info", icon = icon("magic"))
+  bsButton("preproc_go", label, icon = icon("magic"))
 })
 
 

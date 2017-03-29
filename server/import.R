@@ -94,11 +94,11 @@ output$import.browse.openml = DT::renderDataTable({
 output$tabpanel.browse.openml = renderUI({
   fluidRow(
     box(width = 12, title = "Browse OpenML",
-      hidden(
-        div(id = "loading.message2", align = "center",
-          h4("Loading datasets from OpenML")
-        )
-      ),
+      # hidden(
+      #   div(id = "loading.message2", align = "center",
+      #     h4("Loading datasets from OpenML")
+      #   )
+      # ),
       column(12, DT::dataTableOutput("import.browse.openml"))
     )
   )
@@ -110,6 +110,8 @@ observeEvent(input$import.type, {
   else
     shinyjs::hide("tabpanel.browse.openml")
 })
+
+# observe(toggle(loading.message, !is.null(data$data)))
 
 observeEvent(input$import.browse.openml_rows_selected, {
   reqAndAssign(isolate(OMLData()), "opml")

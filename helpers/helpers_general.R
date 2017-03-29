@@ -62,9 +62,9 @@ validateLearner = function(lrns = NULL, req = FALSE, check = "exists") {
     mess = NULL
   } else {
     if (check == "exists") {
-      mess = "You didn't create a learner yet." 
+      mess = "You didn't create a learner yet."
     } else {
-      mess = "Constructing the learner failed with the following error:" 
+      mess = "Constructing the learner failed with the following error:"
     }
   }
 
@@ -118,7 +118,7 @@ reqNFeat = function(feat.sel, df) {
 }
 
 
-# FIXME: mlr: create makeAutoTask or whatever depending on target? 
+# FIXME: mlr: create makeAutoTask or whatever depending on target?
 sMakeTask = function(id, target, df, weights = NULL) {
   tsk.weights = NULL
   if (!is.null(weights) & weights != "-") {
@@ -215,7 +215,3 @@ makeRecodeLevelUI = function(levs) {
     # )
   })
 }
-
-
-
-
