@@ -1,18 +1,17 @@
 .shiny-input-container {
+/*  width: 100px;
+  display: inline-block;*/
   font-size: 13px;
+  /*margin: auto;*/
 }
  /*main sidebar*/
- .main-sidebar, .left-side {
-  /*margin-top: 35px;*/
-  /*padding-right: 0;*/
-  /*padding-top: 0px;*/
+/* .main-sidebar, .left-side {
   color: #fff;
 }
 .main-sidebar {
-  /*margin-top: 120px;*/
   background-color: #686F76;
   color: #fff;
-}
+}*/
 
 /*
 .main-sidebar .sidebar .sidebar-menu {
@@ -26,14 +25,39 @@
 }
 */
 
+.container-fluid {
+  padding-left: 0px;
+}
+
+.col-sm-4{
+  float: left;
+  margin-left: 0;
+  padding-right: 0;
+  width: 25%;
+  off
+}
+
+/*.col-sm-8{
+  margin-left: 20px;
+}*/
+
+.well{
+  min-height: 100%;
+  width: 80%;
+  margin-left: 0px;
+  padding-left: 5px;
+  padding-right: 5px;
+  background-color: #686F76;
+}
+
 .sidebar-menu > li.header {
   color: #fff;
   background: #1a2226;
 }
 
-.sidebar a {
+/*.sidebar a {
   color: #fff;
-}
+}*/
 
 .sidebar-menu > li {
   color: #fff;
@@ -45,7 +69,15 @@
   background-color: #686F76;
   border-left-color: #e7552c;
 }
-/*
+.sidebar-menu a{
+  color: #fff;
+}
+
+
+.sidebar-menu .shiny-input-container {
+  font-size: 13px;
+  color: #fff;
+}
 
 .sidebar-menu > li > .treeview-menu {
   margin: 0 1px;
@@ -86,6 +118,7 @@ body {
   padding-right: 0px;
   font-family: 'Roboto', sans-serif;
   font-size: 13px;
+  background-color: #E8E8E8;
 }
 
 /* * {
@@ -100,29 +133,33 @@ body {
   margin: 0 0;
   padding: 0, 0;
 }
-
-/*.container-fluid {
+/*
+.container-fluid {
   margin: 0px 0px;
   padding-left: 10px;
-}
+}*/
+
+
 .navbar {
-  height: 90px;
+  height: 80px;
+  margin-bottom: 5px;
 }
-.navlogo img{
+
+/*.navlogo img{
   padding-bottom: 10px;
 }
 
 .navbar-static-top {
   height: 70px;
-}
+}*/
 
 
 
 .navbar-static-top .navbar-nav li a {
-    line-height: 70px;
-    height: 70px;
+    line-height: 80px;
+    height: 80px;
     padding-top: 0;
-}*/
+}
 /*
 .navlogo img{
    position:absolute;
@@ -243,18 +280,15 @@ border-top-color: #ca7b01;
   color: #000;*/
 }
 
-* {
+/** {
   border-color: #fff;
   border-radius: 1px;
-}
+}*/
 
 .btn.btn-default.action-button.shiny-bound-input {
   background-color: #e7552c;
   border: 0px;
   /*margin-left: 30%;*/
-  position: relative;
-  top: 50%;
-  left: 30%;
 }
 
 .btn.btn-default.action-button.shiny-bound-input:hover {
@@ -270,11 +304,10 @@ border-top-color: #ca7b01;
 }
 
 .btn.btn-default.shiny-download-link.shiny-bound-output {
+  color: #fff;
+  font-weight: 200;
   background-color: #41454A;
   width: 80%;
-  position: relative;
-  top: 50%;
-  left:5%;
 }
 
 .padded-text {

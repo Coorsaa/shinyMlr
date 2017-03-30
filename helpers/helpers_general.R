@@ -174,7 +174,7 @@ printTaskOverviewUI = function(tsk) {
   dsc = tsk$task.desc
   n.feat = t(as.data.frame(dsc$n.feat))
   rownames(n.feat) = NULL
-  box(width = 12, title = "Task overview", status = "primary", solidHeader = TRUE,
+  box(width = 12, title = "Task overview", status = "warning", solidHeader = TRUE,
     makeTaskDescLine("Supervised task: ", dsc$id),
     makeTaskDescLine("Type: ", dsc$type),
     makeTaskDescLine("Observations: ", as.character(dsc$size)),

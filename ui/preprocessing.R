@@ -1,6 +1,7 @@
-tabpanel.preprocessing = bootstrapPage(
-  dashboardHeader(),
-  dashboardSidebar(
+tabpanel.preprocessing = fluidPage(theme = shinytheme("united"),
+  sidebarLayout(
+  sidebarPanel(
+    div(align = "center",
     sidebarMenu(
       menuItem("Choose data"),
       selectInput("preproc_df", "", choices = c("training set", "test set"),
@@ -21,8 +22,9 @@ tabpanel.preprocessing = bootstrapPage(
     bsButton("preproc_undo", "undo", icon = icon("undo")),
     tags$hr(),
     downloadButton("preproc.data.download", "save processed data")
+  )
   ),
-  dashboardBody(
+  mainPanel(
     fluidRow(htmlOutput("preproc.text")),
     fluidRow(
         box(width = 12, title = "Settings",
@@ -39,6 +41,7 @@ tabpanel.preprocessing = bootstrapPage(
         )
     )
   )
+)
 )
 #   ,
 #   fluidRow(

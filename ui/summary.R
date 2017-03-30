@@ -1,5 +1,5 @@
-tabpanel.summary = bootstrapPage(
-  fluidPage(
+tabpanel.summary = bootstrapPage(theme = shinytheme("united"),
+  # fluidPage(
     box(width = 12, title = "Data Summary",
       htmlOutput("summary.text"),
       br(),
@@ -15,5 +15,5 @@ tabpanel.summary = bootstrapPage(
         )
       )
     )
-  )
+#  )
 )

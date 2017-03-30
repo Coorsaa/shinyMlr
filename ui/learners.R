@@ -1,4 +1,5 @@
-tabpanel.learners = list(
+tabpanel.learners = fluidPage(
+  theme = shinytheme("united"),
   fluidRow(
     box(title = "Choose learners", width = 12, collapsible = TRUE,
       htmlOutput("learners.text"),

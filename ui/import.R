@@ -1,14 +1,16 @@
-tabpanel.import = bootstrapPage(# theme = "bootstrap.css",
+tabpanel.import = fluidPage(theme = shinytheme("united"),
   # div(id="sidebar-wrapper">
   #           <ul class="sidebar-nav" style="margin-left:0;">
   # useShinyjs(),
-  br(),
-  # sidebarLayout(
-  dashboardHeader(disable = TRUE),
-    dashboardSidebar(
+  # br(),
+  sidebarLayout(
+  # dashboardHeader(disable = TRUE),
+  #  dashboardSidebar(
+    sidebarPanel(
       uiOutput("import.ui")
     ),
-    dashboardBody(
+  #  ),
+    mainPanel(
       htmlOutput("import.text"),
       # hidden(
       #   div(id = "loading.message", align = "center",
@@ -19,6 +21,7 @@ tabpanel.import = bootstrapPage(# theme = "bootstrap.css",
       uiOutput("tabpanel.browse.openml")
     )
   )
+)
 
 
 # tabpanel.import = list()

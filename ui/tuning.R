@@ -1,43 +1,44 @@
-tabpanel.tuning = fluidRow(
-  tabBox(width = 12,
-    tabPanel(title = "Tuning selection",
-      htmlOutput("tuning.explanation.text"),
-      fluidRow(
-        column(width = 4, align = "center",
-          makeSidebar(bar.height = 540,
-            uiOutput("tuning.sel")
+tabpanel.tuning = fluidPage(
+  theme = shinytheme("united"),
+  sidebarLayout(
+    sidebarPanel(uiOutput("tuning.sel")),
+      mainPanel(
+        tabBox(width = 12,
+          tabPanel(title = "Tuning selection",
+          htmlOutput("tuning.explanation.text"),
+          fluidRow(
+            # column(width = 8, align = "center",
+            htmlOutput("tuning.validation"),
+            dataTableOutput("tuning.table")
+            #  )
           )
         ),
-        column(width = 8, align = "center", 
-          htmlOutput("tuning.validation"),
-          dataTableOutput("tuning.table")
-        )
-      )
-    ),
-    tabPanel(title = "Param settings",
-      htmlOutput("tuning.settings.text"),
-      fluidRow(
-        column(12,
-          uiOutput("tuning.learner.params")
-        )
-      ),
-      br(),
-      br(),
-      fluidRow(      
-        column(6, align = "center",
-          actionButton("tune.run", "Tune learner")
-        ),
-        column(6, align = "center",
-          actionButton("tune.set.hp", "Transfer opt. hyperpars to learner")
-        )
-      ),
-      br(),
-      br(),
-      fluidRow(width = 12,
-        column(12, align = "center",
-          hidden(infoBoxOutput("transfer.info.box", width = 12)),
-          verbatimTextOutput("print.tuning.ps"),
-          verbatimTextOutput("tuning.text")
+        tabPanel(title = "Param settings",
+          htmlOutput("tuning.settings.text"),
+          fluidRow(
+            column(12,
+              uiOutput("tuning.learner.params")
+            )
+          ),
+          br(),
+          br(),
+          fluidRow(
+            column(6, align = "center",
+              actionButton("tune.run", "Tune learner")
+            ),
+            column(6, align = "center",
+              actionButton("tune.set.hp", "Transfer opt. hyperpars to learner")
+            )
+          ),
+          br(),
+          br(),
+          fluidRow(# width = 12,
+            column(12, align = "center",
+              hidden(infoBoxOutput("transfer.info.box", width = 12)),
+              verbatimTextOutput("print.tuning.ps"),
+              verbatimTextOutput("tuning.text")
+            )
+          )
         )
       )
     )

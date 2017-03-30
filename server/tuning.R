@@ -8,9 +8,11 @@ output$tuning.sel = renderUI({
   reqAndAssign(measures.default(), "ms.def")
   lrns = learners()
   lrns.ids = names(lrns)
-  list(
-    selectInput("tuning.learner.sel", "Choose learner to tune", choices = lrns.ids),
-    selectInput("tuning.method", "Choose tuning method", 
+  sidebarMenu(
+    menuItem("Choose learner to tune:"),
+    selectInput("tuning.learner.sel", "", choices = lrns.ids),
+    menuItem("Choose tuning method:"),
+    selectInput("tuning.method", "",
       choices = c("Grid", "Random", "irace"), selected = "Grid"),
     uiOutput("tuning.iters"),
     numericInput("tuning.cv", "No. of CV folds", min = 1L, max = Inf, value = 3L, step = 1L),
@@ -52,7 +54,7 @@ output$tuning.iters = renderUI({
 
 output$tuning.parallel.ui = renderUI({
   list(
-    radioButtons("tuning.parallel", "Parallel tuning?", choices = c("Yes", "No"), selected = "No"),
+    radioButtons("tuning.parallel", "Parallel tuning?", choices = c("Yes", "No"), selected = "No", inline = TRUE),
     numericInput("tuning.parallel.nc", "No. of cores", min = 1L, max = Inf, value = 2L, step = 1L)
   )
 })
@@ -77,7 +79,7 @@ tuning.learner = reactive({
 tuning.par.set = reactive({
   reqAndAssign(input$tuning.learner.sel, "lrn")
   par.sets = learners.par.sets()
-  tuning.par.set = filterParams(par.sets[[lrn]], tunable = TRUE, 
+  tuning.par.set = filterParams(par.sets[[lrn]], tunable = TRUE,
     type = c("integer", "numeric", "discrete"))
   tuning.par.set
 })
@@ -107,25 +109,25 @@ tuning = eventReactive(input$tune.run, {
   reqAndAssign(input$tuning.cv, "cv")
   reqAndAssign(tuning.measures.perf(), "ms")
   reqAndAssign(input$tuning.parallel, "parallel")
-  
+
   param.ids = getParamIds(par.set)[input$tuning.table_rows_selected]
   param.types = getParamTypes(par.set)[input$tuning.table_rows_selected]
   param.defs = Map(function(param) {par.set$pars[[param]]$default}, param.ids)
-  
+
   ps = do.call("makeParamSet",
     Map(function(param, param.type, param.def) {
-    
+
       if (param.type == "numeric") {
-        
+
         validate(
           need(input[[paste0("tune.par.lower.", param)]], paste0("No lower value set for ", param, "!")),
           need(input[[paste0("tune.par.upper.", param)]], paste0("No upper value set for ", param, "!"))
         )
-        
+
         param.low = input[[paste0("tune.par.lower.", param)]]
         param.up = input[[paste0("tune.par.upper.", param)]]
         param.trafo = input[[paste0("tune.par.trafo.", param)]]
-        
+
         if (param.trafo == "linear")
           makeNumericParam(id = param, lower = param.low, upper = param.up)
         else if (param.trafo == "log2")
@@ -133,16 +135,16 @@ tuning = eventReactive(input$tune.run, {
         else if (param.trafo == "log10")
           makeNumericParam(id = param, lower = param.low, upper = param.up, trafo = function (x) 10^x)
       } else if (param.type == "integer") {
-        
+
         validate(
           need(input[[paste0("tune.par.lower.", param)]], paste0("No lower value set for ", param, "!")),
           need(input[[paste0("tune.par.upper.", param)]], paste0("No upper value set for ", param, "!"))
         )
-        
+
         param.low = input[[paste0("tune.par.lower.", param)]]
         param.up = input[[paste0("tune.par.upper.", param)]]
         param.trafo = input[[paste0("tune.par.trafo.", param)]]
-        
+
         if (param.trafo == "linear")
           makeIntegerParam(id = param, lower = param.low, upper = param.up)
         else if (param.trafo == "log2")
@@ -150,11 +152,11 @@ tuning = eventReactive(input$tune.run, {
         else if (param.trafo == "log10")
           makeIntegerParam(id = param, lower = param.low, upper = param.up, trafo = function (x) 10^x)
       } else if (param.type == "discrete") {
-        
+
         validate(
           need(input[[paste0("tune.par.checkbox", param)]], paste0("No values selected for ", param, "!"))
         )
-        
+
         param.box = input[[paste0("tune.par.checkbox", param)]]
         if (suppressWarnings(!any(is.na(as.numeric(param.box)))))
           param.box = as.integer(param.box)
@@ -175,7 +177,7 @@ tuning = eventReactive(input$tune.run, {
     max.exp = input$tuning.max.exp
     ctrl = makeTuneControlIrace(maxExperiments = max.exp)
   }
-  
+
   if (parallel == "No") {
     withCallingHandlers({
     res = tryCatch(tuneParams(lrn, task = tsk, resampling = rdesc, par.set = ps,
@@ -195,13 +197,13 @@ tuning = eventReactive(input$tune.run, {
       })
     parallelStop()
   }
-  
+
   # configureMlr()
 
   if (!is.character(res)) {
     tuned.lrn = setHyperPars(lrn, par.vals = res$x)
     lrns[[lrn$id]] = tuned.lrn
-    learner$tuned.learner = lrns    
+    learner$tuned.learner = lrns
   }
   return(res)
 })

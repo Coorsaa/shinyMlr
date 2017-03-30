@@ -3,7 +3,10 @@
 output$task.id = renderUI({
   req(data.name)
   id = data.name()
-  textInput("task.id", "Task ID", value = id)
+  sidebarMenu(
+    menuItem("Task ID"),
+    textInput("task.id", "", value = id)
+  )
 })
 
 output$task.target = renderUI({
@@ -12,7 +15,10 @@ output$task.target = renderUI({
   tsk.weights = input$task.weights
   req(tsk.weights)
   choices = col.names[col.names != tsk.weights]
-  selectInput("task.target", "Choose a target:", choices = choices, selected = getLast(choices))
+  sidebarMenu(
+    menuItem("Choose a target:"),
+    selectInput("task.target", "", choices = choices, selected = getLast(choices))
+  )
 })
 
 output$task.weights = renderUI({
@@ -21,7 +27,10 @@ output$task.weights = renderUI({
   choices = col.names[col.names != tsk.tar]
   choices = c("-", choices)
   sel = input$task.weights
-  selectInput("task.weights", "Observation weights (optional):", choices = choices, selected = sel)
+  sidebarMenu(
+    menuItem("Observation weights (optional):"),
+    selectInput("task.weights", "", choices = choices, selected = sel)
+  )
 })
 
 
@@ -43,7 +52,7 @@ observeEvent(input$create.task, {
     df[, input$task.weights] = mlr:::getTaskWeights(task)
     data$data = df[, org.col.names]
   } else {
-    data$data = getTaskData(task)  
+    data$data = getTaskData(task)
   }
 })
 
