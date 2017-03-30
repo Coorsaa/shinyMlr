@@ -34,7 +34,10 @@
   margin-left: 0;
   padding-right: 0;
   width: 25%;
-  off
+}
+
+#model_overview {
+  color: #fff;
 }
 
 /*.col-sm-8{
@@ -77,6 +80,13 @@
 .sidebar-menu .shiny-input-container {
   font-size: 13px;
   color: #fff;
+  font-weight: 400;
+}
+
+.sidebar-menu .shiny-input-container label{
+  font-size: 13px;
+  color: #fff;
+  font-weight: 200;
 }
 
 .sidebar-menu > li > .treeview-menu {

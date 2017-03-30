@@ -22,9 +22,8 @@ makeModelUI = function(mod, tsk) {
       makeInfoDescription("Features:", tsk.nfeats, 6, inline = FALSE)
     )
   )
-  par.vals.box = box(title = "Parameter values", status = "primary",
+  par.vals.box = box(title = "Parameter values", status = "warning",
     solidHeader = TRUE, width = 12,
-    # lrn.par.vals
     renderDataTable(lrn.par.vals)
   )
   ui = list(
@@ -38,7 +37,7 @@ makeImportPredSideBar = function(type, newdata.type) {
   if (newdata.type == "task") {
     return(NULL)
   } else {
-    switch(type, 
+    switch(type,
       mlr = list(
         selectInput("import.pred.mlr", "Choose toy task", choices = c("iris.task", "bh.task", "sonar.task"))
       ),
@@ -86,7 +85,7 @@ determinePerformanceStatus = function(worst, best, perf) {
         status = "success"
         color = "color:#00a65a"
       }
-    }    
+    }
   }
   return(list(status = status, color = color))
 }
@@ -100,11 +99,11 @@ makePerformanceUI = function(measures, performances) {
   statuses = Map(function(worst, best, perf) {
      determinePerformanceStatus(worst, best, perf)
   }, ms.worst, ms.best, performances)
-  
+
   boxes = Map(function(ms.id, ms.name, perf, worst, best, status) {
     box(title = ms.id, status = status$status, solidHeader = TRUE, width = 3, height = 200,
       fluidRow(
-        div(style = "height:50px;", 
+        div(style = "height:50px;",
           column(width = 12, h5(ms.name), align = "center")
         )
       ),
@@ -208,11 +207,11 @@ makePredictionPlotSettingsUI = function(plot.type, fnames, feats, ms.def, ms,
     settings.inp = selectInput("predictionplot.feat.sel", "Select variables:",
       choices = fnames, selected = getFirst(fnames), multiple = FALSE, width = width)
     if (predict.type != "se") {
-      settings.ind = radioButtons("pd.plot.ind", "Individual expectation?", 
+      settings.ind = radioButtons("pd.plot.ind", "Individual expectation?",
         choices = c("Yes" = "TRUE", "No" = "FALSE"), inline = TRUE, selected = "FALSE")
     } else
       settings.ind = NULL
-    
+
     settings.ui = list(
       column(width = 4, settings.inp),
       column(width = 4, settings.ind),

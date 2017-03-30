@@ -17,7 +17,7 @@ tabpanel.import = fluidPage(theme = shinytheme("united"),
       #     h4("Loading datasets from OpenML")
       #   )
       # ),
-      DT::dataTableOutput("import.preview"),
+      box(width = 12, DT::dataTableOutput("import.preview")),
       uiOutput("tabpanel.browse.openml")
     )
   )

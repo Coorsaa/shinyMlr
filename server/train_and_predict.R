@@ -3,11 +3,14 @@
 output$train.learner.sel = renderUI({
   reqAndAssign(learners(), "lrns")
   lrns.ids = names(lrns)
-  sel.inp = selectInput("train.learner.sel", "Learners",
-    choices = lrns.ids)
-  tr.button = bsButton("train.run", label = "train", style = "info",
+  sel.inp = selectInput("train.learner.sel", "", choices = lrns.ids)
+  tr.button = bsButton("train.run", label = "train",
     icon = icon("graduation-cap"))
-  list(sel.inp, tr.button)
+  sidebarMenu(
+    menuItem("Learners"),
+    sel.inp,
+    tr.button
+  )
 })
 
 train.learner = reactive({
@@ -31,7 +34,7 @@ model.ov = reactive({
   makeModelUI(mod, task())
 })
 
-output$model.overview = renderUI({
+output$model_overview = renderUI({
   validateLearnerModel(model(), input$train.learner.sel, req = TRUE)
   model.ov()[[1L]]
 })
@@ -88,10 +91,10 @@ observe({
           df.test = t$data
         } else {
           if (input$import.type == "ARFF") {
-            df = input$import.pred.arff$datapath
+            df.test = input$import.pred.arff$datapath
             if (is.null(df))
               return(NULL)
-            df.test = readARFF(df)
+            df.test = foreign::read.arff(df)
           }
         }
       }
@@ -122,7 +125,7 @@ pred = eventReactive(input$predict.run, {
   feat.names = task.feature.names()
   validate(need(all(feat.names %in% colnames(newdata)),
     sprintf("Column names %s must be present in data",
-      paste(feat.names, collapse = " ")))) 
+      paste(feat.names, collapse = " "))))
   preds = tryCatch(predict(model, newdata = newdata), error = errAsString)
   preds
 })
@@ -258,7 +261,7 @@ prediction.plot.out = reactive({
   preds = pred()
   ms = measures.plot()
   resplot.type = input$residualplot.type
-  
+
   if (plot.type == "partial dependency" && lrn$predict.type == "se")
     ind = "FALSE"
   else

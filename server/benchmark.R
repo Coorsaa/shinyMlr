@@ -3,7 +3,7 @@ output$benchmark.learners.sel = renderUI({
     validateTask(input$create.task, task.data(), data$data,
     task.weights = input$task.weights, req = TRUE)
   # lrn.ids = names(lrns)
-  selectInput("benchmark.learners.sel", NULL, choices = lrn.ids,
+  selectInput("benchmark.learners.sel", "", choices = lrn.ids,
     multiple = TRUE, selected = lrn.ids)
 })
 
@@ -27,7 +27,7 @@ output$benchmark.rdesc.config = renderUI({
 
 output$benchmark.parallel.ui = renderUI({
   list(
-    radioButtons("benchmark.parallel", "Parallel benchmarking?", choices = c("Yes", "No"), selected = "No"),
+    radioButtons("benchmark.parallel", "Parallel benchmarking?", choices = c("Yes", "No"), selected = "No", inline = TRUE),
     numericInput("benchmark.parallel.nc", "No. of cores", min = 1L, max = Inf, value = 2L, step = 1L)
   )
 })
@@ -66,7 +66,7 @@ measures.bmr.avail = reactive({
 
 measures.default = reactive({
   reqAndAssign(task.type(), "tsk.type")
-  switch(tsk.type, 
+  switch(tsk.type,
     classif = "acc",
     regr = "mse")
 })
@@ -88,7 +88,7 @@ bmr = eventReactive(input$benchmark.run, {
   rd = rdesc()
   tsk = task()
   reqAndAssign(input$benchmark.parallel, "parallel")
-  
+
   if (parallel == "Yes") {
     parallelStartSocket(cpus = input$benchmark.parallel.nc, level = "mlr.resample")
     withCallingHandlers({

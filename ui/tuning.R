@@ -7,18 +7,18 @@ tabpanel.tuning = fluidPage(
           tabPanel(title = "Tuning selection",
           htmlOutput("tuning.explanation.text"),
           fluidRow(
-            # column(width = 8, align = "center",
-            htmlOutput("tuning.validation"),
-            dataTableOutput("tuning.table")
-            #  )
+            column(width = 12, align = "center",
+              htmlOutput("tuning.validation"),
+              dataTableOutput("tuning.table")
+            )
           )
         ),
         tabPanel(title = "Param settings",
-          htmlOutput("tuning.settings.text"),
+          fluidRow(htmlOutput("tuning.settings.text")),
           fluidRow(
-            column(12,
+            # column(12,
               uiOutput("tuning.learner.params")
-            )
+            # )
           ),
           br(),
           br(),
