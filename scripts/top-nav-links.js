@@ -18,7 +18,7 @@ $('.brand').outerWidth() -
 eval($('.navbar a').map(function(){
     return $(this).parent().width();
 }).get().join("+")) +
-$('a:contains("hide_me")').parent().width() - 200);
+$('a:contains("hide_me")').parent().width() - 130);
 
 //spacing of navbar
 $('a:contains("hide_me")').css("visibility", "hidden");

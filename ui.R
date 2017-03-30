@@ -49,16 +49,39 @@ shinyUI(
         ), value = "https://github.com/mlr-org/mlr"),
       tabPanel(title = "", icon = icon("github", "fa-lg"),
       value = "https://github.com/mlr-org/mlr"),
-      tabPanel(title = "", icon = icon("question-circle", "fa-lg"), value = "javascript:$('.helptext').slideToggle(); $('.fa-question-circle').parent().parent().toggleClass('active inactive');"),
-      footer = tagList(includeScript("scripts/top-nav-links.js"),
+
+
+
+      # tabPanel(title = "", icon = icon("question-circle", "fa-lg"), value = "javascript:$('.helptext').slideToggle(); $('.fa-question-circle').parent().parent().toggleClass('active');"),
+      footer = tagList(
+        includeScript("scripts/top-nav-links.js"),
         includeScript("scripts/app.js"),
         tags$link(rel = "stylesheet", type = "text/css",
           href = "custom.css"),
         tags$link(rel = "stylesheet", type = "text/css",
           href = "https://fonts.googleapis.com/css?family=Roboto"),
         tags$link(rel = "stylesheet", type = "text/css",
-          href = "AdminLTE.css")),
-      windowTitle = "shiny-mlr"
+          href = "AdminLTE.css"),
+        tags$footer(title = "", # align = "right",
+          # tags$a(id = "show_help",
+          # href = "https://github.com/mlr-org/mlr_shiny", target = "_blank",
+          # div(id = "copyright-container",
+          #   column(width = 6, align = "left",
+          tags$p(id = "copyright",
+            tags$img(icon("copyright")),
+            2017,
+            tags$a(href = "https://github.com/Coorsaa",
+              target = "_blank", "Stefan Coors, "),
+            tags$a(href = "https://github.com/florianfendt",
+              target = "_blank", "Florian Fendt"),
+            " (members of the mlr-organization)"
+          ),
+          tags$p(id = "help_toggler",
+            bsButton(inputId = "show_help", label = "show help",
+              type = "toggle", icon = icon("question-circle"))
+          )
+        )
+      ), windowTitle = "shiny-mlr"
     )
   )
 )
