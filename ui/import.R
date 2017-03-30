@@ -1,47 +1,13 @@
 tabpanel.import = fluidPage(theme = shinytheme("united"),
-  # div(id="sidebar-wrapper">
-  #           <ul class="sidebar-nav" style="margin-left:0;">
-  # useShinyjs(),
-  # br(),
   sidebarLayout(
-  # dashboardHeader(disable = TRUE),
-  #  dashboardSidebar(
-    sidebarPanel(
+    sidebarPanel(width = 3,
       uiOutput("import.ui")
     ),
-  #  ),
-    mainPanel(
+    mainPanel(width = 9,
       htmlOutput("import.text"),
-      # hidden(
-      #   div(id = "loading.message", align = "center",
-      #     h4("Loading datasets from OpenML")
-      #   )
-      # ),
       box(width = 12, DT::dataTableOutput("import.preview")),
       uiOutput("tabpanel.browse.openml")
     )
   )
 )
 
-
-# tabpanel.import = list()
-# )
-#   fluidRow(
-#     box(width = 12, title = "Import",
-#       htmlOutput("import.text"),
-#       br(),
-#       column(width = 3,
-#         makeSidebar(uiOutput("import.ui"))
-#       ),
-#       column(width = 9,
-#         hidden(
-#           div(id = "loading.message", align = "center",
-#             h4("Loading datasets from OpenML")
-#           )
-#         ),
-#         DT::dataTableOutput("import.preview"),
-#         uiOutput("tabpanel.browse.openml")
-#       )
-#     )
-#   )
-# )

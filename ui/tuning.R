@@ -1,10 +1,12 @@
 tabpanel.tuning = fluidPage(
   theme = shinytheme("united"),
   sidebarLayout(
-    sidebarPanel(uiOutput("tuning.sel")),
-      mainPanel(
-        tabBox(width = 12,
-          tabPanel(title = "Tuning selection",
+    sidebarPanel(width = 3,
+      uiOutput("tuning.sel")
+    ),
+    mainPanel(width = 9,
+      tabBox(width = 12,
+        tabPanel(title = "Tuning selection",
           htmlOutput("tuning.explanation.text"),
           fluidRow(
             column(width = 12, align = "center",
@@ -16,9 +18,7 @@ tabpanel.tuning = fluidPage(
         tabPanel(title = "Param settings",
           fluidRow(htmlOutput("tuning.settings.text")),
           fluidRow(
-            # column(12,
-              uiOutput("tuning.learner.params")
-            # )
+            uiOutput("tuning.learner.params")
           ),
           br(),
           br(),
@@ -32,7 +32,7 @@ tabpanel.tuning = fluidPage(
           ),
           br(),
           br(),
-          fluidRow(# width = 12,
+          fluidRow(
             column(12, align = "center",
               hidden(infoBoxOutput("transfer.info.box", width = 12)),
               verbatimTextOutput("print.tuning.ps"),

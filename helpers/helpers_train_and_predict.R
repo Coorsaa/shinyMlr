@@ -261,16 +261,3 @@ makePredictionPlotSettingsUI = function(plot.type, fnames, feats, ms.def, ms,
   }
   return(settings.ui)
 }
-
-
-addPlotTheme = function(plot.obj) {
-  plot.theme = theme(axis.line = element_line(size = 1, colour = "black"),
-    panel.grid.major = element_line(colour = "#d3d3d3"),
-    panel.grid.minor = element_blank(),
-    panel.border = element_blank(),
-    panel.background = element_blank(),
-    plot.title = element_blank(),
-    axis.text.x = element_text(colour = "black", size = 9),
-    axis.text.y = element_text(colour = "black", size = 9))
-  plot.obj + theme_bw() + plot.theme
-}

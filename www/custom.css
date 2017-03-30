@@ -25,16 +25,16 @@
 }
 */
 
-.container-fluid {
+/*.container-fluid {
   padding-left: 0px;
-}
+}*/
 
-.col-sm-4{
+/*.col-sm-4{
   float: left;
   margin-left: 0;
   padding-right: 0;
   width: 25%;
-}
+}*/
 
 #model_overview {
   color: #fff;
@@ -47,7 +47,7 @@
 .well{
   min-height: 100%;
   width: 80%;
-  margin-left: 0px;
+  margin-left: -10px;
   padding-left: 5px;
   padding-right: 5px;
   background-color: #686F76;
@@ -58,9 +58,9 @@
   background: #1a2226;
 }
 
-/*.sidebar a {
+.sidebar a {
   color: #fff;
-}*/
+}
 
 .sidebar-menu > li {
   color: #fff;
@@ -97,13 +97,15 @@
 .sidebar a:hover {
   text-decoration: none;
 }
+
 .treeview-menu > li > a {
   color: #8aa4af;
 }
+
 .treeview-menu > li.active > a,
 .treeview-menu > li > a:hover {
   color: #ffffff;
-}*/
+}
 
 .navbarlink {
   margin: 0px, 0px;
@@ -151,8 +153,9 @@ body {
 
 
 .navbar {
-  height: 80px;
-  margin-bottom: 5px;
+  font-size: 14px;
+/*  height: 80px;
+  margin-bottom: 5px;*/
 }
 
 /*.navlogo img{
@@ -165,11 +168,11 @@ body {
 
 
 
-.navbar-static-top .navbar-nav li a {
+/*.navbar-static-top .navbar-nav li a {
     line-height: 80px;
     height: 80px;
     padding-top: 0;
-}
+}*/
 /*
 .navlogo img{
    position:absolute;
@@ -296,6 +299,7 @@ border-top-color: #ca7b01;
 }*/
 
 .btn.btn-default.action-button.shiny-bound-input {
+  color: #fff;
   background-color: #e7552c;
   border: 0px;
   /*margin-left: 30%;*/

@@ -1,6 +1,6 @@
 tabpanel.task = fluidPage(
   sidebarLayout(
-    sidebarPanel(
+    sidebarPanel(width = 3,
       div(align = "center",
           uiOutput("task.id"),
           uiOutput("task.target"),
@@ -11,24 +11,9 @@ tabpanel.task = fluidPage(
           tags$hr()
       )
     ),
-    mainPanel(
+    mainPanel(width = 9,
       fluidRow(htmlOutput("task.text")),
       fluidRow(uiOutput("task.overview"))
     )
   )
 )
-#   box(width = 12, title = "Task",
-#     fluidRow(htmlOutput("task.text")),
-#     fluidRow(
-#       column(width = 3, align = "center",
-#         makeSidebar(
-
-#         )
-#       ),
-#       column(width = 9,
-#         fluidRow(uiOutput("task.overview"))
-#       )
-#     )
-#   )
-# )
-

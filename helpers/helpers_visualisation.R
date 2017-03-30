@@ -15,7 +15,7 @@ checkPlotLearnerPrediction = function(tsk.type, fnames, feats) {
 
 checkPlotROCCurves = function(lrn) {
   validate(
-    need(lrn$predict.type == "prob", "You must predict probabilities to plot ROC curves.")  
+    need(lrn$predict.type == "prob", "You must predict probabilities to plot ROC curves.")
   )
 }
 
@@ -23,7 +23,7 @@ checkPlotPartialDependency = function(tsk.type, lrn, fnames) {
   validateNumFeatures(fnames)
   if (tsk.type == "classif") {
     validate(
-      need(lrn$predict.type == "prob", "You must predict probabilities to plot partial dependency plots.")  
+      need(lrn$predict.type == "prob", "You must predict probabilities to plot partial dependency plots.")
     )
   }
 }
@@ -60,5 +60,19 @@ makeVisualisationSelectionUI = function(tsk) {
     )
   }
   return(vis.inp)
+}
+
+
+addPlotTheme = function(plot.obj) {
+  plot.theme = theme(axis.line = element_line(size = 1, colour = "black"),
+    panel.grid.major = element_line(colour = "#d3d3d3"),
+    panel.grid.minor = element_blank(),
+    panel.border = element_blank(),
+    panel.background = element_blank(),
+    plot.title = element_blank(),
+    axis.text.x = element_text(colour = "black", size = 9),
+    axis.title.x = element_text(vjust = 0.9),
+    axis.text.y = element_text(colour = "black", size = 9))
+  plot.obj + theme_bw() + plot.theme
 }
 

@@ -1,6 +1,6 @@
 tabpanel.preprocessing = fluidPage(theme = shinytheme("united"),
   sidebarLayout(
-  sidebarPanel(
+  sidebarPanel(width = 3,
     div(align = "center",
     sidebarMenu(
       menuItem("Choose data"),
@@ -24,7 +24,7 @@ tabpanel.preprocessing = fluidPage(theme = shinytheme("united"),
     downloadButton("preproc.data.download", "save processed data")
   )
   ),
-  mainPanel(
+  mainPanel(width = 9,
     fluidRow(htmlOutput("preproc.text")),
     fluidRow(
         box(width = 12, title = "Settings",

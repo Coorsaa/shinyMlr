@@ -1,6 +1,6 @@
 tabpanel.benchmark = fluidPage(theme = shinytheme("united"),
   sidebarLayout(
-    sidebarPanel(
+    sidebarPanel(width = 3,
       sidebarMenu(
         menuItem("Select learners:"),
         uiOutput("benchmark.learners.sel"),
@@ -19,21 +19,26 @@ tabpanel.benchmark = fluidPage(theme = shinytheme("united"),
         )
       )
     ),
-    mainPanel(
+    mainPanel(width = 9,
+      fluidRow(
       tabBox(width = 12,
         tabPanel("Benchmark",
-          htmlOutput("benchmark.explanatory.text"),
           fluidRow(
-            div(align = "center",
+            column(width = 12, align = "center",
+          htmlOutput("benchmark.explanatory.text"),
+          # fluidRow(
+           #  div(align = "center",
               verbatimTextOutput("benchmark.text"),
               br(),
               dataTableOutput("benchmark.overview")
-            )
-          )
+            # )
+          # )
+          ))
         ),
         tabPanel("Visualisations",
-          htmlOutput("benchmark.plots.text"),
           fluidRow(
+          htmlOutput("benchmark.plots.text"),
+          # fluidRow(
             column(6, align = "center",
               selectInput("bmrplots.type", label = "Plot Type",
                 selected = "Beanplots", choices = c("Beanplots", "Boxplots"),
@@ -41,15 +46,17 @@ tabpanel.benchmark = fluidPage(theme = shinytheme("united"),
             ),
             column(6, align = "center",
               uiOutput("bmrplot.measures.sel")
+            ),
+          # ),
+          # fluidRow(
+            column(width = 12, align = "center",
+              div(style = "display:inline-block",
+                plotlyOutput("bmrplots", height = 600)
+              )
             )
-          ),
-          fluidRow(
-            box(width = 12,
-              plotlyOutput("bmrplots")
-            )
-          )
+          # )
         )
-      )
+      )))
     )
   )
 )

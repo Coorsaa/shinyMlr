@@ -1,6 +1,6 @@
 tabpanel.report = fluidPage(theme = shinytheme("united"),
   sidebarLayout(
-    sidebarPanel(
+    sidebarPanel(width = 3,
       sidebarMenu(
         menuItem("Document Format"),
         selectInput("report.format", "",
@@ -15,7 +15,7 @@ tabpanel.report = fluidPage(theme = shinytheme("united"),
         div(align = "center", downloadButton("report", "Generate report"))
       )
     ),
-    mainPanel(
+    mainPanel(width = 9,
       fluidRow(
         htmlOutput("report.text")
       ),
