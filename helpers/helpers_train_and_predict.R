@@ -33,30 +33,50 @@ makeModelUI = function(mod, tsk) {
   return(ui)
 }
 
-makeImportPredSideBar = function(type, newdata.type) {
+makeImportPredSideBar = function(newdata.type, type) {
   if (newdata.type == "task") {
     return(NULL)
   } else {
+    imptype.pred.sel.input = sidebarMenu(
+      menuItem("Type"),
+      selectInput("import.pred.type", "", selected = type,
+        choices = c("mlr", "OpenML", "CSV", "ARFF"))
+    )
     switch(type,
       mlr = list(
-        selectInput("import.pred.mlr", "Choose toy task", choices = c("iris.task", "bh.task", "sonar.task"))
+      imptype.pred.sel.input,
+      sidebarMenu(
+        menuItem("Choose mlr task"),
+        selectInput("import.pred.mlr", "", choices = c("iris.task", "bh.task", "sonar.task"))
+      )
       ),
       OpenML = list(
-        selectInput("import.pred.OpenML", "Choose OpenML Data ID", selected = 61L, choices = listOMLDataSets()[,1], multiple = FALSE)
+        imptype.pred.sel.input,
+        sidebarMenu(
+          menuItem("Choose OpenML Data ID"),
+        selectInput("import.pred.OpenML", "", selected = 61L,
+          choices = listOMLDataSets()[,1], multiple = FALSE)
+        )
       ),
       CSV = list(
+        imptype.pred.sel.input,
+        sidebarMenu(
+          menuItem("Import"),
         fileInput("import.pred.csv", "Choose CSV File",
           accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv")),
-        tags$hr(),
         checkboxInput("import.pred.header", "Header", TRUE),
         selectInput("import.pred.sep", "Separator", selected = ",",
           choices = c(Comma = ",", Semicolon = ";", Tab = "\t")),
         selectInput("import.pred.quote", "Quote", selected = '"',
           choices = c(None = "", "Double Quote" = '"', "Single Quote" = "'"))
+        )
       ),
       ARFF = list(
-        fileInput("import.pred.arff", "Choose ARFF File",
-          accept = c("text/arff", "text/comma-separated-values,text/plain", ".arff"))
+        imptype.pred.sel.input,
+        sidebarMenu(
+          menuItem("Choose ARFF File"),
+          fileInput("import.pred.arff", "", accept = c(".arff"))
+        )
       )
     )
   }

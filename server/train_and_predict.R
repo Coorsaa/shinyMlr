@@ -54,8 +54,11 @@ output$model.params = renderUI({
 
 output$import.pred.ui = renderUI({
   newdata.type = input$newdatatype
+  imp.type = input$import.type
   type = input$import.pred.type
-  makeImportPredSideBar(type, newdata.type)
+  if (is.null(type))
+    type = imp.type
+  makeImportPredSideBar(newdata.type, type)
 })
 
 observe({
@@ -66,39 +69,32 @@ observe({
     import.pred.type = "mlr"
   if (newdata.type == "task") {
     df.test = task.data()
-  } else {
-    if (import.pred.type == "mlr") {
-      mlr.imp = input$import.mlr
-      df.test = getTaskData(get(mlr.imp))
+  } else if (import.pred.type == "mlr") {
+    mlr.imp = input$import.mlr
+    df.test = getTaskData(get(mlr.imp))
+  } else if (import.pred.type == "CSV") {
+    df = input$import.pred.csv$datapath
+    if (is.null(df))
+      return(NULL)
+    df.test = read.csv(df, header = input$import.pred.header, sep = input$import.pred.sep,
+    quote = input$import.pred.quote)
+  } else if (import.pred.type == "OpenML") {
+    imp.status = need(!is.null(input$import.pred.OpenML), "")
+    if (is.null(imp.status)) {
+      if (is.na(input$import.pred.OpenML))
+        return(NULL)
+      data.id = as.integer(input$import.pred.OpenML)
     } else {
-      if (import.pred.type == "CSV") {
-        df = input$import.pred.csv$datapath
-        if (is.null(df))
-          return(NULL)
-        df.test = read.csv(df, header = input$import.pred.header, sep = input$import.pred.sep,
-          quote = input$import.pred.quote)
-      } else {
-        if (import.pred.type == "OpenML") {
-          imp.status = need(!is.null(input$import.pred.OpenML), "")
-          if (is.null(imp.status)) {
-            if (is.na(input$import.pred.OpenML))
-              return(NULL)
-            data.id = as.integer(input$import.pred.OpenML)
-          } else {
-            data.id = 61L
-          }
-          t = getOMLDataSet(data.id = data.id)
-          df.test = t$data
-        } else {
-          if (input$import.type == "ARFF") {
-            df.test = input$import.pred.arff$datapath
-            if (is.null(df))
-              return(NULL)
-            df.test = foreign::read.arff(df)
-          }
-        }
-      }
+    data.id = 61L
     }
+    t = getOMLDataSet(data.id = data.id)
+    df.test = t$data
+  } else if (input$import.pred.type == "ARFF") {
+    df = input$import.pred.arff$datapath
+    if (is.null(df))
+      df.test = NULL
+    else
+      df.test = foreign::read.arff(df)
   }
   data$data.test = df.test
 })
