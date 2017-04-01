@@ -2,5 +2,6 @@
 
 export(downloadShinyMlr)
 export(runShinyMlr)
+import(checkmate)
+import(shiny)
 importFrom(git2r,clone)
-importFrom(shiny,runApp)

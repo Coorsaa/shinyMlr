@@ -1,17 +1,23 @@
 #' Run a local instance of shinyMlr
 #'
-#' @param path The directory containing the intRo folder
-#' @param ... Additional arguments passed to shiny's
+#' @param path [\code{character(1)}]\cr
+#'   The directory containing the application folder.
+#' @param ... [\code{any}]\cr
+#'   Additional arguments passed to shiny's
 #'   \code{runApp()} function.
-#' @export
-#' @importFrom shiny runApp
 #' @examples
 #' \dontrun{
 #'   library(shinyMlr)
 #'   downloadShinyMlr()
 #'    runShinyMlr()
 #' }
+#' @seealso downloadShinyMlr
+#' @export
 runShinyMlr = function(path = getwd(), ...) {
-    path = file.path(path, "shinyMlr")
-    runApp(path, ...)
+  assertCharacter(path, len = 1L)
+  extra.args = list(...)
+  assertList(extra.args, names = "named",
+    .var.name = "runApp arguments")
+  path = makeAppPath(path)
+  runApp(path, ...)
 }

@@ -7,9 +7,11 @@
 runShinyMlr(path = getwd(), ...)
 }
 \arguments{
-\item{path}{The directory containing the intRo folder}
+\item{path}{[\code{character(1)}]\cr
+The directory containing the application folder.}
 
-\item{...}{Additional arguments passed to shiny's
+\item{...}{[\code{any}]\cr
+Additional arguments passed to shiny's
 \code{runApp()} function.}
 }
 \description{
@@ -21,4 +23,7 @@ Run a local instance of shinyMlr
   downloadShinyMlr()
    runShinyMlr()
 }
+}
+\seealso{
+downloadShinyMlr
 }

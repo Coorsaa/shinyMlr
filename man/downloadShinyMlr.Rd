@@ -7,7 +7,8 @@
 downloadShinyMlr(path = getwd())
 }
 \arguments{
-\item{path}{The directory to download the application to}
+\item{path}{[\code{character(1)}]\cr
+The directory to download the application to.}
 }
 \description{
 Download an instance of shinyMlr to your machine
@@ -16,4 +17,7 @@ Download an instance of shinyMlr to your machine
 \dontrun{
     downloadShinyMlr()
 }
+}
+\seealso{
+runShinyMlr
 }
