@@ -1,0 +1,27 @@
+Package: shinyMlr
+Title:  A graphical user interface for machine learning in R
+Description:
+  shinyMlr wraps the functionalities of the R-package mlr
+  into a graphical user-interface built with shiny.
+  This enables the user to conduct all steps of the machine learning workflow from his browser.
+Authors@R: c(
+  person("Florian", "Fendt", email = "flo_fendt@gmx.de", role = c("aut", "cre")),
+  person("Stefan", "Coors", email = "stefan.coors@gmx.net", role = "aut"),
+  person("Bernd", "Bischl", email = "bernd_bischl@gmx.net", role = c("aut"))
+  )
+URL: https://github.com/mlr-org/shinyMlr
+BugReports: https://github.com/mlr-org/shinyMlrissues
+License: BSD_2_clause + file LICENSE
+Encoding: UTF-8
+Depends: R (>= 3.3.2)
+Imports:
+  git2r,
+  shiny
+Suggests:
+  mlr,
+  roxygen2,
+  knitr
+LazyData: true
+Version: 1.0
+VignetteBuilder: knitr
+RoxygenNote: 6.0.1

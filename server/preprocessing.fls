@@ -1,8 +1,0 @@
-PWD /Users/Flo/work/mlr-org/mlr_shiny/server
-INPUT /usr/local/texlive/2015/texmf.cnf
-INPUT /usr/local/texlive/2015/texmf-dist/web2c/texmf.cnf
-INPUT /usr/local/texlive/2015/texmf-var/web2c/pdftex/pdflatex.fmt
-INPUT /Users/Flo/work/mlr-org/mlr_shiny/server/preprocessing.R
-OUTPUT /Users/Flo/work/mlr-org/mlr_shiny/server/preprocessing.log
-OUTPUT /Users/Flo/work/mlr-org/mlr_shiny/server/preprocessing.pdf
-INPUT /usr/local/texlive/2015/texmf-var/fonts/map/pdftex/updmap/pdftex.map
