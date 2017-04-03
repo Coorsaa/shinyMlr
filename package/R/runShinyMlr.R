@@ -1,4 +1,7 @@
-#' Run a local instance of shinyMlr
+#' @title Run shinyMlr
+#' 
+#' @description 
+#' Run a local instance of shinyMlr.
 #'
 #' @param ... [\code{any}]\cr
 #'   Additional arguments passed to shiny's
