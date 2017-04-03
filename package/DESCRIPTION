@@ -18,7 +18,6 @@ Depends:
   R (>= 3.3.2)
 Imports:
   checkmate,
-  git2r,
   shiny
 Suggests:
   mlr,
