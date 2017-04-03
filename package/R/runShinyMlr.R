@@ -5,11 +5,11 @@
 #'   \code{runApp()} function.
 #' @examples
 #' \dontrun{
-#'   library(shinyMlr)
-#'   downloadShinyMlr()
-#'    runShinyMlr()
+#'   runShinyMlr()
 #' }
 #' @seealso downloadShinyMlr
+#' @import shiny
+#' @import checkmate
 #' @export
 runShinyMlr = function(...) {
   assertList(extra.args, names = "named")
