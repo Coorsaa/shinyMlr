@@ -24,7 +24,8 @@ Suggests:
   testthat,
   RSelenium,
   roxygen2,
-  knitr
+  knitr,
+  R.utils
 LazyData: true
 Version: 1.0
 VignetteBuilder: knitr
