@@ -9,9 +9,8 @@
 #' }
 #' @seealso downloadShinyMlr
 #' @import shiny
-#' @import checkmate
+#' @import shinythemes
 #' @export
 runShinyMlr = function(...) {
-  assertList(extra.args, names = "named")
   runApp(appDir = system.file("application", package = "shinyMlr"), ...)
 }

@@ -17,8 +17,8 @@ Roxygen: list(wrap = FALSE)
 Depends:
   R (>= 3.3.2)
 Imports:
-  checkmate,
-  shiny
+  shiny,
+  shinythemes
 Suggests:
   mlr,
   testthat,
