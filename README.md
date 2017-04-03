@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/mlr-org/shinyMlr.svg?branch=master)](https://travis-ci.org/mlr-org/shinyMlr) 
 
-With help of this package **mlr** can be accessed via a shiny interface. 
+With help of this package [**mlr**](https://github.com/mlr-org/mlr#-machine-learning-in-r) can be accessed via a shiny interface. 
 
 This project has started last year and contains now **mlr**'s major functionalities:
 
