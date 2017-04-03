@@ -7,7 +7,6 @@
 #' \dontrun{
 #'   runShinyMlr()
 #' }
-#' @seealso downloadShinyMlr
 #' @import shiny
 #' @import shinythemes
 #' @export

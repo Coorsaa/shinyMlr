@@ -19,6 +19,3 @@ Run a local instance of shinyMlr
   runShinyMlr()
 }
 }
-\seealso{
-downloadShinyMlr
-}
