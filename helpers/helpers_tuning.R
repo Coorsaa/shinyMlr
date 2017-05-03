@@ -44,11 +44,11 @@ makeTuningParameterUI = function(par.set, param.ids, param.types) {
       discrete.box = checkboxGroupInput(inputId = paste0("tune.par.checkbox", param),
         label = "Values", choices = param.vals, selected = param.vals, inline = TRUE)
 
-      par.info.ui = makeLearnerParamInfoUI(par)
-      pars2 = box(width = 12, height = 120, title = param, solidHeader = TRUE, status = "primary",
+      par.info.ui = makeLearnerParamInfoUI(par, inline = FALSE)
+      pars2 = box(width = 12, height = 120, title = param, solidHeader = TRUE, status = "warning",
         fluidRow(width = 12,
           column(7, align = "center", div(height = "130px"), discrete.box),
-          column(5, align = "center", div(height = "130px"), par.info.ui)
+          column(5, div(height = "130px"), par.info.ui)
         )
       )
 
