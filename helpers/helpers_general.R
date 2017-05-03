@@ -215,3 +215,14 @@ makeRecodeLevelUI = function(levs) {
     # )
   })
 }
+
+
+
+
+helpBox = function(content) {
+  div(class = "helptext",
+    box(width = 12, status = "warning", collapsible = TRUE,
+      span(icon("info-circle")), span(content)
+    )
+  )
+}

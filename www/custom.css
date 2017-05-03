@@ -48,7 +48,7 @@
   min-height: 100%;
   width: 80%;
   margin-left: -10px;
-  padding-left: 5px;
+  padding-left: 0px;
   padding-right: 5px;
   background-color: #686F76;
 }
@@ -81,6 +81,7 @@
   font-size: 13px;
   color: #fff;
   font-weight: 400;
+  padding-left: 5px;
 }
 
 .sidebar-menu .shiny-input-container label{
@@ -117,6 +118,9 @@
   top: 0;
 }
 
+.navbar-brand {
+  padding-bottom: 10%;
+}
 
 /*.main-header {
   height: 0px;
@@ -137,14 +141,6 @@ body {
   border: solid;
 }*/
 
-#show_help {
-  background: #e7552c;
-  border-width: 0px;
-  width: 50px;
-  height: 50px;
-  margin: 0 0;
-  padding: 0, 0;
-}
 /*
 .container-fluid {
   margin: 0px 0px;
@@ -395,4 +391,78 @@ background-color: #cccccc !important;
 
 .alert-info, .bg-aqua, .callout.callout-info, .label-info, .modal-info .modal-body {
   background-color: #d28001!important;
+}
+
+footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  height: 40px;
+  line-height: 40px;
+  margin-bottom: 0;
+  padding-bottom: 0;
+  color: white;
+  padding-right: 0;
+  background-color: #e7552c;
+  z-index: 1000;
+  vertical-align: middle;
+}
+
+.footer p {
+  margin: 0 0 0 0;
+}
+
+#copyright a{
+  color: #fff;
+}
+
+#copyright a:hover, a:focus{
+  text-decoration: underline;
+}
+
+#copyright {
+  float: left;
+}
+#help_toggler {
+  float: right;
+}
+
+#show_help {
+  color: #fff;
+  background: #e7552c;
+  border-width: 0px;
+/*  height: 100%;
+  width: 150px;
+  margin: 0 0;
+  padding: 0, 0;*/
+}
+
+.helptext {
+  display: none;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.helptext span{
+  color: #000;
+  display: inline-block;
+  /*margin-right: 2px;*/
+}
+
+
+
+#copyright-container {
+  font-weight: 300;
+  vertical-align: middle;
+  margin: 0 0;
+}
+
+#copyright {
+  height: 100%;
+  vertical-align: middle;
+  margin: 0 0;
+}
+
+button.btn > i {
+padding-right: 5px;
 }
