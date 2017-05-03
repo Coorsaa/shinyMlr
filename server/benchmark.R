@@ -83,6 +83,7 @@ measures.bmr = reactive({
 })
 
 bmr = eventReactive(input$benchmark.run, {
+  show("loading-benchmark")
   ms = measures.bmr()
   lrns = bmr.learners()
   rd = rdesc()
@@ -110,6 +111,7 @@ bmr = eventReactive(input$benchmark.run, {
       }
     )
   }
+  hide("loading-benchmark", anim = TRUE, animType = "fade")
   bmr
 })
 
