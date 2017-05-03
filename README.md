@@ -22,3 +22,9 @@ This project has started last year and contains now **mlr**'s major functionalit
 ```r
 devtools::install_github("mlr-org/shinyMlr/package")
 ```
+
+## Starting ShinyMlr
+
+```r
+runShinyMlr()
+```
