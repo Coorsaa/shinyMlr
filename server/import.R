@@ -20,7 +20,7 @@ observe({
   } else if (import.type == "mlr") {
     data$data = getTaskData(get(input$import.mlr))
   } else if (import.type == "OpenML") {
-    show("loading.message")
+    show("loading-openml")
     imp.status = need(!is.null(input$import.OpenML), "")
     if (is.null(imp.status)) {
       data.id = as.integer(input$import.OpenML)
@@ -28,7 +28,7 @@ observe({
       data.id = 61L
     }
     t = getOMLDataSet(data.id = data.id)
-    hide("loading.message")
+    hide("loading-openml", anim = TRUE, animType = "fade")
     data$data = t$data
   } else if (import.type == "CSV") {
     f = input$import.csv$datapath
@@ -81,9 +81,9 @@ output$import.preview = DT::renderDataTable({
   caption = "You imported the following data set")
 
 output$import.browse.openml = DT::renderDataTable({
-  show("loading.message2")
+  # show("loading.message2")
   df = isolate(OMLData())[,c(1:5,10:12)]
-  hide("loading.message2")
+  # hide("loading.message2")
   df
 }, options = list(scrollX = TRUE),
   caption = "Click on OpenML Dataset you want to select.", selection = "single")

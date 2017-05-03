@@ -21,9 +21,11 @@ train.learner = reactive({
 })
 
 model = eventReactive(input$train.run, {
+  show("loading-training")
   lrn = train.learner()
   tsk = isolate({task()})
   mod = tryCatch(train(lrn, tsk), error = errAsString)
+  hide("loading-training", anim = TRUE, animType = "fade")
   mod
 })
 
@@ -112,6 +114,7 @@ output$import.pred.preview = renderDataTable({
 ##### predict on new data #####
 
 pred = eventReactive(input$predict.run, {
+  show("loading-predict")
     validateTask(input$create.task, task.data(), data$data,
     task.weights = input$task.weights, req = TRUE)
   model = model()
@@ -123,6 +126,7 @@ pred = eventReactive(input$predict.run, {
     sprintf("Column names %s must be present in data",
       paste(feat.names, collapse = " "))))
   preds = tryCatch(predict(model, newdata = newdata), error = errAsString)
+  hide("loading-predict", anim = TRUE, animType = "fade")
   preds
 })
 

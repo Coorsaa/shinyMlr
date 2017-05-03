@@ -101,6 +101,7 @@ output$tuning.learner.params = renderUI({
 
 
 tuning = eventReactive(input$tune.run, {
+  show("loading-tuning")
   reqAndAssign(isolate(learners()), "lrns")
   reqAndAssign(tuning.par.set(), "par.set")
   reqAndAssign(tuning.learner(), "lrn")
@@ -205,6 +206,8 @@ tuning = eventReactive(input$tune.run, {
     lrns[[lrn$id]] = tuned.lrn
     learner$tuned.learner = lrns
   }
+  
+  hide("loading-tuning", anim = TRUE, animType = "fade")
   return(res)
 })
 

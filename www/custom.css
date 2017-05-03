@@ -44,6 +44,20 @@
   margin-left: 20px;
 }*/
 
+.loading {
+  display: flex;
+  position: absolute;
+  background: #000000;
+  opacity: 0.9;
+  z-index: 100;
+  left: 0;
+  right: 0;
+  height: 100%;
+  color: #FFFFFF;
+  align-items: center;
+  justify-content: center;
+}
+
 .well{
   min-height: 100%;
   width: 80%;

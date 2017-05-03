@@ -119,14 +119,17 @@ learners.pred.types.ui = reactive({
   makeLearnerPredTypesUI(pred.types, threshs)
 })
 
-output$learners.ui = renderUI({ 
+output$learners.ui = renderUI({
+  show("loading-learners")
   validateData(data$data)
   lrns.sel = input$learners.sel
   par.sets = isolate(learners.par.sets())
   params = learners.params.ui()
   pred.types = learners.pred.types.ui()
   lrns.tab.box.sel = isolate(input$learners.tabBox)
-  makeLearnerConstructionUI(lrns.sel, par.sets, params, pred.types, lrns.tab.box.sel)
+  ui = makeLearnerConstructionUI(lrns.sel, par.sets, params, pred.types, lrns.tab.box.sel)
+  hide("loading-learners", anim = TRUE, animType = "fade")
+  ui
 })
 
 
