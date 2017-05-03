@@ -312,58 +312,61 @@ output$report.text = renderUI({
 # observe({
 # })
 
-
-observeEvent(input$show_help, {
-  toggle(selector = "div.helptext")
-  if (input$show_help) {
-    label = "hide help"
-  } else {
-    label = "show help"
-  }
-  updateButton(session, "show_help", label = label)
-})
+# show.help = reactive({input$show_help})
+# 
+# observeEvent(input$show_help, {
+#   toggle(selector = "div.helptext")
+#   if (input$show_help) {
+#     label = "hide help"
+#   } else {
+#     label = "show help"
+#   }
+#   updateButton(session, "show_help", label = label)
+# })
 
 # ################################################################################
 # ################################################################################
 
 # #### Show/Hide Help ####
 
-# observeEvent(input$show.help, {
-#   help = input$show.help
-#   texts = list(
-#     "import.text",
-#     "summary.text",
-#     "preproc.text",
-#     "impute.text",
-#     "createdummy.text",
-#     "dropfeature.text",
-#     "remconst.text",
-#     "normfeat.text",
-#     "caplarge.text",
-#     "convar.text",
-#     "subset.text",
-#     "feature.sel.text",
-#     "merge.factors.text",
-#     "task.text",
-#     "learners.text",
-#     "tuning.explanation.text",
-#     "tuning.settings.text",
-#     "train.text",
-#     "prediction.text",
-#     "performance.text",
-#     "visualisation.text",
-#     "prediction.plot.text",
-#     "residual.plot.text",
-#     "partial.dep.plot.text",
-#     "roc.plot.text",
-#     "confusion.matrix.text",
-#     "benchmark.explanatory.text",
-#     "benchmark.plots.text",
-#     "report.text"
-#   )
-#   if (help) {
-#     lapply(texts, shinyjs::show)
-#   } else {
-#     lapply(texts, shinyjs::hide)
-#   }
-# })
+observeEvent(input$show_help, {
+  help = input$show_help
+  texts = list(
+    "import.text",
+    "summary.text",
+    "preproc.text",
+    "impute.text",
+    "createdummy.text",
+    "dropfeature.text",
+    "remconst.text",
+    "normfeat.text",
+    "caplarge.text",
+    "convar.text",
+    "subset.text",
+    "feature.sel.text",
+    "merge.factors.text",
+    "task.text",
+    "learners.text",
+    "tuning.explanation.text",
+    "tuning.settings.text",
+    "train.text",
+    "prediction.text",
+    "performance.text",
+    "visualisation.text",
+    "prediction.plot.text",
+    "residual.plot.text",
+    "partial.dep.plot.text",
+    "roc.plot.text",
+    "confusion.matrix.text",
+    "benchmark.explanatory.text",
+    "benchmark.plots.text",
+    "report.text"
+  )
+  if (help) {
+    lapply(texts, shinyjs::show)
+    updateButton(session, "show_help", label = "hide help")
+  } else {
+    lapply(texts, shinyjs::hide)
+    updateButton(session, "show_help", label = "show help")
+  }
+})
