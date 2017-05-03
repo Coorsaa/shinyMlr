@@ -222,7 +222,7 @@ output$predictionplot.settings = renderUI({
   lrn.sel = input$train.learner.sel
   lrn = isolate(learners())[[lrn.sel]]
   predict.type = lrn$predict.type
-  help.texts = input$show.help
+  help.texts = input$show_help
   makePredictionPlotSettingsUI(plot.type, fnames, feats, ms.def, ms, tsk.type, fm, predict.type, help.texts, tsk)
 })
 

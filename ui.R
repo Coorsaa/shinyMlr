@@ -50,9 +50,6 @@ shinyUI(
       tabPanel(title = "", icon = icon("github", "fa-lg"),
       value = "https://github.com/mlr-org/mlr"),
 
-
-
-      # tabPanel(title = "", icon = icon("question-circle", "fa-lg"), value = "javascript:$('.helptext').slideToggle(); $('.fa-question-circle').parent().parent().toggleClass('active');"),
       footer = tagList(
         includeScript("scripts/top-nav-links.js"),
         includeScript("scripts/app.js"),
@@ -81,7 +78,7 @@ shinyUI(
               type = "toggle", icon = icon("question-circle"))
           )
         )
-      ), windowTitle = "shiny-mlr"
+      ), windowTitle = "shinyMlr"
     )
   )
 )
