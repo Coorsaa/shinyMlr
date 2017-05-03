@@ -1,6 +1,8 @@
 # shinyMlr: Integration of the mlr package into shiny
 
-With help of this package **mlr** can be accessed via a shiny interface. 
+[![Build Status](https://travis-ci.org/mlr-org/shinyMlr.svg?branch=master)](https://travis-ci.org/mlr-org/shinyMlr) 
+
+With help of this package [**mlr**](https://github.com/mlr-org/mlr#-machine-learning-in-r) can be accessed via a shiny interface. 
 
 This project has started last year and contains now **mlr**'s major functionalities:
 
@@ -12,3 +14,9 @@ This project has started last year and contains now **mlr**'s major functionalit
 - Training and predicting a model
 - Benchmark experiments with different learners and measures
 - Many visualisations
+
+## Installation
+
+```r
+devtools::install_github("mlr-org/shinyMlr/package")
+```
