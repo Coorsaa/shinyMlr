@@ -309,10 +309,6 @@ output$report.text = renderUI({
 #     icon = icon("question-circle"))
 # })
 
-# observe({
-# })
-
-# show.help = reactive({input$show_help})
 # 
 # observeEvent(input$show_help, {
 #   toggle(selector = "div.helptext")
