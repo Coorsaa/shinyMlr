@@ -107,9 +107,9 @@ summary.vis.out = reactive({
       summary.plot = addPlotTheme(summary.plot)
       summary.plot
     } else {
-      feature = d[,feature]
-      summary.plot = ggplot(data = d, aes(x = feature)) + 
-        geom_bar(aes(fill = feature), stat = "count") + xlab(feature) +
+      class = d[,feature]
+      summary.plot = ggplot(data = d, aes(x = class)) + 
+        geom_bar(aes(fill = class), stat = "count") + xlab(feature) +
         guides(fill = FALSE)
       summary.plot = addPlotTheme(summary.plot)
       summary.plot
