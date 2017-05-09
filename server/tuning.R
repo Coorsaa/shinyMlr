@@ -22,6 +22,10 @@ output$tuning.sel = renderUI({
   )
 })
 
+observeEvent(input$tuning.learner.sel, {
+  updateTabItems(session, "tuning.tab", selected = 1L)
+})
+
 output$tuning.validation = renderUI({
   validateData(data$data)
   validateTask(input$create.task, task.data(), data$data,

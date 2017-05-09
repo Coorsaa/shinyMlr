@@ -5,6 +5,7 @@ tabpanel.task = fluidPage(
           uiOutput("task.id"),
           uiOutput("task.target"),
           uiOutput("task.weights"),
+          br(),
           tags$hr(),
           bsButton("create.task", "create task",
               icon = icon("flag")),

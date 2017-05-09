@@ -14,6 +14,7 @@ tabpanel.preprocessing = fluidPage(theme = shinytheme("united"),
           "Create dummy features", "Impute"), "On task" = c("Feature selection",
           "Merge small factor levels")), selected = "Drop variable(s)")
     ),
+    br(),
     tags$hr(),
     br(),
     uiOutput("preproc.go"),

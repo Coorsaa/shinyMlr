@@ -28,8 +28,8 @@ tabpanel.benchmark = fluidPage(theme = shinytheme("united"),
           htmlOutput("benchmark.explanatory.text"),
           # fluidRow(
            #  div(align = "center",
-              verbatimTextOutput("benchmark.text"),
-              br(),
+              # verbatimTextOutput("benchmark.text"),
+              # br(),
               dataTableOutput("benchmark.overview")
             # )
           # )
