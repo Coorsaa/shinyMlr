@@ -5,7 +5,7 @@ tabpanel.tuning = fluidPage(
       uiOutput("tuning.sel")
     ),
     mainPanel(width = 9,
-      tabBox(width = 12,
+      tabBox(id = "tuning.tab", width = 12,
         tabPanel(title = "Tuning selection",
           htmlOutput("tuning.explanation.text"),
           fluidRow(
@@ -35,8 +35,8 @@ tabpanel.tuning = fluidPage(
           fluidRow(
             column(12, align = "center",
               hidden(infoBoxOutput("transfer.info.box", width = 12)),
-              verbatimTextOutput("print.tuning.ps"),
-              verbatimTextOutput("tuning.text")
+              verbatimTextOutput("print.tuning.ps")#,
+              # verbatimTextOutput("tuning.text")
             )
           )
         )
