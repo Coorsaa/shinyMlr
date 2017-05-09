@@ -40,13 +40,13 @@ makeImportPredSideBar = function(newdata.type, type) {
     imptype.pred.sel.input = sidebarMenu(
       menuItem("Type"),
       selectInput("import.pred.type", "", selected = type,
-        choices = c("mlr", "OpenML", "CSV", "ARFF"))
+        choices = c("examples", "OpenML", "CSV", "ARFF"))
     )
     switch(type,
-      mlr = list(
+      examples = list(
       imptype.pred.sel.input,
       sidebarMenu(
-        menuItem("Choose mlr task"),
+        menuItem("Choose example data"),
         selectInput("import.pred.mlr", "", choices = c("iris.task", "bh.task", "sonar.task"))
       )
       ),

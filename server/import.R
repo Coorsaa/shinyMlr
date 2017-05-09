@@ -6,7 +6,7 @@
 output$import.ui = renderUI({
   type = input$import.type;
   if (is.null(type))
-    type = "mlr"
+    type = "examples"
   makeImportSideBar(type)
 })
 
@@ -17,7 +17,7 @@ observe({
   reqAndAssign(input$import.type, "import.type")
   if (is.null(import.type)) {
     data$data = NULL
-  } else if (import.type == "mlr") {
+  } else if (import.type == "examples") {
     data$data = getTaskData(get(input$import.mlr))
   } else if (import.type == "OpenML") {
     show("loading-openml")
@@ -52,7 +52,7 @@ observe({
 
 data.name = reactive({
   type = input$import.type
-  if (type == "mlr") {
+  if (type == "examples") {
     return(getTaskId(get(input$import.mlr)))
   } else {
     if (type == "OpenML") {

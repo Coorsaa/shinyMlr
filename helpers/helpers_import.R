@@ -2,13 +2,13 @@ makeImportSideBar = function(type) {
   imptype.sel.input = sidebarMenu(
     menuItem("Type"),
     selectInput("import.type", "", selected = type,
-      choices = c("mlr", "OpenML", "CSV", "ARFF"))
+      choices = c("examples", "OpenML", "CSV", "ARFF"))
   )
   switch(type,
-    mlr = list(
+    examples = list(
       imptype.sel.input,
       sidebarMenu(
-        menuItem("Choose mlr task"),
+        menuItem("Choose example data"),
         selectInput("import.mlr", "", choices = c("iris.task", "bh.task", "sonar.task"))
       )
     ),

@@ -68,10 +68,10 @@ observe({
   reqAndAssign(input$newdatatype, "newdata.type")
   import.pred.type = input$import.pred.type
   if (is.null(import.pred.type))
-    import.pred.type = "mlr"
+    import.pred.type = "examples"
   if (newdata.type == "task") {
     df.test = task.data()
-  } else if (import.pred.type == "mlr") {
+  } else if (import.pred.type == "examples") {
     mlr.imp = input$import.mlr
     df.test = getTaskData(get(mlr.imp))
   } else if (import.pred.type == "CSV") {
