@@ -1,14 +1,13 @@
 # FIXME: Should be done with validate/need
-checkPlotLearnerPrediction = function(tsk.type, fnames, feats) {
+validatePlotLearnerPrediction = function(tsk.type, fnames, feats) {
   res = NULL
   validateNumFeatures(fnames)
   nfeats = length(feats)
   if (tsk.type == "regr") {
-    if (nfeats %nin% 1:2)
-      res = "You must choose one or two features to plot learner predictions."
+    validate(need(nfeats %in% 1:2,
+      "You must choose one or two features to plot learner predictions."))
   } else if (tsk.type == "classif") {
-    if (nfeats != 2L)
-      res = "You must choose exactly two features to plot learner predictions."
+    validate(need(nfeats == 2L, "You must choose exactly two features to plot learner predictions."))
   }
   return(res)
 }

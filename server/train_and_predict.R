@@ -135,7 +135,7 @@ observeEvent(input$predict.run, {
 })
 
 output$predoverview = renderDataTable({
-    validateTask(input$create.task, task.data(), data$data,
+  validateTask(input$create.task, task.data(), data$data,
     task.weights = input$task.weights, req = TRUE)
   validateLearnerModel(model(), input$train.learner.sel)
   p = pred()
@@ -249,8 +249,8 @@ measures.plot = reactive({
 prediction.plot.out = reactive({
   lrn.sel = input$train.learner.sel
   validateLearnerModel(model(), lrn.sel)
-  validateTask(input$create.task, task.data(), data$data,
-    task.weights = input$task.weights)
+  # validateTask(input$create.task, task.data(), data$data,
+  #   task.weights = input$task.weights)
   reqAndAssign(isolate(task()), "tsk")
   tsk.type = tsk$type
   reqAndAssign(isolate(model()), "mod")

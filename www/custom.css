@@ -484,7 +484,6 @@ padding-right: 5px;
 
 
 .shiny-output-error-validation {
-  display: inline-block;
   position: relative;
   text-align: center;
   color: #C90000;
@@ -497,7 +496,15 @@ padding-right: 5px;
   padding: 10px 20px;
   background-color: #fc9595;
   min-height: 50px;
-  max-height: 120px;
+  max-height: 90px;
+  width: 100%;
+  height: auto;
+}
+
+.shiny-output-error-validation.htmlwidgets-error {
+  position: relative;
+  min-height: 50px;
+  max-height: 90px;
 }
 
 div.nav-tabs-custom {
