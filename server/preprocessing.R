@@ -165,7 +165,7 @@ preproc_remconst = reactive({
     sliderInput("remconst_perc", "Choose % of feat. values different from mode",
       value = 0L, min = 0L, max = 1L, step = 0.01),
     radioButtons("remconst_na", "Ignore NAs in %-calculation?",
-      choices = c("yes", "no"), selected = "FALSE", inline = TRUE)
+      choices = c("Yes" = TRUE, "No" = FALSE), selected = "No", inline = TRUE)
 
   )
 })
@@ -175,7 +175,7 @@ observeEvent(input$preproc_go, {
   req(input$preproc_method == "Remove constant variables")
   d = isolate(preproc.data$data)
   if (!is.null(input$remconst_na)) {
-    na.ign = (input$remconst_na == "yes")
+    na.ign = (input$remconst_na == TRUE)
   } else {
     na.ign = FALSE
   }
@@ -271,7 +271,7 @@ preproc_caplarge = reactive({
       numericInput("caplarge_threshold", "Choose threshold", value = imp),
       numericInput("caplarge_impute", "Choose impute value (optional)", value = tr),
       selectInput("caplarge_what", "What kind of entries are affected?",
-        selected = what, choices = c("abs", "pos", "neg"))
+        selected = what, choices = c("Absolute" = "abs", "Positive" = "pos", "Negative" = "neg"))
     )
   )
 })
@@ -379,7 +379,8 @@ preproc_recodelevels = reactive({
     selectInput("recodelevels_col", "Choose factor to modify",
       choices =  c("-",fnames), selected = col),
     selectInput("recodelevels_method", "Choose method",
-      choices =  c("drop", "recode", "findNA")),
+      choices =  c("Drop empty factor levels" = "drop", "Rename factor levels" = "recode",
+        "Define factor level as NA" = "findNA")),
     conditionalPanel("input.recodelevels_method == 'recode'",
       if (!is.null(col)) {
         if (col != "-")

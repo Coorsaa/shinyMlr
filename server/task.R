@@ -37,6 +37,7 @@ output$task.weights = renderUI({
 task.object = reactiveValues(task = NULL)
 
 observeEvent(input$create.task, {
+  show("loading-task")
   req(data$data)
   d = isolate(data$data)
   colnames(d) = make.names(colnames(d))
@@ -54,6 +55,7 @@ observeEvent(input$create.task, {
   } else {
     data$data = getTaskData(task)
   }
+  hide("loading-task", anim = TRUE, animType = "fade")
 })
 
 task = reactive({

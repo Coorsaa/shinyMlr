@@ -48,15 +48,22 @@ summary.vis.var = reactive({
 
 output$summary.vis.hist = renderUI({
   list(
+    column(3,
+      radioButtons("summary.vis.dens", "Plot type", choices = c("Histogram", "Density"),
+        selected = "Histogram", inline = TRUE)
+    ),
     column(9,
       sliderInput("summary.vis.hist.nbins", "Number of bins", min = 1L, max = 100L,
         value = 30L, step = 1L, width = "95%")
-    ),
-    column(3,
-      radioButtons("summary.vis.dens", "Show density?", choices = c("Yes", "No"),
-        selected = "Yes", inline = TRUE)
     )
   )
+})
+
+observeEvent(input$summary.vis.dens, {
+  if (input$summary.vis.dens == "Density")
+    shinyjs::hide("summary.vis.hist.nbins", animType = "fade")
+  else
+    shinyjs::show("summary.vis.hist.nbins", animType = "fade")
 })
 
 observeEvent(summary.vis.var(), {
@@ -78,26 +85,31 @@ observeEvent(summary.vis.var(), {
 
 summary.vis.out = reactive({
   reqAndAssign(summary.vis.var(), "feature")
-  reqAndAssign(input$summary.vis.dens, "density")
   d = na.omit(data$data)
   reqNFeat(feature, d)
   barfill = "#3c8dbc"
   barlines = "#1d5a92"
   if (length(feature) == 1L) {
     if (feature %in% numericFeatures()) {
-      summary.plot = ggplot(data = d, aes(x = as.numeric(d[,feature]))) + 
-        geom_histogram(aes(y = ..density..), colour = barlines, fill = barfill, stat = "bin", bins = input$summary.vis.hist.nbins) + xlab(feature) +
-        geom_vline(aes(xintercept = quantile(as.numeric(d[,feature]), 0.05)), color = "blue", size = 0.5, linetype = "dashed") +
-        geom_vline(aes(xintercept = quantile(as.numeric(d[,feature]), 0.95)), color = "blue", size = 0.5, linetype = "dashed") +
-        geom_vline(aes(xintercept = quantile(as.numeric(d[,feature]), 0.5)), color = "blue", size = 1, linetype = "dashed")
+      reqAndAssign(input$summary.vis.dens, "density")
+      x = as.numeric(d[,feature])
+      summary.plot = ggplot(data = d, aes(x = x))
+      
+      if (density == "Density")
+        summary.plot = summary.plot + geom_density(fill = "blue", alpha = 0.1)
+      else
+        summary.plot = summary.plot + geom_histogram(colour = barlines, fill = barfill, stat = "bin", bins = input$summary.vis.hist.nbins)
+      
+      summary.plot = summary.plot + xlab(feature) +
+        geom_vline(aes(xintercept = quantile(x, 0.05)), color = "blue", size = 0.5, linetype = "dashed") +
+        geom_vline(aes(xintercept = quantile(x, 0.95)), color = "blue", size = 0.5, linetype = "dashed") +
+        geom_vline(aes(xintercept = quantile(x, 0.5)), color = "blue", size = 1, linetype = "dashed")
       summary.plot = addPlotTheme(summary.plot)
       summary.plot
-      if (density == "Yes")
-        summary.plot = summary.plot + geom_density(fill = "blue", alpha = 0.1)
-      summary.plot
     } else {
-      summary.plot = ggplot(data = d, aes(x = d[,feature])) + 
-        geom_bar(aes(fill = d[,feature]), stat = "count") + xlab(feature) +
+      class = d[,feature]
+      summary.plot = ggplot(data = d, aes(x = class)) + 
+        geom_bar(aes(fill = class), stat = "count") + xlab(feature) +
         guides(fill = FALSE)
       summary.plot = addPlotTheme(summary.plot)
       summary.plot
