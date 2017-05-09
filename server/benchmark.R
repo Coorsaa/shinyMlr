@@ -1,7 +1,8 @@
 output$benchmark.learners.sel = renderUI({
   lrn.ids = input$learners.sel
-    validateTask(input$create.task, task.data(), data$data,
-    task.weights = input$task.weights, req = TRUE)
+    # validateTask(input$create.task, task.data(), data$data,
+    # task.weights = input$task.weights,
+    # req = TRUE, val.create = FALSE)
   # lrn.ids = names(lrns)
   selectInput("benchmark.learners.sel", "", choices = lrn.ids,
     multiple = TRUE, selected = lrn.ids)

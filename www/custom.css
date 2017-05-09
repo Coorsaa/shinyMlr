@@ -496,4 +496,10 @@ padding-right: 5px;
   border-radius: 5px;
   padding: 10px 20px;
   background-color: #fc9595;
+  min-height: 50px;
+  max-height: 120px;
+}
+
+div.nav-tabs-custom {
+  min-height: 200px;
 }
