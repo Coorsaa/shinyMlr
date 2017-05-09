@@ -1,2 +1,6 @@
 xgboost.model
 .Rproj.user
+shinyMlr.Rproj
+.Rhistory
+.Rbuildignore
+.RData
