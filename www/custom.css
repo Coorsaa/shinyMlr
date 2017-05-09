@@ -443,7 +443,7 @@ footer {
   font-weight: 400;
 }
 
-.helptext span{
+.helptext span {
   color: #000;
   display: inline-block;
   /*margin-right: 2px;*/
@@ -465,4 +465,21 @@ footer {
 
 button.btn > i {
 padding-right: 5px;
+}
+
+
+
+.shiny-output-error-validation {
+  display: inline-block;
+  position: relative;
+  text-align: center;
+  color: #C90000;
+  font-size: 16px;
+  font-weight: 500;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #C90000;
+  border-radius: 5px;
+  padding: 10px 20px;
+  background-color: #fc9595;
 }
