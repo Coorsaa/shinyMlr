@@ -44,10 +44,10 @@ tabpanel.predict = fluidPage(theme = shinytheme("united"),
 )
 
 tabpanel.performance = fluidPage(theme = shinytheme("united"),
-  fluidRow(htmlOutput("performance.text")),
   tabBox(id = "performance.tab", selected = "Performance", width = 12,
     tabPanel("Performance",
       fluidRow(
+        htmlOutput("performance.text"),
         column(width = 12, align = "center",
           uiOutput("perf.measures.sel"),
           actionButton("performance.run", label = "Measure Performance"),
