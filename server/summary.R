@@ -14,9 +14,26 @@ factorFeatures = reactive({
   return(colnames(Filter(is.factor, d)))
 })
 
+output$data.summary.box = renderUI({
+  if (input$preproc_df == "training set")
+    title = "Data Summary of Training Set"
+  else
+    title = "Data Summary of Test Set"
+  ui = box(width = 12, title = title,
+    htmlOutput("summary.text"),
+    br(),
+    htmlOutput("data.summary.caption"),
+    DT::dataTableOutput("summary.datatable")
+  )
+  ui
+})
+
 data.summary = reactive({
-  validateData(data$data)
-  d = data$data
+  if (input$preproc_df == "training set")
+    d = data$data
+  else
+    d = data$data.test
+  validateData(d)
   colnames(d) = make.names(colnames(d))
   pos.x = colnames(Filter(function(x) "POSIXt" %in% class(x) , d))
   d = dropNamed(d, drop = pos.x)    
@@ -31,7 +48,6 @@ output$data.summary.caption = renderUI({
 output$summary.datatable = DT::renderDataTable({
   data.summary()
 }, options = list(scrollX = TRUE))# , caption = capt)
-
 
 # used in preproc 
 output$summary.datatable2 = DT::renderDataTable({

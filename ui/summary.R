@@ -1,11 +1,6 @@
 tabpanel.summary = bootstrapPage(theme = shinytheme("united"),
   # fluidPage(
-    box(width = 12, title = "Data Summary",
-      htmlOutput("summary.text"),
-      br(),
-      htmlOutput("data.summary.caption"),
-      DT::dataTableOutput("summary.datatable")
-    ),
+    uiOutput("data.summary.box"),
     box(width = 12, title = "Variable Visualization", id = "summary.vis.box",
       fluidRow(
         column(12,
