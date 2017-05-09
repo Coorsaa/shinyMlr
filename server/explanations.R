@@ -107,7 +107,7 @@ output$feature.sel.text = renderUI({
   helpBox(
     helpText("'Feature selection' allows you to investigate the variable importance of your task's features by several filter methods. Then you have the option to keep either an absolute or relative amount of the most important features depending on the preliminary chosen filter method.", br(),
       br(),
-      "Note: An overview of all supported filter method can be found in the ", a(href="https://mlr-org.github.io/mlr-tutorial/devel/html/filter_methods/index.html", target="_blank", "mlr tutorial"), ".")
+      "Note: An overview of all supported filter method can be found in the ", a(href = "https://mlr-org.github.io/mlr-tutorial/devel/html/filter_methods/index.html", target = "_blank", "mlr tutorial"), ".")
   )
 })
 
@@ -135,7 +135,7 @@ output$task.text = renderUI({
 
 output$learners.text = renderUI({
   helpBox(
-    helpText("After creating your task, you can choose your preferred learners here. Afterwards you have the option to change the learner parameters below. For a more detailed description of each learner and links to the depending R packages where you can find more information for each learner parameter, please check out the mlr ", a(href="https://mlr-org.github.io/mlr-tutorial/release/html/integrated_learners/index.html", target="_blank", "learner section"), ".")
+    helpText("After creating your task, you can choose your preferred learners here. Afterwards you have the option to change the learner parameters below. For a more detailed description of each learner and links to the depending R packages where you can find more information for each learner parameter, please check out the mlr ", a(href = "https://mlr-org.github.io/mlr-tutorial/release/html/integrated_learners/index.html", target = "_blank", "learner section"), ".")
   )
 })
 
@@ -162,7 +162,7 @@ output$tuning.explanation.text = renderUI({
       br(),
       "3. irace:", br(),
       "The last method is the so called iterated F-racing from the irace package (technical description ",
-      a(href="http://iridia.ulb.ac.be/IridiaTrSeries/link/IridiaTr2011-004.pdf", target="_blank", "here"),". ",
+      a(href = "http://iridia.ulb.ac.be/IridiaTrSeries/link/IridiaTr2011-004.pdf", target = "_blank", "here"),". ",
       "This not only works for arbitrary parameter types (numeric, integer, discrete, logical), but also for so-called dependent / hierarchical parameters.", br(),
       br(),
       br(),
@@ -297,28 +297,6 @@ output$report.text = renderUI({
     helpText("Finally you can draw a report of your analysis here. More infos to come!")
   )
 })
-
-# output$help_toggler = renderUI({
-#   label = "show help"
-#   if (!is.null(input$show_help)) {
-#     if (input$show_help) {
-#       label = "hide help"
-#     }
-#   }
-#   bsButton(inputId = "show_help", label = label, type = "toggle",
-#     icon = icon("question-circle"))
-# })
-
-# 
-# observeEvent(input$show_help, {
-#   toggle(selector = "div.helptext")
-#   if (input$show_help) {
-#     label = "hide help"
-#   } else {
-#     label = "show help"
-#   }
-#   updateButton(session, "show_help", label = label)
-# })
 
 # ################################################################################
 # ################################################################################

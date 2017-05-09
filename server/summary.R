@@ -15,12 +15,19 @@ factorFeatures = reactive({
 })
 
 output$data.summary.box = renderUI({
+  if (input$show_help)
+    text = htmlOutput("summary.text")
+  else
+    text = NULL
+  
   if (input$preproc_df == "training set")
     title = "Data Summary of Training Set"
   else
     title = "Data Summary of Test Set"
+  
+  
   ui = box(width = 12, title = title,
-    htmlOutput("summary.text"),
+    text,
     br(),
     htmlOutput("data.summary.caption"),
     DT::dataTableOutput("summary.datatable")
