@@ -23,7 +23,7 @@ output$tuning.sel = renderUI({
 })
 
 observeEvent(input$tuning.learner.sel, {
-  updateTabItems(session, "tuning.tab", selected = 1)
+  updateTabsetPanel(session, "tuning_tab", selected = "Tuning selection")
 })
 
 output$tuning.validation = renderUI({
