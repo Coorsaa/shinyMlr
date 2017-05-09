@@ -121,6 +121,7 @@ learners.pred.types.ui = reactive({
 
 output$learners.ui = renderUI({
   req(task())
+  req(identical(getTaskData(task()), data$data))
   show("loading-learners")
   validateData(data$data)
   lrns.sel = input$learners.sel
