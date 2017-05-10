@@ -182,7 +182,9 @@ tuning = eventReactive(input$tune.run, {
     max.exp = input$tuning.max.exp
     ctrl = makeTuneControlIrace(maxExperiments = max.exp)
   }
-
+  
+  configureMlr(on.learner.error = "quiet")
+  
   if (parallel == "No") {
     withCallingHandlers({
     res = tryCatch(tuneParams(lrn, task = tsk, resampling = rdesc, par.set = ps,
@@ -203,7 +205,7 @@ tuning = eventReactive(input$tune.run, {
     parallelStop()
   }
 
-  # configureMlr()
+  configureMlr()
 
   if (!is.character(res)) {
     tuned.lrn = setHyperPars(lrn, par.vals = res$x)
@@ -231,8 +233,11 @@ observe({
 })
 
 observeEvent(input$tune.set.hp, {
+  lrn = isolate(input$tuning.learner.sel)
   reqAndAssign(learner$tuned.learner, "lrns")
   learner$learner = lrns
+  updateSelectInput(session, "tuning.learner.sel", selected = lrn)
+  updateTabsetPanel(session, "tuning_tab", selected = "Tuning settings")
   return(lrns)
 })
 
