@@ -183,7 +183,7 @@ tuning = eventReactive(input$tune.run, {
     ctrl = makeTuneControlIrace(maxExperiments = max.exp)
   }
   
-  configureMlr(on.learner.error = "quiet")
+  configureMlr(on.learner.error = "quiet", on.learner.warning = "quiet")
   
   if (parallel == "No") {
     withCallingHandlers({
