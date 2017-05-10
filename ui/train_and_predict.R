@@ -25,7 +25,7 @@ tabpanel.predict = fluidPage(theme = shinytheme("united"),
         div(align = "center",
           actionButton("predict.run", label = "Predict"),
           br(),
-          br(),
+          hr(),
           downloadButton("predict.download", "download predictions")
         )
       )
