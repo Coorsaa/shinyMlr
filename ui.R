@@ -1,10 +1,10 @@
-library(shiny)
-library(shinydashboard)
-library(shinyjs)
-library(shinyBS)
-library(DT)
-library(plotly)
-library(shinythemes)
+require(shiny)
+require(shinydashboard)
+require(shinyjs)
+require(shinyBS)
+require(DT)
+require(plotly)
+require(shinythemes)
 
 source("./helpers/helpers_ui.R", local = TRUE)$value
 
