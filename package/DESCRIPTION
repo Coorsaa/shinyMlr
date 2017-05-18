@@ -23,9 +23,30 @@ Roxygen: list(wrap = FALSE)
 Depends:
   R (>= 3.3.2)
 Imports:
-  mlr,
   shiny,
-  shinythemes
+  shinydashboard,
+  shinyjs,
+  shinyBS,
+  shinythemes,
+  mlr,
+  DT,
+  plotly,
+  tools,
+  httr,
+  stringi,
+  readr,
+  RWeka,
+  BBmisc,
+  checkmate,
+  ParamHelpers,
+  farff,
+  OpenML,
+  ggplot2,
+  parallelMap,
+  rmarkdown,
+  xtable,
+  plyr,
+  GGally
 Suggests:
   testthat,
   roxygen2,
