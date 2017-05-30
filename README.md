@@ -20,7 +20,7 @@ This project has started last year and contains now **mlr**'s major functionalit
 ## Installation and starting shinyMlr
 
 ### Windows
-We unfortunately face a bug which throws an error when trying to install the package on windows machines.
+We're unfortunately facing a bug which throws an error when trying to install the package on windows machines.
 However, you can start shinyMlr directly via github:
 
 ```r
