@@ -29,10 +29,12 @@ shiny::runGitHub('mlr-org/shinyMlr', 'YourGithubAcountName')
 
 ### Mac and Linux
 
+You can simply install the package from github:
+
 ```r
 devtools::install_github("mlr-org/shinyMlr/package")
 ```
-#### Starting shinyMlr
+Starting shinyMlr:
 
 ```r
 runShinyMlr()
