@@ -145,19 +145,23 @@ makePerformanceUI = function(measures, performances) {
 makePredictionPlot = function(mod, tsk, tsk.type, plot.type, lrn, fnames, feats,
   preds, ms, resplot.type, ind) {
   if (plot.type == "prediction") {
-    validatePlotLearnerPrediction(tsk.type, fnames, feats)
+    validatePlotLearnerPredictionNoText(tsk.type, fnames, feats)
     req(lrn)
     q = plotLearnerPrediction(learner = lrn, features = feats, task = tsk, cv = 0)
     q = addPlotTheme(q)
   } else if (plot.type == "residuals") {
+    shinyjs::hide("prediction.plot")
     req(resplot.type)
+    shinyjs::show("prediction.plot")
     resplot.type = switch(resplot.type,
       scatterplot = "scatterplot",
       "histogram" = "hist")
     q = plotResiduals(preds, type = resplot.type)
     q = addPlotTheme(q)
   } else if (plot.type == "partial dependency") {
+    shinyjs::hide("prediction.plot")
     validate(checkPlotPartialDependency(tsk.type, lrn, fnames))
+    shinyjs::show("prediction.plot")
     req(length(ind) != 0L)
     req(length(feats) != 0L)
     if (tsk.type == "classif") {

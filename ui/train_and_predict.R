@@ -73,6 +73,9 @@ tabpanel.performance = fluidPage(theme = shinytheme("united"),
       fluidRow(
         column(width = 12,
           plotOutput("prediction.plot")
+        ),
+        column(width = 12,
+          plotOutput("prediction.plot.validation")
         )
       )
     )

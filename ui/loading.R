@@ -1,5 +1,5 @@
 loading.screens = list(
-  div(class = "loading", id = "loading-content", h1("Loading ShinyMlr...")),
+  div(class = "loading", id = "loading-content", h1("Loading shinyMlr...")),
   hidden(div(class = "loading", id = "loading-openml", h1("Loading OpenML Datasets..."))),
   hidden(div(class = "loading", id = "loading-task", h1("Creating Task..."))),
   hidden(div(class = "loading", id = "loading-learners", h1("Loading Learners..."))),

@@ -246,6 +246,18 @@ measures.plot = reactive({
   listMeasures(tsk, create = TRUE)[ms]
 })
 
+output$prediction.plot.validation = renderPlot({
+  reqAndAssign(isolate(task()), "tsk")
+  reqAndAssign(input$prediction.plot.sel, "plot.type")
+  tsk.type = tsk$type
+  fnames = task.numeric.feature.names()
+  feats = input$predictionplot.feat.sel
+  if (plot.type == "prediction")
+    validatePlotLearnerPrediction(tsk.type, fnames, feats)
+  shinyjs::show("prediction.plot", anim = TRUE)
+})
+
+  
 prediction.plot.out = reactive({
   lrn.sel = input$train.learner.sel
   validateLearnerModel(model(), lrn.sel)

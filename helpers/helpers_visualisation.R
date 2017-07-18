@@ -12,6 +12,20 @@ validatePlotLearnerPrediction = function(tsk.type, fnames, feats) {
   return(res)
 }
 
+validatePlotLearnerPredictionNoText = function(tsk.type, fnames, feats) {
+  res = NULL
+  validateNumFeatures(fnames)
+  nfeats = length(feats)
+  shinyjs::hide("prediction.plot")
+  if (tsk.type == "regr") {
+    validate(need(nfeats %in% 1:2, message = FALSE))
+  } else if (tsk.type == "classif") {
+    validate(need(nfeats == 2L, message = FALSE))
+  }
+  shinyjs::show("prediction.plot")
+  return(NULL)
+}
+
 checkPlotROCCurves = function(lrn) {
   validate(
     need(lrn$predict.type == "prob", "You must predict probabilities to plot ROC curves.")
