@@ -17,13 +17,24 @@ This project has started last year and contains now **mlr**'s major functionalit
 - Benchmark experiments with different learners and measures
 - Many visualisations
 
-## Installation
+## Installation and starting shinyMlr
+
+### Windows
+We're unfortunately facing a bug which throws an error when trying to install the package on windows machines.
+However, you can start shinyMlr directly via github:
+
+```r
+shiny::runGitHub('mlr-org/shinyMlr', 'YourGithubAcountName')
+```
+
+### Mac and Linux
+
+You can simply install the package from github:
 
 ```r
 devtools::install_github("mlr-org/shinyMlr/package")
 ```
-
-## Starting ShinyMlr
+Starting shinyMlr:
 
 ```r
 runShinyMlr()
