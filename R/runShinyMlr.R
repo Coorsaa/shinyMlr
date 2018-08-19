@@ -1,6 +1,6 @@
 #' @title Run shinyMlr
-#' 
-#' @description 
+#'
+#' @description
 #' Run a local instance of shinyMlr.
 #'
 #' @param ... [\code{any}]\cr
@@ -14,5 +14,10 @@
 #' @import shinythemes
 #' @export
 runShinyMlr = function(...) {
-  runApp(appDir = system.file("application", package = "shinyMlr"), ...)
+  appDir = system.file("shinyMlr", package = "shinyMlr")
+  if (appDir == "") {
+    stop("Could not find example directory. Try re-installing `shinyMlr`.", call. = FALSE)
+  }
+
+  shiny::runApp(appDir, display.mode = "normal")
 }

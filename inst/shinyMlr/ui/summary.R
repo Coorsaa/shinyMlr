@@ -6,7 +6,9 @@ tabpanel.summary = bootstrapPage(theme = shinytheme("united"),
         column(12,
           uiOutput("summary.vis.hist")),
         column(12,
-          plotlyOutput("summary.vis")
+          plotlyOutput("summary.vis"),
+          br(),
+          br()
         )
       )
     )

@@ -23,6 +23,7 @@ Roxygen: list(wrap = FALSE)
 Depends:
   R (>= 3.3.2),
   mlr,
+  rt,
   shiny,
   shinydashboard,
   shinyjs,
@@ -47,6 +48,7 @@ Depends:
   GGally
 Imports:
   mlr,
+  rt,
   shiny,
   shinydashboard,
   shinyjs,

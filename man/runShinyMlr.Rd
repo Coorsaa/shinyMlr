@@ -2,7 +2,7 @@
 % Please edit documentation in R/runShinyMlr.R
 \name{runShinyMlr}
 \alias{runShinyMlr}
-\title{Run a local instance of shinyMlr}
+\title{Run shinyMlr}
 \usage{
 runShinyMlr(...)
 }
@@ -12,7 +12,7 @@ Additional arguments passed to shiny's
 \code{runApp()} function.}
 }
 \description{
-Run a local instance of shinyMlr
+Run a local instance of shinyMlr.
 }
 \examples{
 \dontrun{
