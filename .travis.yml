@@ -5,7 +5,4 @@ cache: packages
 r:
   - release
 
-before_install:
-  - cd package
-
 warnings_are_errors: true

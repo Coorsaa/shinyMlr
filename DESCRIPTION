@@ -1,5 +1,5 @@
 Package: shinyMlr
-Title:  A graphical user interface for machine learning in R
+Title: A graphical user interface for machine learning in R
 Description:
   shinyMlr wraps the functionalities of the R-package mlr
   into a graphical user-interface built with shiny.
@@ -21,7 +21,7 @@ License: BSD_2_clause + file LICENSE
 Encoding: UTF-8
 Roxygen: list(wrap = FALSE)
 Depends:
-  R (>= 3.3.2)
+  R (>= 3.4)
 Imports:
   mlr,
   shiny,
@@ -54,4 +54,4 @@ Suggests:
 LazyData: true
 Version: 1.0
 VignetteBuilder: knitr
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.0
