@@ -29,3 +29,8 @@ Starting shinyMlr:
 ```r
 runShinyMlr()
 ```
+
+
+## Problems with rJava on OSX Yosemite
+
+If `rJava` fails to load, [**this link**](https://stackoverflow.com/questions/30738974/rjava-load-error-in-rstudio-r-after-upgrading-to-osx-yosemite) might be helpful!
